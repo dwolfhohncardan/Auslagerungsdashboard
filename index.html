@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Dashboard Sync</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #121212; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .card { 
+            background: #1e1e1e; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8); 
+            text-align: center; 
+            border: 1px solid #333; 
+        }
+        h2 { color: #a8c7fa; margin-bottom: 20px; }
+        textarea { 
+            width: 450px; 
+            height: 250px; 
+            background: #000; 
+            color: #00ff00; 
+            border: 1px solid #444; 
+            border-radius: 8px; 
+            padding: 15px; 
+            font-family: 'Courier New', monospace;
+            font-size: 16px; 
+            outline: none; 
+        }
+        textarea:focus { border-color: #a8c7fa; }
+        .status-bar { 
+            margin-top: 15px; 
+            font-size: 13px; 
+            color: #888; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .dot { 
+            width: 8px; 
+            height: 8px; 
+            background: #00ff00; 
+            border-radius: 50%; 
+            margin-right: 8px; 
+            box-shadow: 0 0 5px #00ff00;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Auslagerungs-Dashboard</h2>
+    <p>Inhalt wird live auf allen Desktops synchronisiert:</p>
+    <textarea id="syncBox" placeholder="Hier tippen..."></textarea>
+    <div class="status-bar">
+        <span class="dot"></span> System bereit & verbunden
+    </div>
+</div>
+
+<script type="module">
+  // Firebase Module laden
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  // Deine Konfiguration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB-BLAy2LEMup5DKSrlddb7waR2UXko8JA",
+    authDomain: "auslagerungsdashboard.firebaseapp.com",
+    databaseURL: "https://auslagerungsdashboard-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "auslagerungsdashboard",
+    storageBucket: "auslagerungsdashboard.firebasestorage.app",
+    messagingSenderId: "1025470327503",
+    appId: "1:1025470327503:web:9da16338668a2471a8a5ba"
+  };
+
+  // Firebase initialisieren
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const dataRef = ref(db, 'liveData/text');
+  const textArea = document.getElementById('syncBox');
+
+  // 1. SENDEN: Speichert den Text bei jeder Eingabe in die Cloud
+  textArea.addEventListener('input', () => {
+    set(dataRef, textArea.value);
+  });
+
+  // 2. EMPFANGEN: Aktualisiert den Text, wenn er sich in der Cloud ändert
+  onValue(dataRef, (snapshot) => {
+    const remoteText = snapshot.val();
+    if (remoteText !== null && remoteText !== textArea.value) {
+      textArea.value = remoteText;
+    }
+  });
+</script>
+
+</body>
+</html>
