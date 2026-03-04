@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auslagerungs-Dashboard</title>
+    <title>Auslagerungsaufträge</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
@@ -15,7 +15,7 @@
         .btn-icon { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-size: 14px; color: #4a5568; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .btn-icon:hover { background: #edf2f7; }
 
-        /* ── EINSTELLUNGS-PANEL (geteilt) ── */
+        /* EINSTELLUNGS-PANEL */
         .settings-panel { border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .settings-panel.tv-settings-panel { background: #fff; margin: 0 40px 20px; }
         .settings-panel.tablet-settings-panel { background: #fff; }
@@ -29,7 +29,7 @@
         .col-toggle { padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
         .col-toggle.on { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
 
-        /* ── TV ── */
+        /* TV */
         #view-tv { padding: 20px 40px 30px; }
         .tv-header { display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; }
         .tv-header h1 { font-size: 34px; color: #2b6cb0; }
@@ -51,13 +51,33 @@
         .tv-table tbody tr:nth-child(even) { background: #f7fafc; }
         .tv-table tbody tr.row-done    { background: #f0fff4 !important; }
         .tv-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
+
+        /* ÜBERZOGEN: leuchtende rote Umrandung */
+        .tv-table tbody tr.row-overdue {
+            background: #fff5f5 !important;
+            outline: 3px solid #e53e3e;
+            box-shadow: 0 0 0 3px #e53e3e, 0 0 16px 4px rgba(229,62,62,0.55), inset 0 0 8px rgba(229,62,62,0.15);
+            animation: glow-red 1.2s infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes glow-red {
+            from { box-shadow: 0 0 0 3px #e53e3e, 0 0 16px 4px rgba(229,62,62,0.55), inset 0 0 8px rgba(229,62,62,0.1); }
+            to   { box-shadow: 0 0 0 3px #fc8181, 0 0 28px 8px rgba(229,62,62,0.85), inset 0 0 14px rgba(229,62,62,0.25); }
+        }
+        .tab-table tbody tr.row-overdue {
+            background: #fff5f5 !important;
+            outline: 3px solid #e53e3e;
+            box-shadow: 0 0 0 3px #e53e3e, 0 0 14px 4px rgba(229,62,62,0.5), inset 0 0 8px rgba(229,62,62,0.12);
+            animation: glow-red 1.2s infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+
         @keyframes row-blink { from { background: #fff5f5; } to { background: #fed7d7; } }
         .td-time { color: #2b6cb0; font-weight: 700; }
-        .td-urgent { background: #c53030; color: #fff; font-weight: 800; border-radius: 8px; padding: 5px 12px; display: inline-block; animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { opacity: 1; } to { opacity: 0.7; } }
+        .td-urgent { color: #c53030; font-weight: 800; }
         .no-orders { text-align: center; color: #a0aec0; padding: 40px; }
-        .btn-delete-tv { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 6px; padding: 6px 14px; cursor: pointer; transition: all 0.2s; }
-        .btn-delete-tv:hover { border-color: #fc8181; color: #c53030; background: #fff5f5; }
         .tv-status-badge { display: inline-block; border-radius: 6px; padding: 4px 10px; font-weight: 700; }
         .tv-status-badge.open    { background: #edf2f7; color: #718096; }
         .tv-status-badge.done    { background: #c6f6d5; color: #276749; }
@@ -65,7 +85,7 @@
         .tv-status-bar { text-align: center; font-size: 14px; color: #a0aec0; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .live-dot { width: 8px; height: 8px; background: #48bb78; border-radius: 50%; box-shadow: 0 0 6px #48bb78; }
 
-        /* ── TABLET ── */
+        /* TABLET */
         #view-tablet { padding: 16px 20px 30px; }
         .tablet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .tablet-header h2 { font-size: 22px; color: #2b6cb0; font-weight: 800; }
@@ -84,7 +104,7 @@
         .tablet-table-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
         .tablet-table-title.am { color: #d97706; }
         .tablet-table-title.pm { color: #5a67d8; }
-        .tab-table { width: 100%; border-collapse: collapse; }
+        .tab-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
         .tab-table thead th { text-align: left; color: #718096; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
         .tab-table tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.15s; }
         .tab-table tbody tr:hover { background: #f7fafc; }
@@ -99,6 +119,20 @@
         .status-btn.open    { background: #edf2f7; color: #718096; }
         .status-btn.done    { background: #c6f6d5; color: #276749; }
         .status-btn.problem { background: #fed7d7; color: #c53030; }
+
+        /* PASSWORT MODAL */
+        .pw-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
+        .pw-overlay.open { display: flex; }
+        .pw-box { background: #fff; border-radius: 16px; padding: 32px; width: 320px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); text-align: center; }
+        .pw-box h3 { font-size: 16px; color: #2d3748; margin-bottom: 8px; }
+        .pw-box p  { font-size: 13px; color: #718096; margin-bottom: 18px; }
+        .pw-box input { width: 100%; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; font-size: 15px; outline: none; margin-bottom: 12px; text-align: center; letter-spacing: 2px; }
+        .pw-box input:focus { border-color: #4299e1; }
+        .pw-error { color: #c53030; font-size: 13px; margin-bottom: 8px; min-height: 18px; }
+        .pw-btns { display: flex; gap: 10px; }
+        .pw-btn-cancel { flex: 1; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px; font-size: 14px; cursor: pointer; }
+        .pw-btn-ok { flex: 1; background: #c53030; color: #fff; border: none; border-radius: 8px; padding: 9px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .pw-btn-ok:hover { background: #9b2c2c; }
 
         /* MODAL */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
@@ -122,15 +156,29 @@
 </head>
 <body>
 
+<!-- PASSWORT MODAL -->
+<div class="pw-overlay" id="pw-modal">
+    <div class="pw-box">
+        <h3>🔒 Löschen bestätigen</h3>
+        <p>Bitte Passwort eingeben, um den Auftrag zu löschen.</p>
+        <input type="password" id="pw-input" placeholder="Passwort" onkeydown="if(event.key==='Enter')pwConfirm()">
+        <div class="pw-error" id="pw-error"></div>
+        <div class="pw-btns">
+            <button class="pw-btn-cancel" onclick="pwCancel()">Abbrechen</button>
+            <button class="pw-btn-ok" onclick="pwConfirm()">Löschen</button>
+        </div>
+    </div>
+</div>
+
 <div class="mode-switcher">
     <button class="mode-btn active" id="btn-mode-tv"     onclick="setMode('tv')">🖥️ TV-Ansicht</button>
     <button class="mode-btn"        id="btn-mode-tablet" onclick="setMode('tablet')">📱 Tablet-Ansicht</button>
 </div>
 
-<!-- ════════ TV ════════ -->
+<!-- TV -->
 <div id="view-tv">
     <div class="tv-header">
-        <h1>📦 Auslagerungs-Dashboard</h1>
+        <h1>📦 Auslagerungsaufträge</h1>
         <div class="tv-header-btns">
             <button class="btn-icon" onclick="toggleTVSettings()">⚙️ Einstellungen</button>
             <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
@@ -139,7 +187,6 @@
     </div>
     <p class="tv-subtitle" id="tv-date"></p>
 
-    <!-- TV Einstellungs-Panel -->
     <div class="settings-panel tv-settings-panel hidden" id="tv-settings">
         <div class="settings-panel-title">⚙️ TV-Darstellungs-Einstellungen</div>
         <div class="settings-grid">
@@ -189,11 +236,11 @@
     <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv</div>
 </div>
 
-<!-- ════════ TABLET ════════ -->
+<!-- TABLET -->
 <div id="view-tablet" class="hidden">
     <div class="tablet-header">
         <div>
-            <h2>📦 Auslagerungs-Dashboard</h2>
+            <h2>📦 Auslagerungsaufträge</h2>
             <div class="tablet-subtitle" id="tablet-date"></div>
         </div>
         <div style="display:flex;gap:8px;">
@@ -298,18 +345,53 @@
   const db  = getDatabase(app);
   const ordersRef = ref(db, 'auslagerung/orders');
 
+  const DELETE_PASSWORD = 'Gelenkwelle';
+
   function toDateStr(d) { return d.toISOString().split('T')[0]; }
-  function formatDisplay(s) { const [y,m,d]=s.split('-'); return `${d}.${m}.${y}`; }
-  function getShift(time, manualShift) {
-    if (manualShift && manualShift !== 'auto') return manualShift;
+  function formatDisplay(s) { const [y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
+  function getShift(time, manual) {
+    if (manual && manual !== 'auto') return manual;
     return time < '12:00' ? 'am' : 'pm';
+  }
+  function getNowTime() {
+    const n = new Date();
+    return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
   }
 
   const today    = new Date();
   const todayStr = toDateStr(today);
-  const dateLabel = `Heute: ${formatDisplay(todayStr)}`;
+  const dateLabel = 'Heute: ' + formatDisplay(todayStr);
   document.getElementById('tv-date').textContent     = dateLabel;
   document.getElementById('tablet-date').textContent = dateLabel;
+
+  // ── Passwort-Modal ─────────────────────────────────────
+  let pendingDeleteKey = null;
+
+  window.requestDelete = function(key) {
+    pendingDeleteKey = key;
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-error').textContent = '';
+    document.getElementById('pw-modal').classList.add('open');
+    setTimeout(() => document.getElementById('pw-input').focus(), 100);
+  };
+
+  window.pwCancel = function() {
+    pendingDeleteKey = null;
+    document.getElementById('pw-modal').classList.remove('open');
+  };
+
+  window.pwConfirm = function() {
+    const val = document.getElementById('pw-input').value;
+    if (val === DELETE_PASSWORD) {
+      remove(ref(db, 'auslagerung/orders/' + pendingDeleteKey));
+      pendingDeleteKey = null;
+      document.getElementById('pw-modal').classList.remove('open');
+    } else {
+      document.getElementById('pw-error').textContent = '❌ Falsches Passwort';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  };
 
   // ── Modus ──────────────────────────────────────────────
   window.setMode = function(mode) {
@@ -322,13 +404,12 @@
   setMode(localStorage.getItem('dashMode') || 'tv');
 
   // ── TV-Einstellungen ───────────────────────────────────
-  const TV_DEFAULTS = { fontsize:22, rowpad:18, headsize:15, titlesize:20, cols:{ 'tv-artikel':true,'tv-lager':true,'tv-ziel':true,'tv-time':true,'tv-status':true } };
-  let tvSettings = { ...TV_DEFAULTS, ...JSON.parse(localStorage.getItem('tvSettings') || '{}') };
-  if (!tvSettings.cols) tvSettings.cols = { ...TV_DEFAULTS.cols };
+  const TV_DEFAULTS = { fontsize:22, rowpad:18, headsize:15, titlesize:20, cols:{'tv-artikel':true,'tv-lager':true,'tv-ziel':true,'tv-time':true,'tv-status':true} };
+  let tvSettings = Object.assign({}, TV_DEFAULTS, JSON.parse(localStorage.getItem('tvSettings') || '{}'));
+  if (!tvSettings.cols) tvSettings.cols = Object.assign({}, TV_DEFAULTS.cols);
 
   window.toggleTVSettings = () => document.getElementById('tv-settings').classList.toggle('hidden');
-
-  window.applyTVSettings = function() {
+  window.applyTVSettings  = function() {
     tvSettings.fontsize  = +document.getElementById('tv-setting-fontsize').value;
     tvSettings.rowpad    = +document.getElementById('tv-setting-rowpad').value;
     tvSettings.headsize  = +document.getElementById('tv-setting-headsize').value;
@@ -340,24 +421,20 @@
     localStorage.setItem('tvSettings', JSON.stringify(tvSettings));
     renderAll();
   };
-
   window.toggleTVCol = function(el) {
-    const col = el.dataset.col;
-    tvSettings.cols[col] = !tvSettings.cols[col];
-    el.classList.toggle('on', tvSettings.cols[col]);
+    tvSettings.cols[el.dataset.col] = !tvSettings.cols[el.dataset.col];
+    el.classList.toggle('on', tvSettings.cols[el.dataset.col]);
     localStorage.setItem('tvSettings', JSON.stringify(tvSettings));
     renderAll();
   };
-
   function loadTVSettingsUI() {
     document.getElementById('tv-setting-fontsize').value  = tvSettings.fontsize;
     document.getElementById('tv-setting-rowpad').value    = tvSettings.rowpad;
     document.getElementById('tv-setting-headsize').value  = tvSettings.headsize;
     document.getElementById('tv-setting-titlesize').value = tvSettings.titlesize;
-    document.getElementById('tv-val-fontsize').textContent  = tvSettings.fontsize  + 'px';
-    document.getElementById('tv-val-rowpad').textContent    = tvSettings.rowpad    + 'px';
-    document.getElementById('tv-val-headsize').textContent  = tvSettings.headsize  + 'px';
-    document.getElementById('tv-val-titlesize').textContent = tvSettings.titlesize + 'px';
+    ['tv-val-fontsize','tv-val-rowpad','tv-val-headsize','tv-val-titlesize'].forEach((id,i) => {
+      document.getElementById(id).textContent = [tvSettings.fontsize, tvSettings.rowpad, tvSettings.headsize, tvSettings.titlesize][i] + 'px';
+    });
     document.querySelectorAll('#tv-settings .col-toggle').forEach(el => {
       el.classList.toggle('on', tvSettings.cols[el.dataset.col] !== false);
     });
@@ -370,8 +447,7 @@
   if (tabletSettings.cols.status === undefined) tabletSettings.cols.status = true;
 
   window.toggleTabletSettings = () => document.getElementById('tablet-settings').classList.toggle('hidden');
-
-  window.applyTabletSettings = function() {
+  window.applyTabletSettings  = function() {
     tabletSettings.fontsize = +document.getElementById('setting-fontsize').value;
     tabletSettings.rowpad   = +document.getElementById('setting-rowpad').value;
     document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
@@ -379,15 +455,12 @@
     localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
     renderAll();
   };
-
   window.toggleTabCol = function(el) {
-    const col = el.dataset.col;
-    tabletSettings.cols[col] = !tabletSettings.cols[col];
-    el.classList.toggle('on', tabletSettings.cols[col]);
+    tabletSettings.cols[el.dataset.col] = !tabletSettings.cols[el.dataset.col];
+    el.classList.toggle('on', tabletSettings.cols[el.dataset.col]);
     localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
     renderAll();
   };
-
   function loadTabletSettingsUI() {
     document.getElementById('setting-fontsize').value = tabletSettings.fontsize;
     document.getElementById('setting-rowpad').value   = tabletSettings.rowpad;
@@ -404,10 +477,9 @@
   const STATUS_LABELS  = { open:'⬜ Offen', done:'✅ Erledigt', problem:'🔴 Störung' };
   const STATUS_CLASSES = { open:'open', done:'done', problem:'problem' };
 
-  window.cycleStatus = function(key, currentStatus) {
-    const idx  = STATUS_CYCLE.indexOf(currentStatus || 'open');
-    const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
-    update(ref(db, `auslagerung/orders/${key}`), { status: next });
+  window.cycleStatus = function(key, cur) {
+    const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur || 'open') + 1) % STATUS_CYCLE.length];
+    update(ref(db, 'auslagerung/orders/' + key), { status: next });
   };
 
   // ── Vollbild ───────────────────────────────────────────
@@ -419,7 +491,7 @@
     document.getElementById('btn-fs').textContent = document.fullscreenElement ? '✕ Beenden' : '⛶ Vollbild';
   });
 
-  // ── Modal ──────────────────────────────────────────────
+  // ── Shelly Modal ───────────────────────────────────────
   window.openShellyModal  = () => document.getElementById('shelly-modal').classList.add('open');
   window.closeShellyModal = () => document.getElementById('shelly-modal').classList.remove('open');
   window.closeShellyOnBackdrop = (e) => { if (e.target.id === 'shelly-modal') closeShellyModal(); };
@@ -430,36 +502,36 @@
     document.getElementById('shelly-ip').value = shellyConfig.ip;
     document.getElementById('shelly-model').value = shellyConfig.model || 'rgbw2';
     document.getElementById('shelly-trigger').value = shellyConfig.trigger || 'overdue';
-    setShellyStatus('saved', `Gespeichert: ${shellyConfig.ip}`);
+    setShellyStatus('saved', 'Gespeichert: ' + shellyConfig.ip);
   }
   window.saveShelly = () => {
     const ip = document.getElementById('shelly-ip').value.trim();
     if (!ip) { alert('Bitte IP-Adresse eingeben.'); return; }
     shellyConfig = { ip, model: document.getElementById('shelly-model').value, trigger: document.getElementById('shelly-trigger').value };
     localStorage.setItem('shellyConfig', JSON.stringify(shellyConfig));
-    setShellyStatus('saved', `Gespeichert: ${ip}`);
+    setShellyStatus('saved', 'Gespeichert: ' + ip);
     closeShellyModal();
   };
   async function shellyCommand(r,g,b,brightness,blink) {
     if (!shellyConfig.ip) return;
     const { ip, model } = shellyConfig;
-    const url = model==='rgbw2' ? `http://${ip}/color/0?turn=on&red=${r}&green=${g}&blue=${b}&gain=${brightness}&effect=${blink?3:0}`
-      : model==='bulb' ? `http://${ip}/light/0?turn=on&red=${r}&green=${g}&blue=${b}&brightness=${brightness}&effect=${blink?3:0}`
-      : `http://${ip}/relay/0?turn=on`;
-    try { await fetch(url,{mode:'no-cors'}); setShellyStatus('active',`Signal an ${ip}`); }
-    catch(e) { setShellyStatus('error',`Fehler: ${ip} nicht erreichbar`); }
+    const url = model==='rgbw2' ? 'http://'+ip+'/color/0?turn=on&red='+r+'&green='+g+'&blue='+b+'&gain='+brightness+'&effect='+(blink?3:0)
+      : model==='bulb' ? 'http://'+ip+'/light/0?turn=on&red='+r+'&green='+g+'&blue='+b+'&brightness='+brightness+'&effect='+(blink?3:0)
+      : 'http://'+ip+'/relay/0?turn=on';
+    try { await fetch(url,{mode:'no-cors'}); setShellyStatus('active','Signal an '+ip); }
+    catch(e) { setShellyStatus('error','Fehler: '+ip+' nicht erreichbar'); }
   }
   async function shellyOff() {
     if (!shellyConfig.ip) return;
     const { ip, model } = shellyConfig;
-    const url = model==='plug' ? `http://${ip}/relay/0?turn=off` : model==='rgbw2' ? `http://${ip}/color/0?turn=off` : `http://${ip}/light/0?turn=off`;
+    const url = model==='plug' ? 'http://'+ip+'/relay/0?turn=off' : model==='rgbw2' ? 'http://'+ip+'/color/0?turn=off' : 'http://'+ip+'/light/0?turn=off';
     try { await fetch(url,{mode:'no-cors'}); } catch(e) {}
   }
   window.testShelly = async () => {
     const ip = document.getElementById('shelly-ip').value.trim();
     if (!ip) { alert('Bitte IP eingeben.'); return; }
     shellyConfig.ip = ip; shellyConfig.model = document.getElementById('shelly-model').value;
-    setShellyStatus('blink', `Teste ${ip}...`);
+    setShellyStatus('blink', 'Teste '+ip+'...');
     await shellyCommand(255,0,0,100,true);
     setTimeout(() => shellyOff(), 5000);
   };
@@ -484,14 +556,9 @@
     ['inp-artikel','inp-lager','inp-ziel','inp-time'].forEach(id => document.getElementById(id).value='');
     document.getElementById('inp-shift').value = 'auto';
   };
-  window.deleteOrder = (key) => remove(ref(db, `auslagerung/orders/${key}`));
 
   // ── Render ─────────────────────────────────────────────
   let allOrders = [];
-  function getNowTime() {
-    const n = new Date();
-    return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
-  }
 
   const TV_COLS_DEF = [
     { key:'tv-artikel', label:'Artikel',    field:'artikel' },
@@ -506,47 +573,38 @@
     const nowTime = getNowTime();
     const visCols = TV_COLS_DEF.filter(c => cols[c.key] !== false);
 
-    // Titel-Größe
     document.getElementById('tv-title-am').style.fontSize = titlesize + 'px';
     document.getElementById('tv-title-pm').style.fontSize = titlesize + 'px';
 
     function renderBody(orders, headId, tbodyId, countId) {
-      document.getElementById(countId).textContent = `(${orders.length})`;
-
-      // Header
+      document.getElementById(countId).textContent = '(' + orders.length + ')';
       const head = document.getElementById(headId);
-      head.innerHTML = `<th style="padding:${rowpad*0.7}px 18px;font-size:${headsize}px;">#</th>`
-        + visCols.map(c => `<th style="padding:${rowpad*0.7}px 18px;font-size:${headsize}px;">${c.label}</th>`).join('')
-        + `<th style="padding:${rowpad*0.7}px 18px;"></th>`;
-
+      head.innerHTML = '<th style="padding:'+rowpad*0.7+'px 18px;font-size:'+headsize+'px;">#</th>'
+        + visCols.map(c => '<th style="padding:'+rowpad*0.7+'px 18px;font-size:'+headsize+'px;">'+c.label+'</th>').join('');
+      /* NO delete column on TV */
       const tbody = document.getElementById(tbodyId);
       if (!orders.length) {
-        tbody.innerHTML = `<tr><td colspan="${visCols.length+2}" class="no-orders" style="font-size:${fontsize}px;">Keine Aufträge.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="'+(visCols.length+1)+'" class="no-orders" style="font-size:'+fontsize+'px;">Keine Aufträge.</td></tr>';
         return;
       }
-      const st_cls = { open:'open', done:'done', problem:'problem' };
       tbody.innerHTML = orders.map((o,i) => {
         const st = o.status || 'open';
-        const urgent = o.time <= nowTime && st === 'open';
-        const rowCls = st==='done' ? 'row-done' : st==='problem' ? 'row-problem' : '';
+        const overdue = st === 'open' && o.time <= nowTime;
+        const rowCls = overdue ? 'row-overdue' : st==='done' ? 'row-done' : st==='problem' ? 'row-problem' : '';
         const cells = visCols.map(c => {
-          const pad = `padding:${rowpad}px 18px;font-size:${fontsize}px;`;
-          if (c.key === 'tv-time') {
-            const inner = urgent
-              ? `<span class="td-urgent" style="font-size:${fontsize}px;">${o.time} ⚠️</span>`
-              : `<span class="td-time" style="font-size:${fontsize}px;">${o.time}</span>`;
-            return `<td style="${pad}">${inner}</td>`;
+          const pad = 'padding:'+rowpad+'px 18px;font-size:'+fontsize+'px;';
+          if (c.key==='tv-time') {
+            const inner = overdue
+              ? '<span class="td-urgent" style="font-size:'+fontsize+'px;">'+o.time+' ⚠️</span>'
+              : '<span class="td-time" style="font-size:'+fontsize+'px;">'+o.time+'</span>';
+            return '<td style="'+pad+'">'+inner+'</td>';
           }
-          if (c.key === 'tv-status') {
-            return `<td style="${pad}"><span class="tv-status-badge ${st_cls[st]}" style="font-size:${fontsize-4}px;">${STATUS_LABELS[st]}</span></td>`;
+          if (c.key==='tv-status') {
+            return '<td style="'+pad+'"><span class="tv-status-badge '+st+'" style="font-size:'+(fontsize-4)+'px;">'+STATUS_LABELS[st]+'</span></td>';
           }
-          return `<td style="${pad}">${o[c.field]}</td>`;
+          return '<td style="'+pad+'">'+o[c.field]+'</td>';
         }).join('');
-        return `<tr class="${rowCls}">
-          <td style="padding:${rowpad}px 18px;font-size:${fontsize-4}px;color:#a0aec0;">${i+1}</td>
-          ${cells}
-          <td style="padding:${rowpad}px 12px;"><button class="btn-delete-tv" style="font-size:${fontsize-8}px;" onclick="deleteOrder('${o.key}')">✕</button></td>
-        </tr>`;
+        return '<tr class="'+rowCls+'"><td style="padding:'+rowpad+'px 18px;font-size:'+(fontsize-4)+'px;color:#a0aec0;">'+(i+1)+'</td>'+cells+'</tr>';
       }).join('');
     }
 
@@ -569,34 +627,34 @@
 
     function body(orders, headId, tbodyId) {
       document.getElementById(headId).innerHTML =
-        `<th style="font-size:${fontsize-3}px;">#</th>`
-        + visCols.map(c => `<th style="font-size:${fontsize-3}px;">${c.label}</th>`).join('')
-        + `<th></th>`;
+        '<th style="font-size:'+(fontsize-3)+'px;">#</th>'
+        + visCols.map(c => '<th style="font-size:'+(fontsize-3)+'px;">'+c.label+'</th>').join('')
+        + '<th></th>';
       const tbody = document.getElementById(tbodyId);
       if (!orders.length) {
-        tbody.innerHTML = `<tr><td colspan="${visCols.length+2}" class="no-orders" style="font-size:${fontsize}px;">Keine Aufträge.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="'+(visCols.length+2)+'" class="no-orders" style="font-size:'+fontsize+'px;">Keine Aufträge.</td></tr>';
         return;
       }
       tbody.innerHTML = orders.map((o,i) => {
         const st = o.status || 'open';
-        const urgent = o.time <= nowTime && st === 'open';
-        const rowCls = st==='done' ? 'row-done' : st==='problem' ? 'row-problem' : '';
+        const overdue = st === 'open' && o.time <= nowTime;
+        const rowCls = overdue ? 'row-overdue' : st==='done' ? 'row-done' : st==='problem' ? 'row-problem' : '';
         const cells = visCols.map(c => {
-          const pad = `padding:${rowpad}px 12px;font-size:${fontsize}px;`;
+          const pad = 'padding:'+rowpad+'px 12px;font-size:'+fontsize+'px;';
           if (c.key==='time') {
-            const cls = urgent ? 'tab-urgent' : 'tab-time';
-            return `<td style="${pad}" class="${cls}">${o.time}${urgent?' ⚠️':''}</td>`;
+            const cls = overdue ? 'tab-urgent' : 'tab-time';
+            return '<td style="'+pad+'" class="'+cls+'">'+o.time+(overdue?' ⚠️':'')+'</td>';
           }
           if (c.key==='status') {
-            return `<td style="${pad}"><button class="status-btn ${STATUS_CLASSES[st]}" onclick="cycleStatus('${o.key}','${st}')">${STATUS_LABELS[st]}</button></td>`;
+            return '<td style="'+pad+'"><button class="status-btn '+STATUS_CLASSES[st]+'" onclick="cycleStatus(\''+o.key+'\',\''+st+'\')">'+STATUS_LABELS[st]+'</button></td>';
           }
-          return `<td style="${pad}">${o[c.field]}</td>`;
+          return '<td style="'+pad+'">'+o[c.field]+'</td>';
         }).join('');
-        return `<tr class="${rowCls}">
-          <td style="padding:${rowpad}px 12px;font-size:${fontsize-2}px;color:#a0aec0;">${i+1}</td>
-          ${cells}
-          <td style="padding:${rowpad}px 8px;"><button class="btn-delete-tab" onclick="deleteOrder('${o.key}')">✕</button></td>
-        </tr>`;
+        return '<tr class="'+rowCls+'">'
+          +'<td style="padding:'+rowpad+'px 12px;font-size:'+(fontsize-2)+'px;color:#a0aec0;">'+(i+1)+'</td>'
+          +cells
+          +'<td style="padding:'+rowpad+'px 8px;"><button class="btn-delete-tab" onclick="requestDelete(\''+o.key+'\')">🗑</button></td>'
+          +'</tr>';
       }).join('');
     }
     body(amOrders, 'tab-head-am', 'tab-tbody-am');
@@ -617,7 +675,7 @@
   function checkShellyTrigger(orders) {
     if (!shellyConfig.ip || shellyConfig.trigger !== 'overdue') return;
     const nowTime = getNowTime();
-    const hasOverdue = orders.some(o => o.time <= nowTime && (o.status||'open') === 'open');
+    const hasOverdue = orders.some(o => (o.status||'open')==='open' && o.time <= nowTime);
     if (hasOverdue && !wasOverdue) {
       wasOverdue = true; shellyCommand(255,0,0,100,true); setShellyStatus('blink','⚠️ Überschritten – Lampe blinkt');
     } else if (!hasOverdue && wasOverdue) {
