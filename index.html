@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auslagerungsaufträge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
@@ -14,6 +16,11 @@
         .hidden { display: none !important; }
         .btn-icon { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-size: 14px; color: #4a5568; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .btn-icon:hover { background: #edf2f7; }
+
+        /* BARCODE STYLES */
+        .barcode-container { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
+        .barcode-font { font-family: 'Libre Barcode 39', cursive; font-size: 42px; color: #000; margin: -5px 0; white-space: nowrap; }
+        .barcode-label { font-size: 10px; color: #4a5568; font-weight: bold; margin-top: 2px; }
 
         /* EINSTELLUNGS-PANEL */
         .settings-panel { border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
@@ -52,7 +59,6 @@
         .tv-table tbody tr.row-done    { background: #f0fff4 !important; }
         .tv-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
 
-        /* ÜBERZOGEN: leuchtende rote Umrandung */
         .tv-table tbody tr.row-overdue {
             background: #fff5f5 !important;
             outline: 3px solid #e53e3e;
@@ -420,12 +426,22 @@
     return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
   }
 
+  // Barcode Helfer
+  function renderBarcode(text) {
+      if(!text) return '';
+      // Code 39 benötigt Sternchen als Start/Stop Zeichen
+      const code = "*" + text.toUpperCase() + "*";
+      return `<div class="barcode-container">
+                <span class="barcode-font">${code}</span>
+                <span class="barcode-label">${text}</span>
+              </div>`;
+  }
+
   const today    = new Date();
   const todayStr = toDateStr(today);
   document.getElementById('tv-date').textContent = 'Heute: ' + formatDisplay(todayStr);
 
-  // ── Tag-Navigation (Tablet) ────────────────────────────
-  let dayOffset = 0; // 0 = heute, -1 = gestern, +1 = morgen ...
+  let dayOffset = 0; 
 
   function getViewDate() {
     const d = new Date(today);
@@ -469,13 +485,10 @@
         +'</div></div>';
     }
 
-    // Zeige im Tablet nur bei TagOffset 0
     tabletBox.innerHTML = (dayOffset === 0) ? warningHtml : '';
-    // Zeige im TV immer (da TV immer heute zeigt)
     tvBox.innerHTML = '<div class="tv-early-warning">' + warningHtml + '</div>';
   }
 
-  // ── Rückblick ──────────────────────────────────────────
   window.openHistory = function() {
     document.getElementById('history-modal').classList.add('open');
     renderHistory();
@@ -488,10 +501,9 @@
     const past = allOrders.filter(o => o.date <= todayStr);
     if (!past.length) { content.innerHTML = '<div class="history-empty">Keine vergangenen Aufträge.</div>'; return; }
 
-    // Gruppieren nach Datum
     const byDate = {};
     past.forEach(o => { if (!byDate[o.date]) byDate[o.date] = []; byDate[o.date].push(o); });
-    const sortedDates = Object.keys(byDate).sort((a,b) => b.localeCompare(a)); // neueste zuerst
+    const sortedDates = Object.keys(byDate).sort((a,b) => b.localeCompare(a)); 
 
     content.innerHTML = sortedDates.map(date => {
       const orders = byDate[date].sort((a,b) => a.time.localeCompare(b.time));
@@ -514,7 +526,6 @@
     }).join('');
   }
 
-  // ── Passwort-Modal ─────────────────────────────────────
   let pendingDeleteKey = null;
 
   window.requestDelete = function(key) {
@@ -543,7 +554,6 @@
     }
   };
 
-  // ── Modus ──────────────────────────────────────────────
   window.setMode = function(mode) {
     document.getElementById('view-tv').classList.toggle('hidden', mode !== 'tv');
     document.getElementById('view-tablet').classList.toggle('hidden', mode !== 'tablet');
@@ -553,7 +563,6 @@
   };
   setMode(localStorage.getItem('dashMode') || 'tv');
 
-  // ── TV-Einstellungen ───────────────────────────────────
   const TV_DEFAULTS = { fontsize:22, rowpad:18, headsize:15, titlesize:20, cols:{'tv-artikel':true,'tv-lager':true,'tv-ziel':true,'tv-time':true,'tv-status':true} };
   let tvSettings = Object.assign({}, TV_DEFAULTS, JSON.parse(localStorage.getItem('tvSettings') || '{}'));
   if (!tvSettings.cols) tvSettings.cols = Object.assign({}, TV_DEFAULTS.cols);
@@ -591,7 +600,6 @@
   }
   loadTVSettingsUI();
 
-  // ── Tablet-Einstellungen ───────────────────────────────
   let tabletSettings = JSON.parse(localStorage.getItem('tabletSettings') || '{"fontsize":15,"rowpad":10,"cols":{"artikel":true,"lager":true,"ziel":true,"time":true,"status":true}}');
   if (!tabletSettings.cols) tabletSettings.cols = {};
   if (tabletSettings.cols.status === undefined) tabletSettings.cols.status = true;
@@ -622,7 +630,6 @@
   }
   loadTabletSettingsUI();
 
-  // ── Status ─────────────────────────────────────────────
   const STATUS_CYCLE   = ['open','done','problem'];
   const STATUS_LABELS  = { open:'⬜ Offen', done:'✅ Erledigt', problem:'🔴 Störung' };
   const STATUS_CLASSES = { open:'open', done:'done', problem:'problem' };
@@ -632,7 +639,6 @@
     update(ref(db, 'auslagerung/orders/' + key), { status: next });
   };
 
-  // ── Vollbild ───────────────────────────────────────────
   window.toggleFullscreen = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
     else document.exitFullscreen();
@@ -641,12 +647,10 @@
     document.getElementById('btn-fs').textContent = document.fullscreenElement ? '✕ Beenden' : '⛶ Vollbild';
   });
 
-  // ── Shelly Modal ───────────────────────────────────────
   window.openShellyModal  = () => document.getElementById('shelly-modal').classList.add('open');
   window.closeShellyModal = () => document.getElementById('shelly-modal').classList.remove('open');
   window.closeShellyOnBackdrop = (e) => { if (e.target.id === 'shelly-modal') closeShellyModal(); };
 
-  // ── Shelly ─────────────────────────────────────────────
   let shellyConfig = JSON.parse(localStorage.getItem('shellyConfig') || '{}');
   if (shellyConfig.ip) {
     document.getElementById('shelly-ip').value = shellyConfig.ip;
@@ -694,7 +698,6 @@
     document.getElementById('shelly-status-text').textContent = text;
   }
 
-  // ── Aufträge ───────────────────────────────────────────
   window.addOrder = () => {
     const artikel = document.getElementById('inp-artikel').value.trim();
     const lager   = document.getElementById('inp-lager').value.trim();
@@ -708,15 +711,14 @@
     document.getElementById('inp-shift').value = 'auto';
   };
 
-  // ── Render ─────────────────────────────────────────────
   let allOrders = [];
 
   const TV_COLS_DEF = [
     { key:'tv-artikel', label:'Artikel',    field:'artikel' },
-    { key:'tv-lager',   label:'Lagerort',   field:'lager' },
-    { key:'tv-ziel',    label:'Zielort',    field:'ziel' },
+    { key:'tv-lager',   label:'Lagerort',    field:'lager' },
+    { key:'tv-ziel',    label:'Zielort',     field:'ziel' },
     { key:'tv-time',    label:'Spätestens', field:'time' },
-    { key:'tv-status',  label:'Status',     field:'status' },
+    { key:'tv-status',  label:'Status',      field:'status' },
   ];
 
   function renderTV(amOrders, pmOrders) {
@@ -743,6 +745,9 @@
         const rowCls = overdue ? 'row-overdue' : st==='done' ? 'row-done' : st==='problem' ? 'row-problem' : '';
         const cells = visCols.map(c => {
           const pad = 'padding:'+rowpad+'px 18px;font-size:'+fontsize+'px;';
+          if (c.key==='tv-artikel') {
+              return '<td style="'+pad+'">' + renderBarcode(o.artikel) + '</td>';
+          }
           if (c.key==='tv-time') {
             const inner = overdue
               ? '<span class="td-urgent" style="font-size:'+fontsize+'px;">'+o.time+' ⚠️</span>'
@@ -767,7 +772,7 @@
     { key:'lager',   label:'Lagerort',      field:'lager' },
     { key:'ziel',    label:'Zielort',       field:'ziel' },
     { key:'time',    label:'Uhrzeit',       field:'time' },
-    { key:'status',  label:'Status',        field:'status' },
+    { key:'status',  label:'Status',         field:'status' },
   ];
 
   function renderTablet(amOrders, pmOrders) {
@@ -791,6 +796,9 @@
         const rowCls = overdue ? 'row-overdue' : st==='done' ? 'row-done' : st==='problem' ? 'row-problem' : '';
         const cells = visCols.map(c => {
           const pad = 'padding:'+rowpad+'px 12px;font-size:'+fontsize+'px;';
+          if (c.key==='artikel') {
+              return '<td style="'+pad+'">' + renderBarcode(o.artikel) + '</td>';
+          }
           if (c.key==='time') {
             const cls = overdue ? 'tab-urgent' : 'tab-time';
             return '<td style="'+pad+'" class="'+cls+'">'+o.time+(overdue?' ⚠️':'')+'</td>';
