@@ -6,236 +6,111 @@
     <title>Auslagerungs-Dashboard</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f0f4f8;
-            color: #1a202c;
-            min-height: 100vh;
-            padding: 30px 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #2b6cb0;
-            font-size: 26px;
-            margin-bottom: 6px;
-            letter-spacing: 0.5px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #718096;
-            font-size: 13px;
-            margin-bottom: 30px;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; color: #1a202c; min-height: 100vh; padding: 30px 40px; }
 
-        /* HEADER ROW */
-        .header-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 6px;
-            position: relative;
-        }
-        .btn-fullscreen {
-            position: absolute;
-            right: 0;
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 7px 14px;
-            font-size: 13px;
-            color: #4a5568;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
-        .btn-fullscreen:hover { background: #edf2f7; border-color: #cbd5e0; }
+        .header-row { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; position: relative; }
+        h1 { text-align: center; color: #2b6cb0; font-size: 36px; letter-spacing: 0.5px; }
+        .subtitle { text-align: center; color: #718096; font-size: 18px; margin-bottom: 30px; }
 
-        .form-card, .table-card, .settings-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 950px;
-            margin: 0 auto 28px auto;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-        }
-        .card-title {
-            font-size: 14px;
+        .header-buttons { position: absolute; right: 0; display: flex; gap: 8px; }
+        .btn-icon { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 18px; font-size: 15px; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .btn-icon:hover { background: #edf2f7; border-color: #cbd5e0; }
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: #fff; border-radius: 16px; padding: 28px; max-width: 620px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.18); position: relative; }
+        .modal h3 { color: #744210; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #a0aec0; cursor: pointer; line-height: 1; }
+        .modal-close:hover { color: #2d3748; }
+
+        /* EINGABE */
+        .form-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; max-width: 1400px; margin: 0 auto 28px auto; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+        .card-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; color: #2b6cb0; }
+        .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px; }
+        .form-group label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .form-group input, .form-group select { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 12px; color: #1a202c; font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,0.15); }
+        .form-group input::placeholder { color: #a0aec0; }
+        .btn-add { background: #2b6cb0; color: #fff; border: none; border-radius: 8px; padding: 10px 26px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+        .btn-add:hover { background: #2c5282; }
+        .btn-save { background: #d69e2e; color: #fff; border: none; border-radius: 8px; padding: 10px 26px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+        .btn-save:hover { background: #b7791f; }
+        .btn-test { background: transparent; color: #d69e2e; border: 2px solid #d69e2e; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-test:hover { background: #d69e2e; color: #fff; }
+
+        /* TV-OPTIMIERTE TABELLE */
+        .table-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; max-width: 1400px; margin: 0 auto 28px auto; box-shadow: 0 4px 24px rgba(0,0,0,0.09); }
+        .table-card .card-title { color: #2d3748; font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            text-align: left;
+            color: #fff;
+            background: #2b6cb0;
+            font-size: 17px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 16px;
+            padding: 18px 24px;
         }
-        .form-card .card-title { color: #2b6cb0; }
-        .table-card .card-title { color: #2d3748; }
-        .settings-card .card-title { color: #744210; }
+        thead th:first-child { border-radius: 10px 0 0 10px; }
+        thead th:last-child  { border-radius: 0 10px 10px 0; }
 
-        .form-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: flex-end;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-            min-width: 150px;
-        }
-        .form-group label {
-            font-size: 11px;
-            color: #718096;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-        .form-group input, .form-group select {
-            background: #f7fafc;
-            border: 1px solid #cbd5e0;
-            border-radius: 8px;
-            padding: 10px 12px;
-            color: #1a202c;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-group input:focus, .form-group select:focus {
-            border-color: #4299e1;
-            box-shadow: 0 0 0 3px rgba(66,153,225,0.15);
-        }
-        .form-group input::placeholder { color: #a0aec0; }
+        tbody tr { border-bottom: 2px solid #e8edf3; transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:nth-child(even) { background: #f7fafc; }
+        tbody tr:hover { background: #ebf4ff; }
 
-        .btn-add {
-            background: #2b6cb0;
+        tbody td {
+            padding: 22px 24px;
+            font-size: 24px;
+            color: #2d3748;
+            font-weight: 500;
+        }
+        td:first-child { color: #a0aec0; font-size: 20px; font-weight: 400; width: 50px; }
+
+        .td-time { color: #2b6cb0; font-weight: 700; font-size: 26px; }
+        .td-urgent {
             color: #fff;
-            border: none;
+            background: #c53030;
+            font-weight: 800;
+            font-size: 26px;
             border-radius: 8px;
-            padding: 10px 26px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
+            padding: 8px 16px;
+            display: inline-block;
+            animation: pulse-bg 1s infinite alternate;
         }
-        .btn-add:hover { background: #2c5282; }
+        @keyframes pulse-bg { from { opacity: 1; } to { opacity: 0.75; } }
 
-        .btn-save {
-            background: #d69e2e;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 26px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-        .btn-save:hover { background: #b7791f; }
+        .no-orders { text-align: center; color: #a0aec0; padding: 50px; font-size: 22px; }
 
-        .btn-test {
-            background: transparent;
-            color: #d69e2e;
-            border: 2px solid #d69e2e;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .btn-test:hover { background: #d69e2e; color: #fff; }
+        .btn-delete { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 6px; padding: 8px 16px; font-size: 16px; cursor: pointer; transition: all 0.2s; }
+        .btn-delete:hover { border-color: #fc8181; color: #c53030; background: #fff5f5; }
 
-        .shelly-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 14px;
-            font-size: 13px;
-            color: #718096;
-        }
-        .shelly-dot {
-            width: 9px; height: 9px;
-            border-radius: 50%;
-            background: #a0aec0;
-        }
+        .shelly-status { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: #718096; }
+        .shelly-dot { width: 9px; height: 9px; border-radius: 50%; background: #a0aec0; }
         .shelly-dot.active { background: #48bb78; box-shadow: 0 0 6px #48bb78; }
         .shelly-dot.error  { background: #fc8181; box-shadow: 0 0 6px #fc8181; }
         .shelly-dot.blink  { background: #fc8181; animation: blink 0.6s infinite alternate; }
-        @keyframes blink {
-            from { opacity: 1; box-shadow: 0 0 8px #fc8181; }
-            to   { opacity: 0.2; box-shadow: none; }
-        }
+        @keyframes blink { from { opacity: 1; box-shadow: 0 0 8px #fc8181; } to { opacity: 0.2; box-shadow: none; } }
 
-        .info-box {
-            background: #fffbeb;
-            border: 1px solid #f6e05e;
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 13px;
-            color: #744210;
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
+        .info-box { background: #fffbeb; border: 1px solid #f6e05e; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #744210; margin-bottom: 16px; line-height: 1.6; }
         .info-box strong { color: #92400e; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        thead th {
-            text-align: left;
-            color: #718096;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 12px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.15s; }
-        tbody tr:hover { background: #f7fafc; }
-        tbody td { padding: 12px 12px; color: #2d3748; }
-        .td-time { color: #2b6cb0; font-weight: 600; }
-        .td-urgent { color: #c53030; font-weight: 700; }
-        .no-orders { text-align: center; color: #a0aec0; padding: 30px; font-size: 14px; }
-        .btn-delete {
-            background: transparent;
-            border: 1px solid #e2e8f0;
-            color: #a0aec0;
-            border-radius: 6px;
-            padding: 4px 10px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-delete:hover { border-color: #fc8181; color: #c53030; background: #fff5f5; }
-
-        .status-bar {
-            text-align: center;
-            font-size: 12px;
-            color: #a0aec0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .dot { width: 7px; height: 7px; background: #48bb78; border-radius: 50%; box-shadow: 0 0 6px #48bb78; }
-
-        /* VOLLBILD */
-        :fullscreen body, ::backdrop { background: #f0f4f8; }
+        .status-bar { text-align: center; font-size: 14px; color: #a0aec0; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+        .dot { width: 8px; height: 8px; background: #48bb78; border-radius: 50%; box-shadow: 0 0 6px #48bb78; }
     </style>
 </head>
 <body>
 
 <div class="header-row">
     <h1>📦 Auslagerungs-Dashboard</h1>
-    <button class="btn-fullscreen" onclick="toggleFullscreen()" id="btn-fs">
-        ⛶ Vollbild
-    </button>
+    <div class="header-buttons">
+        <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
+        <button class="btn-icon" onclick="toggleFullscreen()" id="btn-fs">⛶ Vollbild</button>
+    </div>
 </div>
 <p class="subtitle" id="currentDate"></p>
 
@@ -265,64 +140,70 @@
 
 <!-- HEUTE -->
 <div class="table-card">
-    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        Heute <span style="font-size:12px;color:#a0aec0;font-weight:normal;text-transform:none;" id="label-today"></span>
+    <div class="card-title">
+        Aufträge – Heute
+        <span style="font-size:16px;color:#a0aec0;font-weight:normal;text-transform:none;" id="label-today"></span>
     </div>
     <table>
-        <thead><tr><th>#</th><th>Artikelnummer</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th></th></tr></thead>
-        <tbody id="tbody-today"><tr><td colspan="6" class="no-orders">Keine Aufträge für heute.</td></tr></tbody>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Artikelnummer</th>
+                <th>Lagerort</th>
+                <th>Zielort</th>
+                <th>Spätestens</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tbody-today">
+            <tr><td colspan="6" class="no-orders">Keine Aufträge für heute.</td></tr>
+        </tbody>
     </table>
-</div>
-
-<!-- MORGEN -->
-<div class="table-card">
-    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        Morgen <span style="font-size:12px;color:#a0aec0;font-weight:normal;text-transform:none;" id="label-tomorrow"></span>
-    </div>
-    <table>
-        <thead><tr><th>#</th><th>Artikelnummer</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th></th></tr></thead>
-        <tbody id="tbody-tomorrow"><tr><td colspan="6" class="no-orders">Keine Aufträge für morgen.</td></tr></tbody>
-    </table>
-</div>
-
-<!-- SHELLY EINSTELLUNGEN -->
-<div class="settings-card">
-    <div class="card-title">💡 Shelly Lampen-Einstellungen</div>
-    <div class="info-box">
-        <strong>Hinweis:</strong> Der Browser muss im gleichen Netzwerk wie die Shelly-Lampe sein.
-        Shelly-Modelle mit Farb-LED: <strong>Shelly RGBW2, Shelly Bulb, Shelly Duo RGBW</strong>.
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label>Shelly IP-Adresse</label>
-            <input id="shelly-ip" type="text" placeholder="z.B. 192.168.1.50">
-        </div>
-        <div class="form-group" style="max-width: 160px;">
-            <label>Shelly Modell</label>
-            <select id="shelly-model">
-                <option value="rgbw2">Shelly RGBW2</option>
-                <option value="bulb">Shelly Bulb / Duo RGBW</option>
-                <option value="plug">Shelly Plug (An/Aus)</option>
-            </select>
-        </div>
-        <div class="form-group" style="max-width: 200px;">
-            <label>Auslöser</label>
-            <select id="shelly-trigger">
-                <option value="overdue">Auftrag überschritten → Rot blinkend</option>
-                <option value="any">Immer bei neuem Auftrag → Gelb</option>
-            </select>
-        </div>
-        <button class="btn-test" onclick="testShelly()">🔦 Test</button>
-        <button class="btn-save" onclick="saveShelly()">Speichern</button>
-    </div>
-    <div class="shelly-status">
-        <span class="shelly-dot" id="shelly-dot"></span>
-        <span id="shelly-status-text">Nicht konfiguriert</span>
-    </div>
 </div>
 
 <div class="status-bar">
     <span class="dot"></span> Live-Sync aktiv · Alle Geräte synchronisiert
+</div>
+
+<!-- SHELLY MODAL -->
+<div class="modal-overlay" id="shelly-modal" onclick="closeShellyOnBackdrop(event)">
+    <div class="modal">
+        <button class="modal-close" onclick="closeShellyModal()">✕</button>
+        <h3>💡 Shelly Lampen-Einstellungen</h3>
+        <div class="info-box">
+            <strong>Hinweis:</strong> Der Browser muss im gleichen Netzwerk wie die Shelly-Lampe sein.
+            Shelly-Modelle mit Farb-LED: <strong>Shelly RGBW2, Shelly Bulb, Shelly Duo RGBW</strong>.
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Shelly IP-Adresse</label>
+                <input id="shelly-ip" type="text" placeholder="z.B. 192.168.1.50">
+            </div>
+            <div class="form-group" style="max-width: 160px;">
+                <label>Shelly Modell</label>
+                <select id="shelly-model">
+                    <option value="rgbw2">Shelly RGBW2</option>
+                    <option value="bulb">Shelly Bulb / Duo RGBW</option>
+                    <option value="plug">Shelly Plug (An/Aus)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Auslöser</label>
+                <select id="shelly-trigger">
+                    <option value="overdue">Auftrag überschritten → Rot blinkend</option>
+                    <option value="any">Immer bei neuem Auftrag → Gelb</option>
+                </select>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn-test" onclick="testShelly()">🔦 Test</button>
+            <button class="btn-save" onclick="saveShelly()">Speichern</button>
+        </div>
+        <div class="shelly-status">
+            <span class="shelly-dot" id="shelly-dot"></span>
+            <span id="shelly-status-text">Nicht konfiguriert</span>
+        </div>
+    </div>
 </div>
 
 <script type="module">
@@ -347,29 +228,22 @@
   function formatDisplay(s) { const [y,m,d]=s.split('-'); return `${d}.${m}.${y}`; }
 
   const today = new Date();
-  const tomorrow = new Date(); tomorrow.setDate(today.getDate()+1);
   const todayStr = toDateStr(today);
-  const tomorrowStr = toDateStr(tomorrow);
-
-  document.getElementById('currentDate').textContent =
-    `Anzeige: ${formatDisplay(todayStr)} – ${formatDisplay(tomorrowStr)}`;
+  document.getElementById('currentDate').textContent = `Heute: ${formatDisplay(todayStr)}`;
   document.getElementById('label-today').textContent = formatDisplay(todayStr);
-  document.getElementById('label-tomorrow').textContent = formatDisplay(tomorrowStr);
+
+  // ── Modal ──────────────────────────────────────────────
+  window.openShellyModal  = () => document.getElementById('shelly-modal').classList.add('open');
+  window.closeShellyModal = () => document.getElementById('shelly-modal').classList.remove('open');
+  window.closeShellyOnBackdrop = (e) => { if (e.target === document.getElementById('shelly-modal')) closeShellyModal(); };
 
   // ── Vollbild ───────────────────────────────────────────
-  window.toggleFullscreen = function() {
-    const btn = document.getElementById('btn-fs');
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      btn.textContent = '✕ Vollbild beenden';
-    } else {
-      document.exitFullscreen();
-      btn.textContent = '⛶ Vollbild';
-    }
+  window.toggleFullscreen = () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
   };
   document.addEventListener('fullscreenchange', () => {
-    const btn = document.getElementById('btn-fs');
-    btn.textContent = document.fullscreenElement ? '✕ Vollbild beenden' : '⛶ Vollbild';
+    document.getElementById('btn-fs').textContent = document.fullscreenElement ? '✕ Vollbild beenden' : '⛶ Vollbild';
   });
 
   // ── Shelly ─────────────────────────────────────────────
@@ -381,49 +255,36 @@
     setShellyStatus('saved', `Gespeichert: ${shellyConfig.ip}`);
   }
 
-  window.saveShelly = function() {
+  window.saveShelly = () => {
     const ip = document.getElementById('shelly-ip').value.trim();
     if (!ip) { alert('Bitte IP-Adresse eingeben.'); return; }
-    shellyConfig = {
-      ip,
-      model: document.getElementById('shelly-model').value,
-      trigger: document.getElementById('shelly-trigger').value
-    };
+    shellyConfig = { ip, model: document.getElementById('shelly-model').value, trigger: document.getElementById('shelly-trigger').value };
     localStorage.setItem('shellyConfig', JSON.stringify(shellyConfig));
     setShellyStatus('saved', `Gespeichert: ${ip}`);
+    closeShellyModal();
   };
 
   async function shellyCommand(r, g, b, brightness, blink) {
     if (!shellyConfig.ip) return;
-    const ip = shellyConfig.ip;
-    const model = shellyConfig.model;
-    let url = '';
-    if (model === 'rgbw2') {
-      url = `http://${ip}/color/0?turn=on&red=${r}&green=${g}&blue=${b}&gain=${brightness}&effect=${blink ? 3 : 0}`;
-    } else if (model === 'bulb') {
-      url = `http://${ip}/light/0?turn=on&red=${r}&green=${g}&blue=${b}&brightness=${brightness}&effect=${blink ? 3 : 0}`;
-    } else if (model === 'plug') {
-      url = `http://${ip}/relay/0?turn=on`;
-    }
-    try {
-      await fetch(url, { mode: 'no-cors' });
-      setShellyStatus('active', `Signal gesendet an ${ip}`);
-    } catch(e) {
-      setShellyStatus('error', `Fehler: ${ip} nicht erreichbar`);
-    }
+    const { ip, model } = shellyConfig;
+    const url = model === 'rgbw2'
+      ? `http://${ip}/color/0?turn=on&red=${r}&green=${g}&blue=${b}&gain=${brightness}&effect=${blink?3:0}`
+      : model === 'bulb'
+        ? `http://${ip}/light/0?turn=on&red=${r}&green=${g}&blue=${b}&brightness=${brightness}&effect=${blink?3:0}`
+        : `http://${ip}/relay/0?turn=on`;
+    try { await fetch(url, { mode: 'no-cors' }); setShellyStatus('active', `Signal gesendet an ${ip}`); }
+    catch(e) { setShellyStatus('error', `Fehler: ${ip} nicht erreichbar`); }
   }
 
   async function shellyOff() {
     if (!shellyConfig.ip) return;
-    const ip = shellyConfig.ip;
-    const model = shellyConfig.model;
+    const { ip, model } = shellyConfig;
     const url = model === 'plug' ? `http://${ip}/relay/0?turn=off`
-      : model === 'rgbw2' ? `http://${ip}/color/0?turn=off`
-      : `http://${ip}/light/0?turn=off`;
+      : model === 'rgbw2' ? `http://${ip}/color/0?turn=off` : `http://${ip}/light/0?turn=off`;
     try { await fetch(url, { mode: 'no-cors' }); } catch(e) {}
   }
 
-  window.testShelly = async function() {
+  window.testShelly = async () => {
     const ip = document.getElementById('shelly-ip').value.trim();
     if (!ip) { alert('Bitte zuerst IP-Adresse eingeben.'); return; }
     shellyConfig.ip = ip;
@@ -443,52 +304,50 @@
   }
 
   // ── Aufträge ───────────────────────────────────────────
-  window.addOrder = function() {
+  window.addOrder = () => {
     const artikel = document.getElementById('inp-artikel').value.trim();
     const lager   = document.getElementById('inp-lager').value.trim();
     const ziel    = document.getElementById('inp-ziel').value.trim();
     const time    = document.getElementById('inp-time').value;
     if (!artikel || !lager || !ziel || !time) { alert('Bitte alle Felder ausfüllen.'); return; }
     push(ordersRef, { artikel, lager, ziel, time, date: todayStr, createdAt: Date.now() });
-    document.getElementById('inp-artikel').value = '';
-    document.getElementById('inp-lager').value = '';
-    document.getElementById('inp-ziel').value = '';
-    document.getElementById('inp-time').value = '';
+    ['inp-artikel','inp-lager','inp-ziel','inp-time'].forEach(id => document.getElementById(id).value = '');
   };
 
-  window.deleteOrder = function(key) {
-    remove(ref(db, `auslagerung/orders/${key}`));
-  };
+  window.deleteOrder = (key) => remove(ref(db, `auslagerung/orders/${key}`));
 
   let wasOverdue = false;
 
-  function renderTable(orders, tbodyId) {
-    const tbody = document.getElementById(tbodyId);
+  function renderTable(orders) {
+    const tbody = document.getElementById('tbody-today');
     if (!orders || orders.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="no-orders">Keine Aufträge.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="no-orders">Keine Aufträge für heute.</td></tr>`;
       return;
     }
     orders.sort((a,b) => a.time.localeCompare(b.time));
     const now = new Date();
     const nowTime = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
     tbody.innerHTML = orders.map((o,i) => {
-      const isUrgent = o.date === todayStr && o.time <= nowTime;
+      const isUrgent = o.time <= nowTime;
+      const timeCell = isUrgent
+        ? `<span class="td-urgent">${o.time} Uhr ⚠️</span>`
+        : `<span class="td-time">${o.time} Uhr</span>`;
       return `<tr>
         <td>${i+1}</td>
         <td>${o.artikel}</td>
         <td>${o.lager}</td>
         <td>${o.ziel}</td>
-        <td class="${isUrgent ? 'td-urgent' : 'td-time'}">${o.time} Uhr${isUrgent ? ' ⚠️' : ''}</td>
+        <td>${timeCell}</td>
         <td><button class="btn-delete" onclick="deleteOrder('${o.key}')">Löschen</button></td>
       </tr>`;
     }).join('');
   }
 
-  function checkShellyTrigger(allOrders) {
+  function checkShellyTrigger(orders) {
     if (!shellyConfig.ip || shellyConfig.trigger !== 'overdue') return;
     const now = new Date();
     const nowTime = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-    const hasOverdue = allOrders.some(o => o.date === todayStr && o.time <= nowTime);
+    const hasOverdue = orders.some(o => o.time <= nowTime);
     if (hasOverdue && !wasOverdue) {
       wasOverdue = true;
       shellyCommand(255, 0, 0, 100, true);
@@ -502,14 +361,11 @@
 
   onValue(ordersRef, (snapshot) => {
     const data = snapshot.val();
-    const allOrders = data
-      ? Object.entries(data).map(([key,val]) => ({...val, key}))
-      : [];
-    renderTable(allOrders.filter(o => o.date === todayStr), 'tbody-today');
-    renderTable(allOrders.filter(o => o.date === tomorrowStr), 'tbody-tomorrow');
-    checkShellyTrigger(allOrders);
+    const allOrders = data ? Object.entries(data).map(([key,val]) => ({...val, key})) : [];
+    const todayOrders = allOrders.filter(o => o.date === todayStr);
+    renderTable(todayOrders);
+    checkShellyTrigger(todayOrders);
   });
 </script>
-
 </body>
 </html>
