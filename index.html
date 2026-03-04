@@ -8,42 +8,72 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: #121212;
-            color: white;
+            background-color: #f0f4f8;
+            color: #1a202c;
             min-height: 100vh;
             padding: 30px 20px;
         }
         h1 {
             text-align: center;
-            color: #a8c7fa;
-            font-size: 24px;
+            color: #2b6cb0;
+            font-size: 26px;
             margin-bottom: 6px;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .subtitle {
             text-align: center;
-            color: #555;
+            color: #718096;
             font-size: 13px;
             margin-bottom: 30px;
         }
 
-        /* EINGABEMASKE */
-        .form-card {
-            background: #1e1e1e;
-            border: 1px solid #333;
+        /* HEADER ROW */
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 6px;
+            position: relative;
+        }
+        .btn-fullscreen {
+            position: absolute;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 13px;
+            color: #4a5568;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .btn-fullscreen:hover { background: #edf2f7; border-color: #cbd5e0; }
+
+        .form-card, .table-card, .settings-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 24px;
-            max-width: 900px;
-            margin: 0 auto 30px auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            max-width: 950px;
+            margin: 0 auto 28px auto;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
         }
-        .form-card h2 {
-            color: #a8c7fa;
-            font-size: 15px;
-            margin-bottom: 16px;
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-bottom: 16px;
         }
+        .form-card .card-title { color: #2b6cb0; }
+        .table-card .card-title { color: #2d3748; }
+        .settings-card .card-title { color: #744210; }
+
         .form-row {
             display: flex;
             gap: 12px;
@@ -59,142 +89,159 @@
         }
         .form-group label {
             font-size: 11px;
-            color: #888;
+            color: #718096;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 600;
         }
-        .form-group input {
-            background: #000;
-            border: 1px solid #444;
+        .form-group input, .form-group select {
+            background: #f7fafc;
+            border: 1px solid #cbd5e0;
             border-radius: 8px;
             padding: 10px 12px;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
+            color: #1a202c;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .form-group input:focus { border-color: #a8c7fa; }
-        .form-group input::placeholder { color: #444; }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66,153,225,0.15);
+        }
+        .form-group input::placeholder { color: #a0aec0; }
 
         .btn-add {
-            background: #a8c7fa;
-            color: #000;
+            background: #2b6cb0;
+            color: #fff;
             border: none;
             border-radius: 8px;
-            padding: 10px 24px;
+            padding: 10px 26px;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             transition: background 0.2s;
             white-space: nowrap;
         }
-        .btn-add:hover { background: #c5d8fc; }
+        .btn-add:hover { background: #2c5282; }
 
-        /* AUFTRAGS-TABELLE */
-        .table-card {
-            background: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 900px;
-            margin: 0 auto 20px auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-        }
-        .table-card h2 {
-            color: #a8c7fa;
-            font-size: 15px;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .day-label {
-            font-size: 12px;
-            color: #555;
-            font-weight: normal;
-            text-transform: none;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .btn-save {
+            background: #d69e2e;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 26px;
             font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
         }
+        .btn-save:hover { background: #b7791f; }
+
+        .btn-test {
+            background: transparent;
+            color: #d69e2e;
+            border: 2px solid #d69e2e;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-test:hover { background: #d69e2e; color: #fff; }
+
+        .shelly-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            font-size: 13px;
+            color: #718096;
+        }
+        .shelly-dot {
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            background: #a0aec0;
+        }
+        .shelly-dot.active { background: #48bb78; box-shadow: 0 0 6px #48bb78; }
+        .shelly-dot.error  { background: #fc8181; box-shadow: 0 0 6px #fc8181; }
+        .shelly-dot.blink  { background: #fc8181; animation: blink 0.6s infinite alternate; }
+        @keyframes blink {
+            from { opacity: 1; box-shadow: 0 0 8px #fc8181; }
+            to   { opacity: 0.2; box-shadow: none; }
+        }
+
+        .info-box {
+            background: #fffbeb;
+            border: 1px solid #f6e05e;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #744210;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .info-box strong { color: #92400e; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
         thead th {
             text-align: left;
-            color: #888;
+            color: #718096;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             padding: 8px 12px;
-            border-bottom: 1px solid #333;
+            border-bottom: 2px solid #e2e8f0;
         }
-        tbody tr {
-            border-bottom: 1px solid #222;
-            transition: background 0.15s;
-        }
-        tbody tr:hover { background: #252525; }
-        tbody td {
-            padding: 12px 12px;
-            color: #ddd;
-            font-family: 'Courier New', monospace;
-        }
-        .td-time {
-            color: #ffcc00;
-            font-weight: bold;
-        }
-        .td-urgent {
-            color: #ff4444;
-            font-weight: bold;
-        }
-        .no-orders {
-            text-align: center;
-            color: #444;
-            padding: 30px;
-            font-size: 14px;
-        }
-
+        tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.15s; }
+        tbody tr:hover { background: #f7fafc; }
+        tbody td { padding: 12px 12px; color: #2d3748; }
+        .td-time { color: #2b6cb0; font-weight: 600; }
+        .td-urgent { color: #c53030; font-weight: 700; }
+        .no-orders { text-align: center; color: #a0aec0; padding: 30px; font-size: 14px; }
         .btn-delete {
             background: transparent;
-            border: 1px solid #444;
-            color: #888;
+            border: 1px solid #e2e8f0;
+            color: #a0aec0;
             border-radius: 6px;
             padding: 4px 10px;
             font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .btn-delete:hover { border-color: #ff4444; color: #ff4444; }
+        .btn-delete:hover { border-color: #fc8181; color: #c53030; background: #fff5f5; }
 
-        /* STATUS */
         .status-bar {
             text-align: center;
             font-size: 12px;
-            color: #444;
+            color: #a0aec0;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            margin-top: 10px;
         }
-        .dot {
-            width: 7px; height: 7px;
-            background: #00ff00;
-            border-radius: 50%;
-            box-shadow: 0 0 6px #00ff00;
-        }
+        .dot { width: 7px; height: 7px; background: #48bb78; border-radius: 50%; box-shadow: 0 0 6px #48bb78; }
+
+        /* VOLLBILD */
+        :fullscreen body, ::backdrop { background: #f0f4f8; }
     </style>
 </head>
 <body>
 
-<h1>📦 Auslagerungs-Dashboard</h1>
+<div class="header-row">
+    <h1>📦 Auslagerungs-Dashboard</h1>
+    <button class="btn-fullscreen" onclick="toggleFullscreen()" id="btn-fs">
+        ⛶ Vollbild
+    </button>
+</div>
 <p class="subtitle" id="currentDate"></p>
 
 <!-- EINGABEMASKE -->
 <div class="form-card">
-    <h2>+ Neuer Auslagerungsauftrag</h2>
+    <div class="card-title">+ Neuer Auslagerungsauftrag</div>
     <div class="form-row">
         <div class="form-group">
             <label>Artikelnummer</label>
@@ -218,48 +265,60 @@
 
 <!-- HEUTE -->
 <div class="table-card">
-    <h2>
-        Heute
-        <span class="day-label" id="label-today"></span>
-    </h2>
+    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        Heute <span style="font-size:12px;color:#a0aec0;font-weight:normal;text-transform:none;" id="label-today"></span>
+    </div>
     <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Artikelnummer</th>
-                <th>Lagerort</th>
-                <th>Zielort</th>
-                <th>Spätestens</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody id="tbody-today">
-            <tr><td colspan="6" class="no-orders">Keine Aufträge für heute.</td></tr>
-        </tbody>
+        <thead><tr><th>#</th><th>Artikelnummer</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th></th></tr></thead>
+        <tbody id="tbody-today"><tr><td colspan="6" class="no-orders">Keine Aufträge für heute.</td></tr></tbody>
     </table>
 </div>
 
 <!-- MORGEN -->
 <div class="table-card">
-    <h2>
-        Morgen
-        <span class="day-label" id="label-tomorrow"></span>
-    </h2>
+    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        Morgen <span style="font-size:12px;color:#a0aec0;font-weight:normal;text-transform:none;" id="label-tomorrow"></span>
+    </div>
     <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Artikelnummer</th>
-                <th>Lagerort</th>
-                <th>Zielort</th>
-                <th>Spätestens</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody id="tbody-tomorrow">
-            <tr><td colspan="6" class="no-orders">Keine Aufträge für morgen.</td></tr>
-        </tbody>
+        <thead><tr><th>#</th><th>Artikelnummer</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th></th></tr></thead>
+        <tbody id="tbody-tomorrow"><tr><td colspan="6" class="no-orders">Keine Aufträge für morgen.</td></tr></tbody>
     </table>
+</div>
+
+<!-- SHELLY EINSTELLUNGEN -->
+<div class="settings-card">
+    <div class="card-title">💡 Shelly Lampen-Einstellungen</div>
+    <div class="info-box">
+        <strong>Hinweis:</strong> Der Browser muss im gleichen Netzwerk wie die Shelly-Lampe sein.
+        Shelly-Modelle mit Farb-LED: <strong>Shelly RGBW2, Shelly Bulb, Shelly Duo RGBW</strong>.
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label>Shelly IP-Adresse</label>
+            <input id="shelly-ip" type="text" placeholder="z.B. 192.168.1.50">
+        </div>
+        <div class="form-group" style="max-width: 160px;">
+            <label>Shelly Modell</label>
+            <select id="shelly-model">
+                <option value="rgbw2">Shelly RGBW2</option>
+                <option value="bulb">Shelly Bulb / Duo RGBW</option>
+                <option value="plug">Shelly Plug (An/Aus)</option>
+            </select>
+        </div>
+        <div class="form-group" style="max-width: 200px;">
+            <label>Auslöser</label>
+            <select id="shelly-trigger">
+                <option value="overdue">Auftrag überschritten → Rot blinkend</option>
+                <option value="any">Immer bei neuem Auftrag → Gelb</option>
+            </select>
+        </div>
+        <button class="btn-test" onclick="testShelly()">🔦 Test</button>
+        <button class="btn-save" onclick="saveShelly()">Speichern</button>
+    </div>
+    <div class="shelly-status">
+        <span class="shelly-dot" id="shelly-dot"></span>
+        <span id="shelly-status-text">Nicht konfiguriert</span>
+    </div>
 </div>
 
 <div class="status-bar">
@@ -268,7 +327,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB-BLAy2LEMup5DKSrlddb7waR2UXko8JA",
@@ -284,101 +343,171 @@
   const db = getDatabase(app);
   const ordersRef = ref(db, 'auslagerung/orders');
 
-  // Datum-Hilfsfunktionen
-  function toDateStr(date) {
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD
-  }
-  function formatDisplay(dateStr) {
-    const [y, m, d] = dateStr.split('-');
-    return `${d}.${m}.${y}`;
-  }
+  function toDateStr(d) { return d.toISOString().split('T')[0]; }
+  function formatDisplay(s) { const [y,m,d]=s.split('-'); return `${d}.${m}.${y}`; }
 
   const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
+  const tomorrow = new Date(); tomorrow.setDate(today.getDate()+1);
   const todayStr = toDateStr(today);
   const tomorrowStr = toDateStr(tomorrow);
 
-  // Datum anzeigen
   document.getElementById('currentDate').textContent =
     `Anzeige: ${formatDisplay(todayStr)} – ${formatDisplay(tomorrowStr)}`;
   document.getElementById('label-today').textContent = formatDisplay(todayStr);
   document.getElementById('label-tomorrow').textContent = formatDisplay(tomorrowStr);
 
-  // Auftrag hinzufügen (global verfügbar)
+  // ── Vollbild ───────────────────────────────────────────
+  window.toggleFullscreen = function() {
+    const btn = document.getElementById('btn-fs');
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      btn.textContent = '✕ Vollbild beenden';
+    } else {
+      document.exitFullscreen();
+      btn.textContent = '⛶ Vollbild';
+    }
+  };
+  document.addEventListener('fullscreenchange', () => {
+    const btn = document.getElementById('btn-fs');
+    btn.textContent = document.fullscreenElement ? '✕ Vollbild beenden' : '⛶ Vollbild';
+  });
+
+  // ── Shelly ─────────────────────────────────────────────
+  let shellyConfig = JSON.parse(localStorage.getItem('shellyConfig') || '{}');
+  if (shellyConfig.ip) {
+    document.getElementById('shelly-ip').value = shellyConfig.ip;
+    document.getElementById('shelly-model').value = shellyConfig.model || 'rgbw2';
+    document.getElementById('shelly-trigger').value = shellyConfig.trigger || 'overdue';
+    setShellyStatus('saved', `Gespeichert: ${shellyConfig.ip}`);
+  }
+
+  window.saveShelly = function() {
+    const ip = document.getElementById('shelly-ip').value.trim();
+    if (!ip) { alert('Bitte IP-Adresse eingeben.'); return; }
+    shellyConfig = {
+      ip,
+      model: document.getElementById('shelly-model').value,
+      trigger: document.getElementById('shelly-trigger').value
+    };
+    localStorage.setItem('shellyConfig', JSON.stringify(shellyConfig));
+    setShellyStatus('saved', `Gespeichert: ${ip}`);
+  };
+
+  async function shellyCommand(r, g, b, brightness, blink) {
+    if (!shellyConfig.ip) return;
+    const ip = shellyConfig.ip;
+    const model = shellyConfig.model;
+    let url = '';
+    if (model === 'rgbw2') {
+      url = `http://${ip}/color/0?turn=on&red=${r}&green=${g}&blue=${b}&gain=${brightness}&effect=${blink ? 3 : 0}`;
+    } else if (model === 'bulb') {
+      url = `http://${ip}/light/0?turn=on&red=${r}&green=${g}&blue=${b}&brightness=${brightness}&effect=${blink ? 3 : 0}`;
+    } else if (model === 'plug') {
+      url = `http://${ip}/relay/0?turn=on`;
+    }
+    try {
+      await fetch(url, { mode: 'no-cors' });
+      setShellyStatus('active', `Signal gesendet an ${ip}`);
+    } catch(e) {
+      setShellyStatus('error', `Fehler: ${ip} nicht erreichbar`);
+    }
+  }
+
+  async function shellyOff() {
+    if (!shellyConfig.ip) return;
+    const ip = shellyConfig.ip;
+    const model = shellyConfig.model;
+    const url = model === 'plug' ? `http://${ip}/relay/0?turn=off`
+      : model === 'rgbw2' ? `http://${ip}/color/0?turn=off`
+      : `http://${ip}/light/0?turn=off`;
+    try { await fetch(url, { mode: 'no-cors' }); } catch(e) {}
+  }
+
+  window.testShelly = async function() {
+    const ip = document.getElementById('shelly-ip').value.trim();
+    if (!ip) { alert('Bitte zuerst IP-Adresse eingeben.'); return; }
+    shellyConfig.ip = ip;
+    shellyConfig.model = document.getElementById('shelly-model').value;
+    setShellyStatus('blink', `Teste ${ip}...`);
+    await shellyCommand(255, 0, 0, 100, true);
+    setTimeout(() => shellyOff(), 5000);
+  };
+
+  function setShellyStatus(state, text) {
+    const dot = document.getElementById('shelly-dot');
+    dot.className = 'shelly-dot';
+    if (state === 'active' || state === 'saved') dot.classList.add('active');
+    else if (state === 'error') dot.classList.add('error');
+    else if (state === 'blink') dot.classList.add('blink');
+    document.getElementById('shelly-status-text').textContent = text;
+  }
+
+  // ── Aufträge ───────────────────────────────────────────
   window.addOrder = function() {
     const artikel = document.getElementById('inp-artikel').value.trim();
     const lager   = document.getElementById('inp-lager').value.trim();
     const ziel    = document.getElementById('inp-ziel').value.trim();
     const time    = document.getElementById('inp-time').value;
-
-    if (!artikel || !lager || !ziel || !time) {
-      alert('Bitte alle Felder ausfüllen.');
-      return;
-    }
-
-    const newOrder = {
-      artikel, lager, ziel, time,
-      date: todayStr,
-      createdAt: Date.now()
-    };
-
-    push(ordersRef, newOrder);
-
-    // Felder leeren
+    if (!artikel || !lager || !ziel || !time) { alert('Bitte alle Felder ausfüllen.'); return; }
+    push(ordersRef, { artikel, lager, ziel, time, date: todayStr, createdAt: Date.now() });
     document.getElementById('inp-artikel').value = '';
     document.getElementById('inp-lager').value = '';
     document.getElementById('inp-ziel').value = '';
     document.getElementById('inp-time').value = '';
   };
 
-  // Auftrag löschen (global)
   window.deleteOrder = function(key) {
-    const entryRef = ref(db, `auslagerung/orders/${key}`);
-    remove(entryRef);
+    remove(ref(db, `auslagerung/orders/${key}`));
   };
 
-  // Tabelle rendern
+  let wasOverdue = false;
+
   function renderTable(orders, tbodyId) {
     const tbody = document.getElementById(tbodyId);
     if (!orders || orders.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" class="no-orders">Keine Aufträge.</td></tr>`;
       return;
     }
-    // Sortieren nach Uhrzeit
-    orders.sort((a, b) => a.time.localeCompare(b.time));
-
+    orders.sort((a,b) => a.time.localeCompare(b.time));
     const now = new Date();
-    const nowTime = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-
-    tbody.innerHTML = orders.map((o, i) => {
+    const nowTime = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+    tbody.innerHTML = orders.map((o,i) => {
       const isUrgent = o.date === todayStr && o.time <= nowTime;
-      const timeClass = isUrgent ? 'td-urgent' : 'td-time';
-      return `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${o.artikel}</td>
-          <td>${o.lager}</td>
-          <td>${o.ziel}</td>
-          <td class="${timeClass}">${o.time} Uhr${isUrgent ? ' ⚠️' : ''}</td>
-          <td><button class="btn-delete" onclick="deleteOrder('${o.key}')">Löschen</button></td>
-        </tr>`;
+      return `<tr>
+        <td>${i+1}</td>
+        <td>${o.artikel}</td>
+        <td>${o.lager}</td>
+        <td>${o.ziel}</td>
+        <td class="${isUrgent ? 'td-urgent' : 'td-time'}">${o.time} Uhr${isUrgent ? ' ⚠️' : ''}</td>
+        <td><button class="btn-delete" onclick="deleteOrder('${o.key}')">Löschen</button></td>
+      </tr>`;
     }).join('');
   }
 
-  // Firebase Live-Listener
+  function checkShellyTrigger(allOrders) {
+    if (!shellyConfig.ip || shellyConfig.trigger !== 'overdue') return;
+    const now = new Date();
+    const nowTime = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+    const hasOverdue = allOrders.some(o => o.date === todayStr && o.time <= nowTime);
+    if (hasOverdue && !wasOverdue) {
+      wasOverdue = true;
+      shellyCommand(255, 0, 0, 100, true);
+      setShellyStatus('blink', '⚠️ Überschrittener Auftrag – Lampe blinkt rot');
+    } else if (!hasOverdue && wasOverdue) {
+      wasOverdue = false;
+      shellyOff();
+      setShellyStatus('active', 'Alle Aufträge erledigt – Lampe aus');
+    }
+  }
+
   onValue(ordersRef, (snapshot) => {
     const data = snapshot.val();
     const allOrders = data
-      ? Object.entries(data).map(([key, val]) => ({ ...val, key }))
+      ? Object.entries(data).map(([key,val]) => ({...val, key}))
       : [];
-
-    // Nur heute & morgen anzeigen, alte Daten ignorieren
-    const todayOrders    = allOrders.filter(o => o.date === todayStr);
-    const tomorrowOrders = allOrders.filter(o => o.date === tomorrowStr);
-
-    renderTable(todayOrders, 'tbody-today');
-    renderTable(tomorrowOrders, 'tbody-tomorrow');
+    renderTable(allOrders.filter(o => o.date === todayStr), 'tbody-today');
+    renderTable(allOrders.filter(o => o.date === tomorrowStr), 'tbody-tomorrow');
+    checkShellyTrigger(allOrders);
   });
 </script>
 
