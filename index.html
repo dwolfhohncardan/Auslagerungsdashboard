@@ -6,163 +6,307 @@
     <title>Auslagerungs-Dashboard</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; color: #1a202c; min-height: 100vh; padding: 30px 40px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
 
-        .header-row { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; position: relative; }
-        h1 { text-align: center; color: #2b6cb0; font-size: 36px; letter-spacing: 0.5px; }
-        .subtitle { text-align: center; color: #718096; font-size: 18px; margin-bottom: 30px; }
+        /* ── MODUS-AUSWAHL ── */
+        .mode-switcher {
+            display: flex; justify-content: center; gap: 12px;
+            padding: 14px 20px; background: #fff;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky; top: 0; z-index: 50;
+        }
+        .mode-btn {
+            padding: 8px 28px; border-radius: 8px; border: 2px solid #e2e8f0;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            background: #f7fafc; color: #718096; transition: all 0.2s;
+        }
+        .mode-btn.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
 
-        .header-buttons { position: absolute; right: 0; display: flex; gap: 8px; }
-        .btn-icon { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 18px; font-size: 15px; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .btn-icon:hover { background: #edf2f7; border-color: #cbd5e0; }
+        /* ── GEMEINSAME UTILS ── */
+        .hidden { display: none !important; }
+        .btn-icon {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 9px 16px; font-size: 14px; color: #4a5568;
+            cursor: pointer; display: inline-flex; align-items: center;
+            gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .btn-icon:hover { background: #edf2f7; }
+
+        /* ════════════════════════════════════
+           TV-ANSICHT
+        ════════════════════════════════════ */
+        #view-tv { padding: 20px 40px 30px; }
+        .tv-header { display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; }
+        .tv-header h1 { font-size: 34px; color: #2b6cb0; }
+        .tv-header-btns { position: absolute; right: 0; display: flex; gap: 8px; }
+        .tv-subtitle { text-align: center; color: #718096; font-size: 18px; margin-bottom: 24px; }
+
+        /* Zwei Spalten nebeneinander */
+        .tv-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
+
+        .tv-col-card {
+            background: #fff; border-radius: 16px; padding: 28px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09); border: 1px solid #e2e8f0;
+        }
+        .tv-col-title {
+            font-size: 20px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 18px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .tv-col-title.am { color: #d97706; }
+        .tv-col-title.pm { color: #5a67d8; }
+
+        .tv-table { width: 100%; border-collapse: collapse; }
+        .tv-table thead th {
+            text-align: left; color: #fff;
+            font-size: 15px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            padding: 14px 18px;
+        }
+        .tv-col-card:first-child .tv-table thead { background: #d97706; }
+        .tv-col-card:last-child  .tv-table thead { background: #5a67d8; }
+        .tv-table thead th:first-child { border-radius: 8px 0 0 8px; }
+        .tv-table thead th:last-child  { border-radius: 0 8px 8px 0; }
+
+        .tv-table tbody tr { border-bottom: 2px solid #edf2f7; }
+        .tv-table tbody tr:last-child { border-bottom: none; }
+        .tv-table tbody tr:nth-child(even) { background: #f7fafc; }
+        .tv-table tbody td { padding: 18px 18px; font-size: 22px; color: #2d3748; font-weight: 500; }
+        .tv-table td.idx { color: #a0aec0; font-size: 18px; width: 36px; }
+        .td-time { color: #2b6cb0; font-weight: 700; }
+        .td-urgent { background: #c53030; color: #fff; font-weight: 800; border-radius: 8px; padding: 5px 12px; display: inline-block; animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { opacity: 1; } to { opacity: 0.7; } }
+        .no-orders { text-align: center; color: #a0aec0; padding: 40px; font-size: 18px; }
+
+        .btn-delete-tv { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 6px; padding: 6px 14px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        .btn-delete-tv:hover { border-color: #fc8181; color: #c53030; background: #fff5f5; }
+
+        .tv-status { text-align: center; font-size: 14px; color: #a0aec0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .live-dot { width: 8px; height: 8px; background: #48bb78; border-radius: 50%; box-shadow: 0 0 6px #48bb78; }
+
+
+        /* ════════════════════════════════════
+           TABLET-ANSICHT
+        ════════════════════════════════════ */
+        #view-tablet { padding: 16px 20px 30px; }
+        .tablet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .tablet-header h2 { font-size: 22px; color: #2b6cb0; font-weight: 800; }
+        .tablet-subtitle { font-size: 13px; color: #a0aec0; margin-top: 2px; }
+
+        /* Eingabe Tablet */
+        .tablet-form {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .tablet-form-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2b6cb0; margin-bottom: 12px; }
+        .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 130px; }
+        .form-group label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .form-group input, .form-group select {
+            background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px;
+            padding: 9px 11px; color: #1a202c; font-size: 14px; outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #4299e1; }
+        .form-group input::placeholder { color: #a0aec0; }
+        .btn-add { background: #2b6cb0; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        .btn-add:hover { background: #2c5282; }
+
+        /* Tablet-Tabelle (einspaltig, scrollbar) */
+        .tablet-table-card {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow-x: auto;
+        }
+        .tablet-table-title {
+            font-size: 13px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .tablet-table-title.am { color: #d97706; }
+        .tablet-table-title.pm { color: #5a67d8; }
+
+        .tab-table { width: 100%; border-collapse: collapse; }
+        .tab-table thead th {
+            text-align: left; color: #718096; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 8px 12px; border-bottom: 2px solid #e2e8f0;
+        }
+        .tab-table tbody tr { border-bottom: 1px solid #f0f4f8; }
+        .tab-table tbody tr:hover { background: #f7fafc; }
+        .tab-table tbody td { padding: 10px 12px; color: #2d3748; }
+        .tab-urgent { color: #c53030; font-weight: 700; }
+        .tab-time   { color: #2b6cb0; font-weight: 600; }
+        .btn-delete-tab { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 5px; padding: 3px 9px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .btn-delete-tab:hover { border-color: #fc8181; color: #c53030; }
+
+        /* Einstellungen-Panel Tablet */
+        .tablet-settings-panel {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .settings-panel-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #744210; margin-bottom: 14px; }
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+        .setting-item { display: flex; flex-direction: column; gap: 5px; }
+        .setting-item label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .setting-item input[type=range] { width: 100%; accent-color: #2b6cb0; }
+        .setting-value { font-size: 12px; color: #2b6cb0; font-weight: 700; text-align: right; }
+        .col-toggle-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .col-toggle { padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
+        .col-toggle.on { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
 
         /* MODAL */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
         .modal-overlay.open { display: flex; }
-        .modal { background: #fff; border-radius: 16px; padding: 28px; max-width: 620px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.18); position: relative; }
-        .modal h3 { color: #744210; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
-        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #a0aec0; cursor: pointer; line-height: 1; }
+        .modal { background: #fff; border-radius: 16px; padding: 28px; max-width: 580px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.18); position: relative; }
+        .modal h3 { color: #744210; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+        .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 20px; color: #a0aec0; cursor: pointer; }
         .modal-close:hover { color: #2d3748; }
-
-        /* EINGABE */
-        .form-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; max-width: 1400px; margin: 0 auto 28px auto; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
-        .card-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; color: #2b6cb0; }
-        .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px; }
-        .form-group label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .form-group input, .form-group select { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 12px; color: #1a202c; font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-        .form-group input:focus, .form-group select:focus { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,0.15); }
-        .form-group input::placeholder { color: #a0aec0; }
-        .btn-add { background: #2b6cb0; color: #fff; border: none; border-radius: 8px; padding: 10px 26px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
-        .btn-add:hover { background: #2c5282; }
-        .btn-save { background: #d69e2e; color: #fff; border: none; border-radius: 8px; padding: 10px 26px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+        .info-box { background: #fffbeb; border: 1px solid #f6e05e; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #744210; margin-bottom: 14px; line-height: 1.6; }
+        .btn-save { background: #d69e2e; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-save:hover { background: #b7791f; }
-        .btn-test { background: transparent; color: #d69e2e; border: 2px solid #d69e2e; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-test { background: transparent; color: #d69e2e; border: 2px solid #d69e2e; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-test:hover { background: #d69e2e; color: #fff; }
-
-        /* TV-OPTIMIERTE TABELLE */
-        .table-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; max-width: 1400px; margin: 0 auto 28px auto; box-shadow: 0 4px 24px rgba(0,0,0,0.09); }
-        .table-card .card-title { color: #2d3748; font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-
-        table { width: 100%; border-collapse: collapse; }
-        thead th {
-            text-align: left;
-            color: #fff;
-            background: #2b6cb0;
-            font-size: 17px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 18px 24px;
-        }
-        thead th:first-child { border-radius: 10px 0 0 10px; }
-        thead th:last-child  { border-radius: 0 10px 10px 0; }
-
-        tbody tr { border-bottom: 2px solid #e8edf3; transition: background 0.15s; }
-        tbody tr:last-child { border-bottom: none; }
-        tbody tr:nth-child(even) { background: #f7fafc; }
-        tbody tr:hover { background: #ebf4ff; }
-
-        tbody td {
-            padding: 22px 24px;
-            font-size: 24px;
-            color: #2d3748;
-            font-weight: 500;
-        }
-        td:first-child { color: #a0aec0; font-size: 20px; font-weight: 400; width: 50px; }
-
-        .td-time { color: #2b6cb0; font-weight: 700; font-size: 26px; }
-        .td-urgent {
-            color: #fff;
-            background: #c53030;
-            font-weight: 800;
-            font-size: 26px;
-            border-radius: 8px;
-            padding: 8px 16px;
-            display: inline-block;
-            animation: pulse-bg 1s infinite alternate;
-        }
-        @keyframes pulse-bg { from { opacity: 1; } to { opacity: 0.75; } }
-
-        .no-orders { text-align: center; color: #a0aec0; padding: 50px; font-size: 22px; }
-
-        .btn-delete { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 6px; padding: 8px 16px; font-size: 16px; cursor: pointer; transition: all 0.2s; }
-        .btn-delete:hover { border-color: #fc8181; color: #c53030; background: #fff5f5; }
-
-        .shelly-status { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: #718096; }
-        .shelly-dot { width: 9px; height: 9px; border-radius: 50%; background: #a0aec0; }
+        .shelly-status { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #718096; }
+        .shelly-dot { width: 8px; height: 8px; border-radius: 50%; background: #a0aec0; }
         .shelly-dot.active { background: #48bb78; box-shadow: 0 0 6px #48bb78; }
         .shelly-dot.error  { background: #fc8181; box-shadow: 0 0 6px #fc8181; }
         .shelly-dot.blink  { background: #fc8181; animation: blink 0.6s infinite alternate; }
-        @keyframes blink { from { opacity: 1; box-shadow: 0 0 8px #fc8181; } to { opacity: 0.2; box-shadow: none; } }
-
-        .info-box { background: #fffbeb; border: 1px solid #f6e05e; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #744210; margin-bottom: 16px; line-height: 1.6; }
-        .info-box strong { color: #92400e; }
-
-        .status-bar { text-align: center; font-size: 14px; color: #a0aec0; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
-        .dot { width: 8px; height: 8px; background: #48bb78; border-radius: 50%; box-shadow: 0 0 6px #48bb78; }
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.2; } }
     </style>
 </head>
 <body>
 
-<div class="header-row">
-    <h1>📦 Auslagerungs-Dashboard</h1>
-    <div class="header-buttons">
-        <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
-        <button class="btn-icon" onclick="toggleFullscreen()" id="btn-fs">⛶ Vollbild</button>
-    </div>
-</div>
-<p class="subtitle" id="currentDate"></p>
-
-<!-- EINGABEMASKE -->
-<div class="form-card">
-    <div class="card-title">+ Neuer Auslagerungsauftrag</div>
-    <div class="form-row">
-        <div class="form-group">
-            <label>Artikelnummer</label>
-            <input id="inp-artikel" type="text" placeholder="z.B. ART-00123">
-        </div>
-        <div class="form-group">
-            <label>Lagerort</label>
-            <input id="inp-lager" type="text" placeholder="z.B. Regal A3">
-        </div>
-        <div class="form-group">
-            <label>Zielort</label>
-            <input id="inp-ziel" type="text" placeholder="z.B. Versandzone 2">
-        </div>
-        <div class="form-group" style="max-width: 130px;">
-            <label>Spätestens um</label>
-            <input id="inp-time" type="time">
-        </div>
-        <button class="btn-add" onclick="addOrder()">Hinzufügen</button>
-    </div>
+<!-- MODUS-AUSWAHL -->
+<div class="mode-switcher">
+    <button class="mode-btn active" id="btn-mode-tv" onclick="setMode('tv')">🖥️ TV-Ansicht</button>
+    <button class="mode-btn" id="btn-mode-tablet" onclick="setMode('tablet')">📱 Tablet-Ansicht</button>
 </div>
 
-<!-- HEUTE -->
-<div class="table-card">
-    <div class="card-title">
-        Aufträge – Heute
-        <span style="font-size:16px;color:#a0aec0;font-weight:normal;text-transform:none;" id="label-today"></span>
+<!-- ════════ TV-ANSICHT ════════ -->
+<div id="view-tv">
+    <div class="tv-header">
+        <h1>📦 Auslagerungs-Dashboard</h1>
+        <div class="tv-header-btns">
+            <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
+            <button class="btn-icon" onclick="toggleFullscreen()" id="btn-fs">⛶ Vollbild</button>
+        </div>
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Artikelnummer</th>
-                <th>Lagerort</th>
-                <th>Zielort</th>
-                <th>Spätestens</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody id="tbody-today">
-            <tr><td colspan="6" class="no-orders">Keine Aufträge für heute.</td></tr>
-        </tbody>
-    </table>
+    <p class="tv-subtitle" id="tv-date"></p>
+
+    <div class="tv-columns">
+        <!-- VORMITTAG -->
+        <div class="tv-col-card">
+            <div class="tv-col-title am">☀️ Vormittag <span id="tv-am-count" style="font-size:15px;color:#a0aec0;font-weight:normal;"></span></div>
+            <table class="tv-table">
+                <thead><tr><th>#</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th></th></tr></thead>
+                <tbody id="tv-tbody-am"></tbody>
+            </table>
+        </div>
+        <!-- NACHMITTAG -->
+        <div class="tv-col-card">
+            <div class="tv-col-title pm">🌆 Nachmittag <span id="tv-pm-count" style="font-size:15px;color:#a0aec0;font-weight:normal;"></span></div>
+            <table class="tv-table">
+                <thead><tr><th>#</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th></th></tr></thead>
+                <tbody id="tv-tbody-pm"></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tv-status"><span class="live-dot"></span> Live-Sync aktiv</div>
 </div>
 
-<div class="status-bar">
-    <span class="dot"></span> Live-Sync aktiv · Alle Geräte synchronisiert
+<!-- ════════ TABLET-ANSICHT ════════ -->
+<div id="view-tablet" class="hidden">
+    <div class="tablet-header">
+        <div>
+            <h2>📦 Auslagerungs-Dashboard</h2>
+            <div class="tablet-subtitle" id="tablet-date"></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-icon" id="btn-settings-toggle" onclick="toggleTabletSettings()">⚙️ Einstellungen</button>
+            <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
+        </div>
+    </div>
+
+    <!-- Tablet: Einstellungspanel -->
+    <div class="tablet-settings-panel hidden" id="tablet-settings">
+        <div class="settings-panel-title">⚙️ Darstellungs-Einstellungen</div>
+        <div class="settings-grid">
+            <div class="setting-item">
+                <label>Schriftgröße</label>
+                <input type="range" min="12" max="26" value="15" id="setting-fontsize" oninput="applyTabletSettings()">
+                <div class="setting-value" id="val-fontsize">15px</div>
+            </div>
+            <div class="setting-item">
+                <label>Zeilenabstand</label>
+                <input type="range" min="6" max="30" value="10" id="setting-rowpad" oninput="applyTabletSettings()">
+                <div class="setting-value" id="val-rowpad">10px</div>
+            </div>
+        </div>
+        <div style="margin-top:14px;">
+            <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:8px;">Sichtbare Spalten</div>
+            <div class="col-toggle-row">
+                <span class="col-toggle on" data-col="artikel" onclick="toggleCol(this)">Artikel</span>
+                <span class="col-toggle on" data-col="lager"   onclick="toggleCol(this)">Lagerort</span>
+                <span class="col-toggle on" data-col="ziel"    onclick="toggleCol(this)">Zielort</span>
+                <span class="col-toggle on" data-col="time"    onclick="toggleCol(this)">Uhrzeit</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tablet: Eingabe -->
+    <div class="tablet-form">
+        <div class="tablet-form-title">+ Neuer Auslagerungsauftrag</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Artikelnummer</label>
+                <input id="inp-artikel" type="text" placeholder="z.B. ART-00123">
+            </div>
+            <div class="form-group">
+                <label>Lagerort</label>
+                <input id="inp-lager" type="text" placeholder="z.B. Regal A3">
+            </div>
+            <div class="form-group">
+                <label>Zielort</label>
+                <input id="inp-ziel" type="text" placeholder="z.B. Versandzone 2">
+            </div>
+            <div class="form-group" style="max-width:120px;">
+                <label>Uhrzeit</label>
+                <input id="inp-time" type="time">
+            </div>
+            <div class="form-group" style="max-width:150px;">
+                <label>Schicht</label>
+                <select id="inp-shift">
+                    <option value="auto">Automatisch</option>
+                    <option value="am">Vormittag</option>
+                    <option value="pm">Nachmittag</option>
+                </select>
+            </div>
+            <button class="btn-add" onclick="addOrder()">Hinzufügen</button>
+        </div>
+    </div>
+
+    <!-- Tablet: Tabellen -->
+    <div class="tablet-table-card">
+        <div class="tablet-table-title am">☀️ Vormittag</div>
+        <div style="overflow-x:auto;">
+            <table class="tab-table" id="tab-table-am">
+                <thead><tr id="tab-head-am"></tr></thead>
+                <tbody id="tab-tbody-am"></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tablet-table-card">
+        <div class="tablet-table-title pm">🌆 Nachmittag</div>
+        <div style="overflow-x:auto;">
+            <table class="tab-table" id="tab-table-pm">
+                <thead><tr id="tab-head-pm"></tr></thead>
+                <tbody id="tab-tbody-pm"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tv-status"><span class="live-dot"></span> Live-Sync aktiv</div>
 </div>
 
 <!-- SHELLY MODAL -->
@@ -170,39 +314,28 @@
     <div class="modal">
         <button class="modal-close" onclick="closeShellyModal()">✕</button>
         <h3>💡 Shelly Lampen-Einstellungen</h3>
-        <div class="info-box">
-            <strong>Hinweis:</strong> Der Browser muss im gleichen Netzwerk wie die Shelly-Lampe sein.
-            Shelly-Modelle mit Farb-LED: <strong>Shelly RGBW2, Shelly Bulb, Shelly Duo RGBW</strong>.
-        </div>
+        <div class="info-box"><strong>Hinweis:</strong> Browser muss im gleichen Netzwerk wie die Shelly-Lampe sein. Modelle mit Farb-LED: <strong>Shelly RGBW2, Bulb, Duo RGBW</strong>.</div>
         <div class="form-row">
-            <div class="form-group">
-                <label>Shelly IP-Adresse</label>
-                <input id="shelly-ip" type="text" placeholder="z.B. 192.168.1.50">
-            </div>
-            <div class="form-group" style="max-width: 160px;">
-                <label>Shelly Modell</label>
+            <div class="form-group"><label>IP-Adresse</label><input id="shelly-ip" type="text" placeholder="192.168.1.50"></div>
+            <div class="form-group" style="max-width:160px;"><label>Modell</label>
                 <select id="shelly-model">
                     <option value="rgbw2">Shelly RGBW2</option>
-                    <option value="bulb">Shelly Bulb / Duo RGBW</option>
-                    <option value="plug">Shelly Plug (An/Aus)</option>
+                    <option value="bulb">Shelly Bulb / Duo</option>
+                    <option value="plug">Shelly Plug</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Auslöser</label>
+            <div class="form-group"><label>Auslöser</label>
                 <select id="shelly-trigger">
-                    <option value="overdue">Auftrag überschritten → Rot blinkend</option>
-                    <option value="any">Immer bei neuem Auftrag → Gelb</option>
+                    <option value="overdue">Überschritten → Rot blinkend</option>
+                    <option value="any">Neuer Auftrag → Gelb</option>
                 </select>
             </div>
         </div>
-        <div style="display:flex;gap:10px;margin-top:16px;">
+        <div style="display:flex;gap:10px;margin-top:14px;">
             <button class="btn-test" onclick="testShelly()">🔦 Test</button>
             <button class="btn-save" onclick="saveShelly()">Speichern</button>
         </div>
-        <div class="shelly-status">
-            <span class="shelly-dot" id="shelly-dot"></span>
-            <span id="shelly-status-text">Nicht konfiguriert</span>
-        </div>
+        <div class="shelly-status"><span class="shelly-dot" id="shelly-dot"></span><span id="shelly-status-text">Nicht konfiguriert</span></div>
     </div>
 </div>
 
@@ -226,16 +359,62 @@
 
   function toDateStr(d) { return d.toISOString().split('T')[0]; }
   function formatDisplay(s) { const [y,m,d]=s.split('-'); return `${d}.${m}.${y}`; }
+  function getShift(time, manualShift) {
+    if (manualShift && manualShift !== 'auto') return manualShift;
+    return time < '12:00' ? 'am' : 'pm';
+  }
 
   const today = new Date();
   const todayStr = toDateStr(today);
-  document.getElementById('currentDate').textContent = `Heute: ${formatDisplay(todayStr)}`;
-  document.getElementById('label-today').textContent = formatDisplay(todayStr);
+  const dateLabel = `Heute: ${formatDisplay(todayStr)}`;
+  document.getElementById('tv-date').textContent = dateLabel;
+  document.getElementById('tablet-date').textContent = dateLabel;
 
-  // ── Modal ──────────────────────────────────────────────
-  window.openShellyModal  = () => document.getElementById('shelly-modal').classList.add('open');
-  window.closeShellyModal = () => document.getElementById('shelly-modal').classList.remove('open');
-  window.closeShellyOnBackdrop = (e) => { if (e.target === document.getElementById('shelly-modal')) closeShellyModal(); };
+  // ── Modus ─────────────────────────────────────────────
+  window.setMode = function(mode) {
+    document.getElementById('view-tv').classList.toggle('hidden', mode !== 'tv');
+    document.getElementById('view-tablet').classList.toggle('hidden', mode !== 'tablet');
+    document.getElementById('btn-mode-tv').classList.toggle('active', mode === 'tv');
+    document.getElementById('btn-mode-tablet').classList.toggle('active', mode === 'tablet');
+    localStorage.setItem('dashMode', mode);
+  };
+  const savedMode = localStorage.getItem('dashMode') || 'tv';
+  setMode(savedMode);
+
+  // ── Tablet-Einstellungen ───────────────────────────────
+  let tabletSettings = JSON.parse(localStorage.getItem('tabletSettings') || '{"fontsize":15,"rowpad":10,"cols":{"artikel":true,"lager":true,"ziel":true,"time":true}}');
+
+  window.toggleTabletSettings = function() {
+    document.getElementById('tablet-settings').classList.toggle('hidden');
+  };
+
+  window.applyTabletSettings = function() {
+    tabletSettings.fontsize = +document.getElementById('setting-fontsize').value;
+    tabletSettings.rowpad   = +document.getElementById('setting-rowpad').value;
+    document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
+    document.getElementById('val-rowpad').textContent   = tabletSettings.rowpad + 'px';
+    localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
+    renderAll();
+  };
+
+  window.toggleCol = function(el) {
+    const col = el.dataset.col;
+    tabletSettings.cols[col] = !tabletSettings.cols[col];
+    el.classList.toggle('on', tabletSettings.cols[col]);
+    localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
+    renderAll();
+  };
+
+  function loadTabletSettingsUI() {
+    document.getElementById('setting-fontsize').value = tabletSettings.fontsize;
+    document.getElementById('setting-rowpad').value   = tabletSettings.rowpad;
+    document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
+    document.getElementById('val-rowpad').textContent   = tabletSettings.rowpad + 'px';
+    document.querySelectorAll('.col-toggle').forEach(el => {
+      el.classList.toggle('on', tabletSettings.cols[el.dataset.col] !== false);
+    });
+  }
+  loadTabletSettingsUI();
 
   // ── Vollbild ───────────────────────────────────────────
   window.toggleFullscreen = () => {
@@ -243,8 +422,13 @@
     else document.exitFullscreen();
   };
   document.addEventListener('fullscreenchange', () => {
-    document.getElementById('btn-fs').textContent = document.fullscreenElement ? '✕ Vollbild beenden' : '⛶ Vollbild';
+    document.getElementById('btn-fs').textContent = document.fullscreenElement ? '✕ Beenden' : '⛶ Vollbild';
   });
+
+  // ── Modal ──────────────────────────────────────────────
+  window.openShellyModal  = () => document.getElementById('shelly-modal').classList.add('open');
+  window.closeShellyModal = () => document.getElementById('shelly-modal').classList.remove('open');
+  window.closeShellyOnBackdrop = (e) => { if (e.target.id === 'shelly-modal') closeShellyModal(); };
 
   // ── Shelly ─────────────────────────────────────────────
   let shellyConfig = JSON.parse(localStorage.getItem('shellyConfig') || '{}');
@@ -264,42 +448,38 @@
     closeShellyModal();
   };
 
-  async function shellyCommand(r, g, b, brightness, blink) {
+  async function shellyCommand(r,g,b,brightness,blink) {
     if (!shellyConfig.ip) return;
     const { ip, model } = shellyConfig;
-    const url = model === 'rgbw2'
-      ? `http://${ip}/color/0?turn=on&red=${r}&green=${g}&blue=${b}&gain=${brightness}&effect=${blink?3:0}`
-      : model === 'bulb'
-        ? `http://${ip}/light/0?turn=on&red=${r}&green=${g}&blue=${b}&brightness=${brightness}&effect=${blink?3:0}`
-        : `http://${ip}/relay/0?turn=on`;
-    try { await fetch(url, { mode: 'no-cors' }); setShellyStatus('active', `Signal gesendet an ${ip}`); }
+    const url = model === 'rgbw2' ? `http://${ip}/color/0?turn=on&red=${r}&green=${g}&blue=${b}&gain=${brightness}&effect=${blink?3:0}`
+      : model === 'bulb' ? `http://${ip}/light/0?turn=on&red=${r}&green=${g}&blue=${b}&brightness=${brightness}&effect=${blink?3:0}`
+      : `http://${ip}/relay/0?turn=on`;
+    try { await fetch(url, {mode:'no-cors'}); setShellyStatus('active', `Signal an ${ip}`); }
     catch(e) { setShellyStatus('error', `Fehler: ${ip} nicht erreichbar`); }
   }
 
   async function shellyOff() {
     if (!shellyConfig.ip) return;
     const { ip, model } = shellyConfig;
-    const url = model === 'plug' ? `http://${ip}/relay/0?turn=off`
-      : model === 'rgbw2' ? `http://${ip}/color/0?turn=off` : `http://${ip}/light/0?turn=off`;
-    try { await fetch(url, { mode: 'no-cors' }); } catch(e) {}
+    const url = model==='plug' ? `http://${ip}/relay/0?turn=off` : model==='rgbw2' ? `http://${ip}/color/0?turn=off` : `http://${ip}/light/0?turn=off`;
+    try { await fetch(url, {mode:'no-cors'}); } catch(e) {}
   }
 
   window.testShelly = async () => {
     const ip = document.getElementById('shelly-ip').value.trim();
-    if (!ip) { alert('Bitte zuerst IP-Adresse eingeben.'); return; }
-    shellyConfig.ip = ip;
-    shellyConfig.model = document.getElementById('shelly-model').value;
+    if (!ip) { alert('Bitte IP eingeben.'); return; }
+    shellyConfig.ip = ip; shellyConfig.model = document.getElementById('shelly-model').value;
     setShellyStatus('blink', `Teste ${ip}...`);
-    await shellyCommand(255, 0, 0, 100, true);
+    await shellyCommand(255,0,0,100,true);
     setTimeout(() => shellyOff(), 5000);
   };
 
   function setShellyStatus(state, text) {
     const dot = document.getElementById('shelly-dot');
     dot.className = 'shelly-dot';
-    if (state === 'active' || state === 'saved') dot.classList.add('active');
-    else if (state === 'error') dot.classList.add('error');
-    else if (state === 'blink') dot.classList.add('blink');
+    if (state==='active'||state==='saved') dot.classList.add('active');
+    else if (state==='error') dot.classList.add('error');
+    else if (state==='blink') dot.classList.add('blink');
     document.getElementById('shelly-status-text').textContent = text;
   }
 
@@ -309,63 +489,110 @@
     const lager   = document.getElementById('inp-lager').value.trim();
     const ziel    = document.getElementById('inp-ziel').value.trim();
     const time    = document.getElementById('inp-time').value;
+    const shift   = document.getElementById('inp-shift').value;
     if (!artikel || !lager || !ziel || !time) { alert('Bitte alle Felder ausfüllen.'); return; }
-    push(ordersRef, { artikel, lager, ziel, time, date: todayStr, createdAt: Date.now() });
-    ['inp-artikel','inp-lager','inp-ziel','inp-time'].forEach(id => document.getElementById(id).value = '');
+    push(ordersRef, { artikel, lager, ziel, time, shift, date: todayStr, createdAt: Date.now() });
+    ['inp-artikel','inp-lager','inp-ziel','inp-time'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('inp-shift').value = 'auto';
   };
 
   window.deleteOrder = (key) => remove(ref(db, `auslagerung/orders/${key}`));
 
-  let wasOverdue = false;
+  // ── Render ─────────────────────────────────────────────
+  let allOrders = [];
 
-  function renderTable(orders) {
-    const tbody = document.getElementById('tbody-today');
-    if (!orders || orders.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="no-orders">Keine Aufträge für heute.</td></tr>`;
-      return;
-    }
-    orders.sort((a,b) => a.time.localeCompare(b.time));
+  function getNowTime() {
     const now = new Date();
-    const nowTime = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-    tbody.innerHTML = orders.map((o,i) => {
-      const isUrgent = o.time <= nowTime;
-      const timeCell = isUrgent
-        ? `<span class="td-urgent">${o.time} Uhr ⚠️</span>`
-        : `<span class="td-time">${o.time} Uhr</span>`;
-      return `<tr>
-        <td>${i+1}</td>
-        <td>${o.artikel}</td>
-        <td>${o.lager}</td>
-        <td>${o.ziel}</td>
-        <td>${timeCell}</td>
-        <td><button class="btn-delete" onclick="deleteOrder('${o.key}')">Löschen</button></td>
-      </tr>`;
-    }).join('');
+    return now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
   }
 
+  function renderTV(amOrders, pmOrders) {
+    const nowTime = getNowTime();
+
+    function renderTVBody(orders, tbodyId, countId) {
+      const tbody = document.getElementById(tbodyId);
+      document.getElementById(countId).textContent = `(${orders.length})`;
+      if (!orders.length) { tbody.innerHTML = `<tr><td colspan="6" class="no-orders">Keine Aufträge.</td></tr>`; return; }
+      tbody.innerHTML = orders.map((o,i) => {
+        const urgent = o.time <= nowTime;
+        const timeCell = urgent ? `<span class="td-urgent">${o.time} ⚠️</span>` : `<span class="td-time">${o.time}</span>`;
+        return `<tr><td class="idx">${i+1}</td><td>${o.artikel}</td><td>${o.lager}</td><td>${o.ziel}</td><td>${timeCell}</td><td><button class="btn-delete-tv" onclick="deleteOrder('${o.key}')">✕</button></td></tr>`;
+      }).join('');
+    }
+
+    renderTVBody(amOrders, 'tv-tbody-am', 'tv-am-count');
+    renderTVBody(pmOrders, 'tv-tbody-pm', 'tv-pm-count');
+  }
+
+  function renderTablet(amOrders, pmOrders) {
+    const { fontsize, rowpad, cols } = tabletSettings;
+    const nowTime = getNowTime();
+
+    const visibleCols = [
+      { key:'artikel', label:'Artikelnummer' },
+      { key:'lager',   label:'Lagerort' },
+      { key:'ziel',    label:'Zielort' },
+      { key:'time',    label:'Uhrzeit' },
+    ].filter(c => cols[c.key] !== false);
+
+    function renderTabBody(orders, headId, tbodyId) {
+      const head = document.getElementById(headId);
+      const tbody = document.getElementById(tbodyId);
+      head.innerHTML = `<th style="font-size:${fontsize-3}px;">#</th>`
+        + visibleCols.map(c => `<th style="font-size:${fontsize-3}px;">${c.label}</th>`).join('')
+        + `<th></th>`;
+      if (!orders.length) { tbody.innerHTML = `<tr><td colspan="${visibleCols.length+2}" class="no-orders" style="font-size:${fontsize}px;">Keine Aufträge.</td></tr>`; return; }
+      tbody.innerHTML = orders.map((o,i) => {
+        const urgent = o.time <= nowTime;
+        const cells = visibleCols.map(c => {
+          if (c.key === 'time') {
+            const cls = urgent ? 'tab-urgent' : 'tab-time';
+            return `<td style="padding:${rowpad}px 12px;font-size:${fontsize}px;" class="${cls}">${o.time}${urgent?' ⚠️':''}</td>`;
+          }
+          return `<td style="padding:${rowpad}px 12px;font-size:${fontsize}px;">${o[c.key === 'lager' ? 'lager' : c.key === 'ziel' ? 'ziel' : 'artikel']}</td>`;
+        }).join('');
+        return `<tr><td style="padding:${rowpad}px 12px;font-size:${fontsize-2}px;color:#a0aec0;">${i+1}</td>${cells}<td style="padding:${rowpad}px 8px;"><button class="btn-delete-tab" onclick="deleteOrder('${o.key}')">✕</button></td></tr>`;
+      }).join('');
+    }
+
+    renderTabBody(amOrders, 'tab-head-am', 'tab-tbody-am');
+    renderTabBody(pmOrders, 'tab-head-pm', 'tab-tbody-pm');
+  }
+
+  function renderAll() {
+    const todayOrders = allOrders.filter(o => o.date === todayStr);
+    todayOrders.sort((a,b) => a.time.localeCompare(b.time));
+    const amOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'am');
+    const pmOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
+    renderTV(amOrders, pmOrders);
+    renderTablet(amOrders, pmOrders);
+    checkShellyTrigger(todayOrders);
+  }
+
+  let wasOverdue = false;
   function checkShellyTrigger(orders) {
     if (!shellyConfig.ip || shellyConfig.trigger !== 'overdue') return;
-    const now = new Date();
-    const nowTime = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+    const nowTime = getNowTime();
     const hasOverdue = orders.some(o => o.time <= nowTime);
     if (hasOverdue && !wasOverdue) {
       wasOverdue = true;
-      shellyCommand(255, 0, 0, 100, true);
-      setShellyStatus('blink', '⚠️ Überschrittener Auftrag – Lampe blinkt rot');
+      shellyCommand(255,0,0,100,true);
+      setShellyStatus('blink', '⚠️ Überschritten – Lampe blinkt');
     } else if (!hasOverdue && wasOverdue) {
       wasOverdue = false;
       shellyOff();
-      setShellyStatus('active', 'Alle Aufträge erledigt – Lampe aus');
+      setShellyStatus('active', 'Alle erledigt – Lampe aus');
     }
   }
 
   onValue(ordersRef, (snapshot) => {
     const data = snapshot.val();
-    const allOrders = data ? Object.entries(data).map(([key,val]) => ({...val, key})) : [];
-    const todayOrders = allOrders.filter(o => o.date === todayStr);
-    renderTable(todayOrders);
-    checkShellyTrigger(todayOrders);
+    allOrders = data ? Object.entries(data).map(([key,val]) => ({...val, key})) : [];
+    renderAll();
   });
+
+  // Alle 60s neu rendern (für Überfälligkeits-Check)
+  setInterval(renderAll, 60000);
 </script>
 </body>
 </html>
