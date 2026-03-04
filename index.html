@@ -8,66 +8,30 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
 
-        /* ── MODUS-AUSWAHL ── */
-        .mode-switcher {
-            display: flex; justify-content: center; gap: 12px;
-            padding: 14px 20px; background: #fff;
-            border-bottom: 2px solid #e2e8f0;
-            position: sticky; top: 0; z-index: 50;
-        }
-        .mode-btn {
-            padding: 8px 28px; border-radius: 8px; border: 2px solid #e2e8f0;
-            font-size: 15px; font-weight: 600; cursor: pointer;
-            background: #f7fafc; color: #718096; transition: all 0.2s;
-        }
+        .mode-switcher { display: flex; justify-content: center; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 50; }
+        .mode-btn { padding: 8px 28px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 15px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
         .mode-btn.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
-
-        /* ── GEMEINSAME UTILS ── */
         .hidden { display: none !important; }
-        .btn-icon {
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
-            padding: 9px 16px; font-size: 14px; color: #4a5568;
-            cursor: pointer; display: inline-flex; align-items: center;
-            gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
+        .btn-icon { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-size: 14px; color: #4a5568; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .btn-icon:hover { background: #edf2f7; }
 
-        /* ════════════════════════════════════
-           TV-ANSICHT
-        ════════════════════════════════════ */
+        /* ── TV ── */
         #view-tv { padding: 20px 40px 30px; }
         .tv-header { display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; }
         .tv-header h1 { font-size: 34px; color: #2b6cb0; }
         .tv-header-btns { position: absolute; right: 0; display: flex; gap: 8px; }
         .tv-subtitle { text-align: center; color: #718096; font-size: 18px; margin-bottom: 24px; }
-
-        /* Zwei Spalten nebeneinander */
         .tv-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
-
-        .tv-col-card {
-            background: #fff; border-radius: 16px; padding: 28px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.09); border: 1px solid #e2e8f0;
-        }
-        .tv-col-title {
-            font-size: 20px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 18px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .tv-col-card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.09); border: 1px solid #e2e8f0; }
+        .tv-col-title { font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
         .tv-col-title.am { color: #d97706; }
         .tv-col-title.pm { color: #5a67d8; }
-
         .tv-table { width: 100%; border-collapse: collapse; }
-        .tv-table thead th {
-            text-align: left; color: #fff;
-            font-size: 15px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.8px;
-            padding: 14px 18px;
-        }
+        .tv-table thead th { text-align: left; color: #fff; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 14px 18px; }
         .tv-col-card:first-child .tv-table thead { background: #d97706; }
         .tv-col-card:last-child  .tv-table thead { background: #5a67d8; }
         .tv-table thead th:first-child { border-radius: 8px 0 0 8px; }
         .tv-table thead th:last-child  { border-radius: 0 8px 8px 0; }
-
         .tv-table tbody tr { border-bottom: 2px solid #edf2f7; }
         .tv-table tbody tr:last-child { border-bottom: none; }
         .tv-table tbody tr:nth-child(even) { background: #f7fafc; }
@@ -77,62 +41,40 @@
         .td-urgent { background: #c53030; color: #fff; font-weight: 800; border-radius: 8px; padding: 5px 12px; display: inline-block; animation: pulse 1s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.7; } }
         .no-orders { text-align: center; color: #a0aec0; padding: 40px; font-size: 18px; }
-
         .btn-delete-tv { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 6px; padding: 6px 14px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
         .btn-delete-tv:hover { border-color: #fc8181; color: #c53030; background: #fff5f5; }
 
-        .tv-status { text-align: center; font-size: 14px; color: #a0aec0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        /* TV: Status-Badge (nur Anzeige) */
+        .tv-status-badge { display: inline-block; border-radius: 6px; padding: 4px 12px; font-size: 14px; font-weight: 700; }
+        .tv-status-badge.open    { background: #edf2f7; color: #718096; }
+        .tv-status-badge.done    { background: #c6f6d5; color: #276749; }
+        .tv-status-badge.problem { background: #fed7d7; color: #c53030; }
+
+        .tv-status-bar { text-align: center; font-size: 14px; color: #a0aec0; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .live-dot { width: 8px; height: 8px; background: #48bb78; border-radius: 50%; box-shadow: 0 0 6px #48bb78; }
 
-
-        /* ════════════════════════════════════
-           TABLET-ANSICHT
-        ════════════════════════════════════ */
+        /* ── TABLET ── */
         #view-tablet { padding: 16px 20px 30px; }
         .tablet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .tablet-header h2 { font-size: 22px; color: #2b6cb0; font-weight: 800; }
         .tablet-subtitle { font-size: 13px; color: #a0aec0; margin-top: 2px; }
-
-        /* Eingabe Tablet */
-        .tablet-form {
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-            padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
+        .tablet-form { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .tablet-form-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2b6cb0; margin-bottom: 12px; }
         .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
         .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 130px; }
         .form-group label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .form-group input, .form-group select {
-            background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px;
-            padding: 9px 11px; color: #1a202c; font-size: 14px; outline: none;
-            transition: border-color 0.2s;
-        }
+        .form-group input, .form-group select { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px; padding: 9px 11px; color: #1a202c; font-size: 14px; outline: none; transition: border-color 0.2s; }
         .form-group input:focus, .form-group select:focus { border-color: #4299e1; }
         .form-group input::placeholder { color: #a0aec0; }
         .btn-add { background: #2b6cb0; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .btn-add:hover { background: #2c5282; }
-
-        /* Tablet-Tabelle (einspaltig, scrollbar) */
-        .tablet-table-card {
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-            padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            overflow-x: auto;
-        }
-        .tablet-table-title {
-            font-size: 13px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .tablet-table-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow-x: auto; }
+        .tablet-table-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .tablet-table-title.am { color: #d97706; }
         .tablet-table-title.pm { color: #5a67d8; }
-
         .tab-table { width: 100%; border-collapse: collapse; }
-        .tab-table thead th {
-            text-align: left; color: #718096; font-size: 11px;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            padding: 8px 12px; border-bottom: 2px solid #e2e8f0;
-        }
-        .tab-table tbody tr { border-bottom: 1px solid #f0f4f8; }
+        .tab-table thead th { text-align: left; color: #718096; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
+        .tab-table tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.15s; }
         .tab-table tbody tr:hover { background: #f7fafc; }
         .tab-table tbody td { padding: 10px 12px; color: #2d3748; }
         .tab-urgent { color: #c53030; font-weight: 700; }
@@ -140,11 +82,23 @@
         .btn-delete-tab { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 5px; padding: 3px 9px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
         .btn-delete-tab:hover { border-color: #fc8181; color: #c53030; }
 
-        /* Einstellungen-Panel Tablet */
-        .tablet-settings-panel {
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-            padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        /* STATUS-BUTTON (tippbar) */
+        .status-btn {
+            border: none; border-radius: 20px; padding: 6px 16px;
+            font-size: 13px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; white-space: nowrap; user-select: none;
         }
+        .status-btn.open    { background: #edf2f7; color: #718096; }
+        .status-btn.done    { background: #c6f6d5; color: #276749; }
+        .status-btn.problem { background: #fed7d7; color: #c53030; }
+
+        /* Zeilenfärbung je Status */
+        .tab-table tbody tr.row-done    { background: #f0fff4 !important; }
+        .tab-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
+        @keyframes row-blink { from { background: #fff5f5; } to { background: #fed7d7; } }
+
+        /* Einstellungen */
+        .tablet-settings-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .settings-panel-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #744210; margin-bottom: 14px; }
         .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
         .setting-item { display: flex; flex-direction: column; gap: 5px; }
@@ -177,13 +131,12 @@
 </head>
 <body>
 
-<!-- MODUS-AUSWAHL -->
 <div class="mode-switcher">
-    <button class="mode-btn active" id="btn-mode-tv" onclick="setMode('tv')">🖥️ TV-Ansicht</button>
-    <button class="mode-btn" id="btn-mode-tablet" onclick="setMode('tablet')">📱 Tablet-Ansicht</button>
+    <button class="mode-btn active" id="btn-mode-tv"     onclick="setMode('tv')">🖥️ TV-Ansicht</button>
+    <button class="mode-btn"        id="btn-mode-tablet" onclick="setMode('tablet')">📱 Tablet-Ansicht</button>
 </div>
 
-<!-- ════════ TV-ANSICHT ════════ -->
+<!-- ════════ TV ════════ -->
 <div id="view-tv">
     <div class="tv-header">
         <h1>📦 Auslagerungs-Dashboard</h1>
@@ -193,29 +146,26 @@
         </div>
     </div>
     <p class="tv-subtitle" id="tv-date"></p>
-
     <div class="tv-columns">
-        <!-- VORMITTAG -->
         <div class="tv-col-card">
             <div class="tv-col-title am">☀️ Vormittag <span id="tv-am-count" style="font-size:15px;color:#a0aec0;font-weight:normal;"></span></div>
             <table class="tv-table">
-                <thead><tr><th>#</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th></th></tr></thead>
+                <thead><tr><th>#</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th>Status</th><th></th></tr></thead>
                 <tbody id="tv-tbody-am"></tbody>
             </table>
         </div>
-        <!-- NACHMITTAG -->
         <div class="tv-col-card">
             <div class="tv-col-title pm">🌆 Nachmittag <span id="tv-pm-count" style="font-size:15px;color:#a0aec0;font-weight:normal;"></span></div>
             <table class="tv-table">
-                <thead><tr><th>#</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th></th></tr></thead>
+                <thead><tr><th>#</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Spätestens</th><th>Status</th><th></th></tr></thead>
                 <tbody id="tv-tbody-pm"></tbody>
             </table>
         </div>
     </div>
-    <div class="tv-status"><span class="live-dot"></span> Live-Sync aktiv</div>
+    <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv</div>
 </div>
 
-<!-- ════════ TABLET-ANSICHT ════════ -->
+<!-- ════════ TABLET ════════ -->
 <div id="view-tablet" class="hidden">
     <div class="tablet-header">
         <div>
@@ -228,7 +178,6 @@
         </div>
     </div>
 
-    <!-- Tablet: Einstellungspanel -->
     <div class="tablet-settings-panel hidden" id="tablet-settings">
         <div class="settings-panel-title">⚙️ Darstellungs-Einstellungen</div>
         <div class="settings-grid">
@@ -250,32 +199,19 @@
                 <span class="col-toggle on" data-col="lager"   onclick="toggleCol(this)">Lagerort</span>
                 <span class="col-toggle on" data-col="ziel"    onclick="toggleCol(this)">Zielort</span>
                 <span class="col-toggle on" data-col="time"    onclick="toggleCol(this)">Uhrzeit</span>
+                <span class="col-toggle on" data-col="status"  onclick="toggleCol(this)">Status</span>
             </div>
         </div>
     </div>
 
-    <!-- Tablet: Eingabe -->
     <div class="tablet-form">
         <div class="tablet-form-title">+ Neuer Auslagerungsauftrag</div>
         <div class="form-row">
-            <div class="form-group">
-                <label>Artikelnummer</label>
-                <input id="inp-artikel" type="text" placeholder="z.B. ART-00123">
-            </div>
-            <div class="form-group">
-                <label>Lagerort</label>
-                <input id="inp-lager" type="text" placeholder="z.B. Regal A3">
-            </div>
-            <div class="form-group">
-                <label>Zielort</label>
-                <input id="inp-ziel" type="text" placeholder="z.B. Versandzone 2">
-            </div>
-            <div class="form-group" style="max-width:120px;">
-                <label>Uhrzeit</label>
-                <input id="inp-time" type="time">
-            </div>
-            <div class="form-group" style="max-width:150px;">
-                <label>Schicht</label>
+            <div class="form-group"><label>Artikelnummer</label><input id="inp-artikel" type="text" placeholder="z.B. ART-00123"></div>
+            <div class="form-group"><label>Lagerort</label><input id="inp-lager" type="text" placeholder="z.B. Regal A3"></div>
+            <div class="form-group"><label>Zielort</label><input id="inp-ziel" type="text" placeholder="z.B. Versandzone 2"></div>
+            <div class="form-group" style="max-width:120px;"><label>Uhrzeit</label><input id="inp-time" type="time"></div>
+            <div class="form-group" style="max-width:150px;"><label>Schicht</label>
                 <select id="inp-shift">
                     <option value="auto">Automatisch</option>
                     <option value="am">Vormittag</option>
@@ -286,27 +222,20 @@
         </div>
     </div>
 
-    <!-- Tablet: Tabellen -->
     <div class="tablet-table-card">
         <div class="tablet-table-title am">☀️ Vormittag</div>
         <div style="overflow-x:auto;">
-            <table class="tab-table" id="tab-table-am">
-                <thead><tr id="tab-head-am"></tr></thead>
-                <tbody id="tab-tbody-am"></tbody>
-            </table>
+            <table class="tab-table"><thead><tr id="tab-head-am"></tr></thead><tbody id="tab-tbody-am"></tbody></table>
         </div>
     </div>
     <div class="tablet-table-card">
         <div class="tablet-table-title pm">🌆 Nachmittag</div>
         <div style="overflow-x:auto;">
-            <table class="tab-table" id="tab-table-pm">
-                <thead><tr id="tab-head-pm"></tr></thead>
-                <tbody id="tab-tbody-pm"></tbody>
-            </table>
+            <table class="tab-table"><thead><tr id="tab-head-pm"></tr></thead><tbody id="tab-tbody-pm"></tbody></table>
         </div>
     </div>
 
-    <div class="tv-status"><span class="live-dot"></span> Live-Sync aktiv</div>
+    <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv</div>
 </div>
 
 <!-- SHELLY MODAL -->
@@ -318,17 +247,10 @@
         <div class="form-row">
             <div class="form-group"><label>IP-Adresse</label><input id="shelly-ip" type="text" placeholder="192.168.1.50"></div>
             <div class="form-group" style="max-width:160px;"><label>Modell</label>
-                <select id="shelly-model">
-                    <option value="rgbw2">Shelly RGBW2</option>
-                    <option value="bulb">Shelly Bulb / Duo</option>
-                    <option value="plug">Shelly Plug</option>
-                </select>
+                <select id="shelly-model"><option value="rgbw2">Shelly RGBW2</option><option value="bulb">Shelly Bulb / Duo</option><option value="plug">Shelly Plug</option></select>
             </div>
             <div class="form-group"><label>Auslöser</label>
-                <select id="shelly-trigger">
-                    <option value="overdue">Überschritten → Rot blinkend</option>
-                    <option value="any">Neuer Auftrag → Gelb</option>
-                </select>
+                <select id="shelly-trigger"><option value="overdue">Überschritten → Rot blinkend</option><option value="any">Neuer Auftrag → Gelb</option></select>
             </div>
         </div>
         <div style="display:flex;gap:10px;margin-top:14px;">
@@ -341,7 +263,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB-BLAy2LEMup5DKSrlddb7waR2UXko8JA",
@@ -354,7 +276,7 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+  const db  = getDatabase(app);
   const ordersRef = ref(db, 'auslagerung/orders');
 
   function toDateStr(d) { return d.toISOString().split('T')[0]; }
@@ -364,13 +286,13 @@
     return time < '12:00' ? 'am' : 'pm';
   }
 
-  const today = new Date();
+  const today    = new Date();
   const todayStr = toDateStr(today);
   const dateLabel = `Heute: ${formatDisplay(todayStr)}`;
-  document.getElementById('tv-date').textContent = dateLabel;
+  document.getElementById('tv-date').textContent     = dateLabel;
   document.getElementById('tablet-date').textContent = dateLabel;
 
-  // ── Modus ─────────────────────────────────────────────
+  // ── Modus ──────────────────────────────────────────────
   window.setMode = function(mode) {
     document.getElementById('view-tv').classList.toggle('hidden', mode !== 'tv');
     document.getElementById('view-tablet').classList.toggle('hidden', mode !== 'tablet');
@@ -378,21 +300,19 @@
     document.getElementById('btn-mode-tablet').classList.toggle('active', mode === 'tablet');
     localStorage.setItem('dashMode', mode);
   };
-  const savedMode = localStorage.getItem('dashMode') || 'tv';
-  setMode(savedMode);
+  setMode(localStorage.getItem('dashMode') || 'tv');
 
   // ── Tablet-Einstellungen ───────────────────────────────
-  let tabletSettings = JSON.parse(localStorage.getItem('tabletSettings') || '{"fontsize":15,"rowpad":10,"cols":{"artikel":true,"lager":true,"ziel":true,"time":true}}');
+  let tabletSettings = JSON.parse(localStorage.getItem('tabletSettings') || '{"fontsize":15,"rowpad":10,"cols":{"artikel":true,"lager":true,"ziel":true,"time":true,"status":true}}');
+  if (tabletSettings.cols.status === undefined) tabletSettings.cols.status = true;
 
-  window.toggleTabletSettings = function() {
-    document.getElementById('tablet-settings').classList.toggle('hidden');
-  };
+  window.toggleTabletSettings = () => document.getElementById('tablet-settings').classList.toggle('hidden');
 
   window.applyTabletSettings = function() {
     tabletSettings.fontsize = +document.getElementById('setting-fontsize').value;
     tabletSettings.rowpad   = +document.getElementById('setting-rowpad').value;
     document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
-    document.getElementById('val-rowpad').textContent   = tabletSettings.rowpad + 'px';
+    document.getElementById('val-rowpad').textContent   = tabletSettings.rowpad   + 'px';
     localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
     renderAll();
   };
@@ -409,12 +329,23 @@
     document.getElementById('setting-fontsize').value = tabletSettings.fontsize;
     document.getElementById('setting-rowpad').value   = tabletSettings.rowpad;
     document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
-    document.getElementById('val-rowpad').textContent   = tabletSettings.rowpad + 'px';
+    document.getElementById('val-rowpad').textContent   = tabletSettings.rowpad   + 'px';
     document.querySelectorAll('.col-toggle').forEach(el => {
       el.classList.toggle('on', tabletSettings.cols[el.dataset.col] !== false);
     });
   }
   loadTabletSettingsUI();
+
+  // ── Status-Zyklus ──────────────────────────────────────
+  const STATUS_CYCLE = ['open', 'done', 'problem'];
+  const STATUS_LABELS = { open: '⬜ Offen', done: '✅ Erledigt', problem: '🔴 Störung' };
+  const STATUS_CLASSES = { open: 'open', done: 'done', problem: 'problem' };
+
+  window.cycleStatus = function(key, currentStatus) {
+    const idx = STATUS_CYCLE.indexOf(currentStatus || 'open');
+    const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+    update(ref(db, `auslagerung/orders/${key}`), { status: next });
+  };
 
   // ── Vollbild ───────────────────────────────────────────
   window.toggleFullscreen = () => {
@@ -451,18 +382,18 @@
   async function shellyCommand(r,g,b,brightness,blink) {
     if (!shellyConfig.ip) return;
     const { ip, model } = shellyConfig;
-    const url = model === 'rgbw2' ? `http://${ip}/color/0?turn=on&red=${r}&green=${g}&blue=${b}&gain=${brightness}&effect=${blink?3:0}`
-      : model === 'bulb' ? `http://${ip}/light/0?turn=on&red=${r}&green=${g}&blue=${b}&brightness=${brightness}&effect=${blink?3:0}`
+    const url = model==='rgbw2' ? `http://${ip}/color/0?turn=on&red=${r}&green=${g}&blue=${b}&gain=${brightness}&effect=${blink?3:0}`
+      : model==='bulb' ? `http://${ip}/light/0?turn=on&red=${r}&green=${g}&blue=${b}&brightness=${brightness}&effect=${blink?3:0}`
       : `http://${ip}/relay/0?turn=on`;
-    try { await fetch(url, {mode:'no-cors'}); setShellyStatus('active', `Signal an ${ip}`); }
-    catch(e) { setShellyStatus('error', `Fehler: ${ip} nicht erreichbar`); }
+    try { await fetch(url,{mode:'no-cors'}); setShellyStatus('active',`Signal an ${ip}`); }
+    catch(e) { setShellyStatus('error',`Fehler: ${ip} nicht erreichbar`); }
   }
 
   async function shellyOff() {
     if (!shellyConfig.ip) return;
     const { ip, model } = shellyConfig;
     const url = model==='plug' ? `http://${ip}/relay/0?turn=off` : model==='rgbw2' ? `http://${ip}/color/0?turn=off` : `http://${ip}/light/0?turn=off`;
-    try { await fetch(url, {mode:'no-cors'}); } catch(e) {}
+    try { await fetch(url,{mode:'no-cors'}); } catch(e) {}
   }
 
   window.testShelly = async () => {
@@ -491,7 +422,7 @@
     const time    = document.getElementById('inp-time').value;
     const shift   = document.getElementById('inp-shift').value;
     if (!artikel || !lager || !ziel || !time) { alert('Bitte alle Felder ausfüllen.'); return; }
-    push(ordersRef, { artikel, lager, ziel, time, shift, date: todayStr, createdAt: Date.now() });
+    push(ordersRef, { artikel, lager, ziel, time, shift, status: 'open', date: todayStr, createdAt: Date.now() });
     ['inp-artikel','inp-lager','inp-ziel','inp-time'].forEach(id => document.getElementById(id).value='');
     document.getElementById('inp-shift').value = 'auto';
   };
@@ -502,61 +433,84 @@
   let allOrders = [];
 
   function getNowTime() {
-    const now = new Date();
-    return now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+    const n = new Date();
+    return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
   }
 
   function renderTV(amOrders, pmOrders) {
     const nowTime = getNowTime();
-
-    function renderTVBody(orders, tbodyId, countId) {
-      const tbody = document.getElementById(tbodyId);
+    function body(orders, tbodyId, countId) {
       document.getElementById(countId).textContent = `(${orders.length})`;
-      if (!orders.length) { tbody.innerHTML = `<tr><td colspan="6" class="no-orders">Keine Aufträge.</td></tr>`; return; }
+      const tbody = document.getElementById(tbodyId);
+      if (!orders.length) { tbody.innerHTML = `<tr><td colspan="7" class="no-orders">Keine Aufträge.</td></tr>`; return; }
       tbody.innerHTML = orders.map((o,i) => {
-        const urgent = o.time <= nowTime;
+        const urgent = o.time <= nowTime && (o.status||'open') === 'open';
         const timeCell = urgent ? `<span class="td-urgent">${o.time} ⚠️</span>` : `<span class="td-time">${o.time}</span>`;
-        return `<tr><td class="idx">${i+1}</td><td>${o.artikel}</td><td>${o.lager}</td><td>${o.ziel}</td><td>${timeCell}</td><td><button class="btn-delete-tv" onclick="deleteOrder('${o.key}')">✕</button></td></tr>`;
+        const st = o.status || 'open';
+        const badge = `<span class="tv-status-badge ${STATUS_CLASSES[st]}">${STATUS_LABELS[st]}</span>`;
+        return `<tr>
+          <td class="idx">${i+1}</td><td>${o.artikel}</td><td>${o.lager}</td><td>${o.ziel}</td>
+          <td>${timeCell}</td><td>${badge}</td>
+          <td><button class="btn-delete-tv" onclick="deleteOrder('${o.key}')">✕</button></td>
+        </tr>`;
       }).join('');
     }
-
-    renderTVBody(amOrders, 'tv-tbody-am', 'tv-am-count');
-    renderTVBody(pmOrders, 'tv-tbody-pm', 'tv-pm-count');
+    body(amOrders, 'tv-tbody-am', 'tv-am-count');
+    body(pmOrders, 'tv-tbody-pm', 'tv-pm-count');
   }
 
   function renderTablet(amOrders, pmOrders) {
     const { fontsize, rowpad, cols } = tabletSettings;
     const nowTime = getNowTime();
 
-    const visibleCols = [
+    const allCols = [
       { key:'artikel', label:'Artikelnummer' },
       { key:'lager',   label:'Lagerort' },
       { key:'ziel',    label:'Zielort' },
       { key:'time',    label:'Uhrzeit' },
+      { key:'status',  label:'Status' },
     ].filter(c => cols[c.key] !== false);
 
-    function renderTabBody(orders, headId, tbodyId) {
-      const head = document.getElementById(headId);
-      const tbody = document.getElementById(tbodyId);
-      head.innerHTML = `<th style="font-size:${fontsize-3}px;">#</th>`
-        + visibleCols.map(c => `<th style="font-size:${fontsize-3}px;">${c.label}</th>`).join('')
+    function body(orders, headId, tbodyId) {
+      document.getElementById(headId).innerHTML =
+        `<th style="font-size:${fontsize-3}px;">#</th>`
+        + allCols.map(c => `<th style="font-size:${fontsize-3}px;">${c.label}</th>`).join('')
         + `<th></th>`;
-      if (!orders.length) { tbody.innerHTML = `<tr><td colspan="${visibleCols.length+2}" class="no-orders" style="font-size:${fontsize}px;">Keine Aufträge.</td></tr>`; return; }
+
+      const tbody = document.getElementById(tbodyId);
+      if (!orders.length) {
+        tbody.innerHTML = `<tr><td colspan="${allCols.length+2}" class="no-orders" style="font-size:${fontsize}px;">Keine Aufträge.</td></tr>`;
+        return;
+      }
+
       tbody.innerHTML = orders.map((o,i) => {
-        const urgent = o.time <= nowTime;
-        const cells = visibleCols.map(c => {
+        const st = o.status || 'open';
+        const urgent = o.time <= nowTime && st === 'open';
+        const rowClass = st === 'done' ? 'row-done' : st === 'problem' ? 'row-problem' : '';
+
+        const cells = allCols.map(c => {
+          const pad = `padding:${rowpad}px 12px;font-size:${fontsize}px;`;
           if (c.key === 'time') {
             const cls = urgent ? 'tab-urgent' : 'tab-time';
-            return `<td style="padding:${rowpad}px 12px;font-size:${fontsize}px;" class="${cls}">${o.time}${urgent?' ⚠️':''}</td>`;
+            return `<td style="${pad}" class="${cls}">${o.time}${urgent?' ⚠️':''}</td>`;
           }
-          return `<td style="padding:${rowpad}px 12px;font-size:${fontsize}px;">${o[c.key === 'lager' ? 'lager' : c.key === 'ziel' ? 'ziel' : 'artikel']}</td>`;
+          if (c.key === 'status') {
+            return `<td style="${pad}"><button class="status-btn ${STATUS_CLASSES[st]}" onclick="cycleStatus('${o.key}','${st}')">${STATUS_LABELS[st]}</button></td>`;
+          }
+          const val = c.key==='lager' ? o.lager : c.key==='ziel' ? o.ziel : o.artikel;
+          return `<td style="${pad}">${val}</td>`;
         }).join('');
-        return `<tr><td style="padding:${rowpad}px 12px;font-size:${fontsize-2}px;color:#a0aec0;">${i+1}</td>${cells}<td style="padding:${rowpad}px 8px;"><button class="btn-delete-tab" onclick="deleteOrder('${o.key}')">✕</button></td></tr>`;
+
+        return `<tr class="${rowClass}">
+          <td style="padding:${rowpad}px 12px;font-size:${fontsize-2}px;color:#a0aec0;">${i+1}</td>
+          ${cells}
+          <td style="padding:${rowpad}px 8px;"><button class="btn-delete-tab" onclick="deleteOrder('${o.key}')">✕</button></td>
+        </tr>`;
       }).join('');
     }
 
-    renderTabBody(amOrders, 'tab-head-am', 'tab-tbody-am');
-    renderTabBody(pmOrders, 'tab-head-pm', 'tab-tbody-pm');
+    body(amOrders, 'tab-head-am', 'tab-tbody-am');
+    body(pmOrders, 'tab-head-pm', 'tab-tbody-pm');
   }
 
   function renderAll() {
@@ -573,15 +527,15 @@
   function checkShellyTrigger(orders) {
     if (!shellyConfig.ip || shellyConfig.trigger !== 'overdue') return;
     const nowTime = getNowTime();
-    const hasOverdue = orders.some(o => o.time <= nowTime);
+    const hasOverdue = orders.some(o => o.time <= nowTime && (o.status||'open') === 'open');
     if (hasOverdue && !wasOverdue) {
       wasOverdue = true;
       shellyCommand(255,0,0,100,true);
-      setShellyStatus('blink', '⚠️ Überschritten – Lampe blinkt');
+      setShellyStatus('blink','⚠️ Überschritten – Lampe blinkt');
     } else if (!hasOverdue && wasOverdue) {
       wasOverdue = false;
       shellyOff();
-      setShellyStatus('active', 'Alle erledigt – Lampe aus');
+      setShellyStatus('active','Alle erledigt – Lampe aus');
     }
   }
 
@@ -591,7 +545,6 @@
     renderAll();
   });
 
-  // Alle 60s neu rendern (für Überfälligkeits-Check)
   setInterval(renderAll, 60000);
 </script>
 </body>
