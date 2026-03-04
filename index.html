@@ -120,6 +120,53 @@
         .status-btn.done    { background: #c6f6d5; color: #276749; }
         .status-btn.problem { background: #fed7d7; color: #c53030; }
 
+        /* TAG-NAVIGATOR (Tablet) */
+        .day-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 14px; }
+        .day-nav-btn { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 16px; font-size: 18px; cursor: pointer; color: #4a5568; transition: all 0.2s; }
+        .day-nav-btn:hover { background: #edf2f7; }
+        .day-nav-label { font-size: 16px; font-weight: 700; color: #2b6cb0; min-width: 160px; text-align: center; }
+        .day-nav-label.past { color: #718096; }
+        .day-nav-label.future { color: #5a67d8; }
+
+        /* FOLGETAG-FRÜHWARNUNG */
+        .early-warning {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(245,158,11,0.2);
+        }
+        .tv-early-warning {
+            max-width: 800px;
+            margin: 0 auto 20px;
+        }
+        .early-warning-icon { font-size: 24px; }
+        .early-warning-text { font-size: 13px; color: #92400e; font-weight: 600; }
+        .early-warning-text strong { font-size: 15px; color: #78350f; display: block; }
+
+        /* RÜCKBLICK MODAL */
+        .history-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 250; align-items: flex-start; justify-content: center; padding-top: 40px; }
+        .history-overlay.open { display: flex; }
+        .history-box { background: #fff; border-radius: 16px; padding: 28px; width: 90%; max-width: 900px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; }
+        .history-box h3 { font-size: 18px; font-weight: 800; color: #2b6cb0; margin-bottom: 6px; }
+        .history-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 22px; color: #a0aec0; cursor: pointer; }
+        .history-close:hover { color: #2d3748; }
+        .history-date-group { margin-bottom: 20px; }
+        .history-date-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #718096; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 10px; }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .history-table th { text-align: left; color: #718096; font-size: 11px; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid #e2e8f0; }
+        .history-table td { padding: 8px 10px; border-bottom: 1px solid #f7fafc; color: #2d3748; }
+        .history-table tr:last-child td { border-bottom: none; }
+        .h-badge { display: inline-block; border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+        .h-badge.open    { background: #edf2f7; color: #718096; }
+        .h-badge.done    { background: #c6f6d5; color: #276749; }
+        .h-badge.problem { background: #fed7d7; color: #c53030; }
+        .history-empty { text-align: center; color: #a0aec0; padding: 30px; font-size: 15px; }
+
         /* PASSWORT MODAL */
         .pw-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
         .pw-overlay.open { display: flex; }
@@ -156,7 +203,6 @@
 </head>
 <body>
 
-<!-- PASSWORT MODAL -->
 <div class="pw-overlay" id="pw-modal">
     <div class="pw-box">
         <h3>🔒 Löschen bestätigen</h3>
@@ -173,9 +219,9 @@
 <div class="mode-switcher">
     <button class="mode-btn active" id="btn-mode-tv"     onclick="setMode('tv')">🖥️ TV-Ansicht</button>
     <button class="mode-btn"        id="btn-mode-tablet" onclick="setMode('tablet')">📱 Tablet-Ansicht</button>
+    <button class="mode-btn"        id="btn-mode-history" onclick="openHistory()">📋 Rückblick</button>
 </div>
 
-<!-- TV -->
 <div id="view-tv">
     <div class="tv-header">
         <h1>📦 Auslagerungsaufträge</h1>
@@ -186,6 +232,8 @@
         </div>
     </div>
     <p class="tv-subtitle" id="tv-date"></p>
+
+    <div id="tv-early-warning-box"></div>
 
     <div class="settings-panel tv-settings-panel hidden" id="tv-settings">
         <div class="settings-panel-title">⚙️ TV-Darstellungs-Einstellungen</div>
@@ -236,7 +284,15 @@
     <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv</div>
 </div>
 
-<!-- TABLET -->
+<div class="history-overlay" id="history-modal" onclick="closeHistoryOnBackdrop(event)">
+    <div class="history-box">
+        <button class="history-close" onclick="closeHistory()">✕</button>
+        <h3>📋 Rückblick – Vergangene Aufträge</h3>
+        <p style="font-size:13px;color:#a0aec0;margin-bottom:18px;">Alle eingetragenen Aufträge sortiert nach Datum</p>
+        <div id="history-content"></div>
+    </div>
+</div>
+
 <div id="view-tablet" class="hidden">
     <div class="tablet-header">
         <div>
@@ -275,6 +331,13 @@
         </div>
     </div>
 
+    <div class="day-nav" id="day-nav">
+        <button class="day-nav-btn" onclick="shiftDay(-1)">‹</button>
+        <div class="day-nav-label" id="day-nav-label">Heute</div>
+        <button class="day-nav-btn" onclick="shiftDay(1)">›</button>
+    </div>
+    <div id="early-warning-box"></div>
+
     <div class="tablet-form">
         <div class="tablet-form-title">+ Neuer Auslagerungsauftrag</div>
         <div class="form-row">
@@ -304,7 +367,6 @@
     <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv</div>
 </div>
 
-<!-- SHELLY MODAL -->
 <div class="modal-overlay" id="shelly-modal" onclick="closeShellyOnBackdrop(event)">
     <div class="modal">
         <button class="modal-close" onclick="closeShellyModal()">✕</button>
@@ -360,9 +422,97 @@
 
   const today    = new Date();
   const todayStr = toDateStr(today);
-  const dateLabel = 'Heute: ' + formatDisplay(todayStr);
-  document.getElementById('tv-date').textContent     = dateLabel;
-  document.getElementById('tablet-date').textContent = dateLabel;
+  document.getElementById('tv-date').textContent = 'Heute: ' + formatDisplay(todayStr);
+
+  // ── Tag-Navigation (Tablet) ────────────────────────────
+  let dayOffset = 0; // 0 = heute, -1 = gestern, +1 = morgen ...
+
+  function getViewDate() {
+    const d = new Date(today);
+    d.setDate(d.getDate() + dayOffset);
+    return d;
+  }
+  function getViewDateStr() { return toDateStr(getViewDate()); }
+
+  function updateDayNav() {
+    const d = getViewDate();
+    const dStr = toDateStr(d);
+    const label = dStr === todayStr ? 'Heute' : dStr === toDateStr(new Date(today.getTime()+86400000)) ? 'Morgen' : dStr === toDateStr(new Date(today.getTime()-86400000)) ? 'Gestern' : formatDisplay(dStr);
+    const el = document.getElementById('day-nav-label');
+    el.textContent = label + ' – ' + formatDisplay(dStr);
+    el.className = 'day-nav-label' + (dayOffset < 0 ? ' past' : dayOffset > 0 ? ' future' : '');
+    document.getElementById('tablet-date').textContent = formatDisplay(dStr);
+    renderTabletForDay();
+    updateEarlyWarning();
+  }
+
+  window.shiftDay = function(delta) { dayOffset += delta; updateDayNav(); };
+
+  function updateEarlyWarning() {
+    const tomorrowStr = toDateStr(new Date(today.getTime()+86400000));
+    const tomorrowOrders = allOrders.filter(o => o.date === tomorrowStr);
+    const tabletBox = document.getElementById('early-warning-box');
+    const tvBox = document.getElementById('tv-early-warning-box');
+
+    let warningHtml = '';
+
+    if (tomorrowOrders.length > 0) {
+      const earlyOrders = tomorrowOrders.filter(o => o.time < '08:00');
+      const hasEarly = earlyOrders.length > 0;
+      
+      warningHtml = '<div class="early-warning">'
+        +'<div class="early-warning-icon">'+(hasEarly ? '🌅' : '📋')+'</div>'
+        +'<div class="early-warning-text">'
+        +'<strong>'+(hasEarly ? 'Frühauslagerung morgen!' : 'Morgen sind Aufträge geplant')+'</strong>'
+        + tomorrowOrders.length + ' Auftrag' + (tomorrowOrders.length>1?'e':'') + ' für morgen eingetragen'
+        + (hasEarly ? ' – davon ' + earlyOrders.length + ' vor 08:00 Uhr' : '')
+        +'</div></div>';
+    }
+
+    // Zeige im Tablet nur bei TagOffset 0
+    tabletBox.innerHTML = (dayOffset === 0) ? warningHtml : '';
+    // Zeige im TV immer (da TV immer heute zeigt)
+    tvBox.innerHTML = '<div class="tv-early-warning">' + warningHtml + '</div>';
+  }
+
+  // ── Rückblick ──────────────────────────────────────────
+  window.openHistory = function() {
+    document.getElementById('history-modal').classList.add('open');
+    renderHistory();
+  };
+  window.closeHistory = () => document.getElementById('history-modal').classList.remove('open');
+  window.closeHistoryOnBackdrop = (e) => { if (e.target.id === 'history-modal') closeHistory(); };
+
+  function renderHistory() {
+    const content = document.getElementById('history-content');
+    const past = allOrders.filter(o => o.date <= todayStr);
+    if (!past.length) { content.innerHTML = '<div class="history-empty">Keine vergangenen Aufträge.</div>'; return; }
+
+    // Gruppieren nach Datum
+    const byDate = {};
+    past.forEach(o => { if (!byDate[o.date]) byDate[o.date] = []; byDate[o.date].push(o); });
+    const sortedDates = Object.keys(byDate).sort((a,b) => b.localeCompare(a)); // neueste zuerst
+
+    content.innerHTML = sortedDates.map(date => {
+      const orders = byDate[date].sort((a,b) => a.time.localeCompare(b.time));
+      const isToday = date === todayStr;
+      const rows = orders.map(o => {
+        const st = o.status || 'open';
+        return '<tr>'
+          +'<td>'+o.time+' Uhr</td>'
+          +'<td>'+o.artikel+'</td>'
+          +'<td>'+o.lager+'</td>'
+          +'<td>'+o.ziel+'</td>'
+          +'<td>'+(getShift(o.time,o.shift)==='am'?'☀️ Vm.':'🌆 Nm.')+'</td>'
+          +'<td><span class="h-badge '+st+'">'+STATUS_LABELS[st]+'</span></td>'
+          +'</tr>';
+      }).join('');
+      return '<div class="history-date-group">'
+        +'<div class="history-date-label">'+(isToday?'📅 Heute – ':'')+formatDisplay(date)+' ('+orders.length+' Aufträge)</div>'
+        +'<table class="history-table"><thead><tr><th>Uhrzeit</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Schicht</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        +'</div>';
+    }).join('');
+  }
 
   // ── Passwort-Modal ─────────────────────────────────────
   let pendingDeleteKey = null;
@@ -552,7 +702,8 @@
     const time    = document.getElementById('inp-time').value;
     const shift   = document.getElementById('inp-shift').value;
     if (!artikel || !lager || !ziel || !time) { alert('Bitte alle Felder ausfüllen.'); return; }
-    push(ordersRef, { artikel, lager, ziel, time, shift, status:'open', date:todayStr, createdAt:Date.now() });
+    const targetDate = getViewDateStr();
+    push(ordersRef, { artikel, lager, ziel, time, shift, status:'open', date:targetDate, createdAt:Date.now() });
     ['inp-artikel','inp-lager','inp-ziel','inp-time'].forEach(id => document.getElementById(id).value='');
     document.getElementById('inp-shift').value = 'auto';
   };
@@ -581,7 +732,6 @@
       const head = document.getElementById(headId);
       head.innerHTML = '<th style="padding:'+rowpad*0.7+'px 18px;font-size:'+headsize+'px;">#</th>'
         + visCols.map(c => '<th style="padding:'+rowpad*0.7+'px 18px;font-size:'+headsize+'px;">'+c.label+'</th>').join('');
-      /* NO delete column on TV */
       const tbody = document.getElementById(tbodyId);
       if (!orders.length) {
         tbody.innerHTML = '<tr><td colspan="'+(visCols.length+1)+'" class="no-orders" style="font-size:'+fontsize+'px;">Keine Aufträge.</td></tr>';
@@ -661,14 +811,25 @@
     body(pmOrders, 'tab-head-pm', 'tab-tbody-pm');
   }
 
+  function renderTabletForDay() {
+    const viewStr = getViewDateStr();
+    const dayOrders = allOrders.filter(o => o.date === viewStr);
+    dayOrders.sort((a,b) => a.time.localeCompare(b.time));
+    const amOrders = dayOrders.filter(o => getShift(o.time, o.shift) === 'am');
+    const pmOrders = dayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
+    renderTablet(amOrders, pmOrders);
+  }
+
   function renderAll() {
     const todayOrders = allOrders.filter(o => o.date === todayStr);
     todayOrders.sort((a,b) => a.time.localeCompare(b.time));
     const amOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'am');
     const pmOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
     renderTV(amOrders, pmOrders);
-    renderTablet(amOrders, pmOrders);
+    renderTabletForDay();
     checkShellyTrigger(todayOrders);
+    updateEarlyWarning();
+    if (document.getElementById('history-modal').classList.contains('open')) renderHistory();
   }
 
   let wasOverdue = false;
@@ -687,9 +848,20 @@
     const data = snapshot.val();
     allOrders = data ? Object.entries(data).map(([key,val]) => ({...val, key})) : [];
     renderAll();
+    updateDayNav();
   });
 
+  updateDayNav();
   setInterval(renderAll, 60000);
+
+  let touchStartX = 0;
+  document.getElementById('view-tablet').addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  document.getElementById('view-tablet').addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 60) shiftDay(dx < 0 ? 1 : -1);
+  }, { passive: true });
 </script>
 </body>
 </html>
