@@ -13,7 +13,7 @@
         .mode-btn.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
         .hidden { display: none !important; }
         
-        /* MENÜ DESIGN */
+        /* MENÜ */
         .menu-wrapper { position: relative; display: inline-block; }
         .menu-btn { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 18px; font-size: 15px; font-weight: 600; color: #2d3748; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: all 0.2s; }
         .menu-btn:hover { background: #edf2f7; border-color: #cbd5e0; }
@@ -24,15 +24,12 @@
         .menu-item:hover { background: #f0f4f8; color: #2b6cb0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ICON BUTTONS (nur intern) */
-        .btn-icon { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-size: 14px; color: #4a5568; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-
-        /* BARCODE STYLES */
+        /* BARCODE */
         .barcode-container { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
         .barcode-font { font-family: 'Libre Barcode 39', cursive; font-size: 42px; color: #000; margin: -5px 0; white-space: nowrap; }
         .barcode-label { font-size: 10px; color: #4a5568; font-weight: bold; margin-top: 2px; }
 
-        /* EINSTELLUNGS-PANEL */
+        /* EINSTELLUNGEN */
         .settings-panel { border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .settings-panel.tv-settings-panel { background: #fff; margin: 0 40px 20px; }
         .settings-panel.tablet-settings-panel { background: #fff; }
@@ -65,21 +62,10 @@
         .tv-table thead th:first-child { border-radius: 8px 0 0 8px; }
         .tv-table thead th:last-child  { border-radius: 0 8px 8px 0; }
         .tv-table tbody tr { border-bottom: 2px solid #edf2f7; }
-        .tv-table tbody tr:last-child { border-bottom: none; }
-        .tv-table tbody tr:nth-child(even) { background: #f7fafc; }
+        .tv-table tbody tr.row-overdue { background: #fff5f5 !important; box-shadow: inset 8px 0 0 0 #e53e3e; }
         .tv-table tbody tr.row-done    { background: #f0fff4 !important; }
         .tv-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
-
-        /* Statisches Rot mit rotem Balken links statt Blinken */
-        .tv-table tbody tr.row-overdue {
-            background: #fff5f5 !important;
-            box-shadow: inset 8px 0 0 0 #e53e3e; /* Roter Strich am Anfang */
-        }
-        .tab-table tbody tr.row-overdue {
-            background: #fff5f5 !important;
-            box-shadow: inset 8px 0 0 0 #e53e3e; /* Roter Strich am Anfang */
-        }
-
+        .tv-table tbody tr:nth-child(even) { background: #f7fafc; }
         @keyframes row-blink { from { background: #fff5f5; } to { background: #fed7d7; } }
         .td-time { color: #2b6cb0; font-weight: 700; }
         .td-urgent { color: #c53030; font-weight: 800; }
@@ -103,7 +89,6 @@
         .form-group label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
         .form-group input, .form-group select { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px; padding: 9px 11px; color: #1a202c; font-size: 14px; outline: none; transition: border-color 0.2s; }
         .form-group input:focus, .form-group select:focus { border-color: #4299e1; }
-        .form-group input::placeholder { color: #a0aec0; }
         .btn-add { background: #2b6cb0; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .btn-add:hover { background: #2c5282; }
         .tablet-table-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow-x: auto; }
@@ -114,6 +99,7 @@
         .tab-table thead th { text-align: left; color: #718096; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
         .tab-table tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.15s; }
         .tab-table tbody tr:hover { background: #f7fafc; }
+        .tab-table tbody tr.row-overdue { background: #fff5f5 !important; box-shadow: inset 8px 0 0 0 #e53e3e; }
         .tab-table tbody tr.row-done    { background: #f0fff4 !important; }
         .tab-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
         .tab-table tbody td { padding: 10px 12px; color: #2d3748; }
@@ -134,7 +120,7 @@
         .day-nav-label.past { color: #718096; }
         .day-nav-label.future { color: #5a67d8; }
 
-        /* FOLGETAG-FRÜHWARNUNG */
+        /* FRÜHWARNUNG */
         .early-warning {
             background: linear-gradient(135deg, #fffbeb, #fef3c7);
             border: 2px solid #f59e0b;
@@ -146,10 +132,7 @@
             gap: 12px;
             box-shadow: 0 2px 8px rgba(245,158,11,0.2);
         }
-        .tv-early-warning {
-            max-width: 800px;
-            margin: 0 auto 20px;
-        }
+        .tv-early-warning { max-width: 800px; margin: 0 auto 20px; }
         .early-warning-icon { font-size: 24px; }
         .early-warning-text { font-size: 13px; color: #92400e; font-weight: 600; }
         .early-warning-text strong { font-size: 15px; color: #78350f; display: block; }
@@ -166,44 +149,35 @@
         .history-table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .history-table th { text-align: left; color: #718096; font-size: 11px; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid #e2e8f0; }
         .history-table td { padding: 8px 10px; border-bottom: 1px solid #f7fafc; color: #2d3748; }
-        .history-table tr:last-child td { border-bottom: none; }
         .h-badge { display: inline-block; border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
         .h-badge.open    { background: #edf2f7; color: #718096; }
         .h-badge.done    { background: #c6f6d5; color: #276749; }
         .h-badge.problem { background: #fed7d7; color: #c53030; }
         .history-empty { text-align: center; color: #a0aec0; padding: 30px; font-size: 15px; }
 
-        /* PASSWORT MODAL */
-        .pw-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
-        .pw-overlay.open { display: flex; }
-        .pw-box { background: #fff; border-radius: 16px; padding: 32px; width: 320px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); text-align: center; }
-        .pw-box h3 { font-size: 16px; color: #2d3748; margin-bottom: 8px; }
-        .pw-box p  { font-size: 13px; color: #718096; margin-bottom: 18px; }
+        /* MODALS */
+        .pw-overlay, .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
+        .pw-overlay.open, .modal-overlay.open { display: flex; }
+        .pw-box, .modal { background: #fff; border-radius: 16px; padding: 28px; width: 320px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; }
+        .modal { max-width: 580px; width: 90%; }
+        .modal h3 { color: #744210; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+        .pw-box h3 { font-size: 16px; color: #2d3748; margin-bottom: 8px; text-align: center; }
+        .pw-box p { font-size: 13px; color: #718096; margin-bottom: 18px; text-align: center; }
         .pw-box input { width: 100%; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; font-size: 15px; outline: none; margin-bottom: 12px; text-align: center; letter-spacing: 2px; }
         .pw-box input:focus { border-color: #4299e1; }
-        .pw-error { color: #c53030; font-size: 13px; margin-bottom: 8px; min-height: 18px; }
+        .pw-error { color: #c53030; font-size: 13px; margin-bottom: 8px; min-height: 18px; text-align: center; }
         .pw-btns { display: flex; gap: 10px; }
         .pw-btn-cancel { flex: 1; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px; font-size: 14px; cursor: pointer; }
         .pw-btn-ok { flex: 1; background: #c53030; color: #fff; border: none; border-radius: 8px; padding: 9px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .pw-btn-ok:hover { background: #9b2c2c; }
-
-        /* MODAL */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
-        .modal-overlay.open { display: flex; }
-        .modal { background: #fff; border-radius: 16px; padding: 28px; max-width: 580px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.18); position: relative; }
-        .modal h3 { color: #744210; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
         .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 20px; color: #a0aec0; cursor: pointer; }
-        .modal-close:hover { color: #2d3748; }
         .info-box { background: #fffbeb; border: 1px solid #f6e05e; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #744210; margin-bottom: 14px; line-height: 1.6; }
         .btn-save { background: #d69e2e; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .btn-save:hover { background: #b7791f; }
         .btn-test { background: transparent; color: #d69e2e; border: 2px solid #d69e2e; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .btn-test:hover { background: #d69e2e; color: #fff; }
         .shelly-status { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #718096; }
         .shelly-dot { width: 8px; height: 8px; border-radius: 50%; background: #a0aec0; }
         .shelly-dot.active { background: #48bb78; box-shadow: 0 0 6px #48bb78; }
-        .shelly-dot.error  { background: #fc8181; box-shadow: 0 0 6px #fc8181; }
-        .shelly-dot.blink  { background: #fc8181; animation: blink 0.6s infinite alternate; }
+        .shelly-dot.error { background: #fc8181; box-shadow: 0 0 6px #fc8181; }
+        .shelly-dot.blink { background: #fc8181; animation: blink 0.6s infinite alternate; }
         @keyframes blink { from { opacity: 1; } to { opacity: 0.2; } }
     </style>
 </head>
@@ -253,10 +227,10 @@
             <div class="setting-item">
                 <label>Alarm-Ton</label>
                 <select id="tv-setting-sound" onchange="applyTVSettings()">
+                    <option value="voice">🗣️ Stimme (Gesprochen)</option>
                     <option value="gong">🔔 Gong (Sanft)</option>
                     <option value="siren">🚨 Sirene (Laut)</option>
                     <option value="beep">🤖 Beep (Digital)</option>
-                    <option value="voice">🗣️ Stimme (Gesprochen)</option>
                 </select>
             </div>
             <div class="setting-item">
@@ -467,23 +441,28 @@
     // SPEZIALFALL: TEXT-TO-SPEECH (STIMME MIT ZEITANSAGE & HUMAN CHOICE)
     if (type === 'voice') {
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel(); // Alte Sprache abbrechen
             
-            // Finde den ältesten überfälligen Auftrag von heute
+            // 1. ZUVERLÄSSIGSTE SORTIERUNG: ÄLTESTER ZUERST
             let overdueText = "Achtung! Eine Auslagerung ist überfällig.";
             const nowTime = getNowTime();
+            
+            // Filtern: Nur HEUTE, nur OFFEN, nur ÜBERFÄLLIG
             const overdueOrders = allOrders.filter(o => 
                 o.date === todayStr && 
                 (o.status || 'open') === 'open' && 
                 o.time <= nowTime
             );
             
-            // Sortieren nach Zeit (ältester zuerst)
+            // Sortieren: String-Vergleich "08:00" < "12:00" ist korrekt für Zeit
+            // Index 0 ist der kleinste Zeitwert (also der älteste Auftrag)
             overdueOrders.sort((a,b) => a.time.localeCompare(b.time));
 
             if (overdueOrders.length > 0) {
+                // Den ersten (ältesten) Auftrag nehmen
                 const urgentTime = overdueOrders[0].time; 
-                // "14:03" -> "14" und "3" (als Zahl, keine 03)
+                
+                // MENSCHLICHE ZEITUMWANDLUNG: "14:05" -> "14 Uhr 5"
                 const [hStr, mStr] = urgentTime.split(':');
                 const h = parseInt(hStr, 10);
                 const m = parseInt(mStr, 10);
@@ -503,9 +482,9 @@
             msg.rate = 1.0; 
             msg.pitch = 1.0;
 
-            // --- VERSUCHE EINE "HUMAN" STIMME ZU FINDEN ---
+            // --- VERSUCHE EINE "MENSCHLICHE" STIMME ZU FINDEN ---
             const voices = window.speechSynthesis.getVoices();
-            // Prio-Liste: Google Deutsch -> Microsoft Natural -> Irgendeine "Natural" -> Standard Deutsch
+            // Priorität: Google Deutsch -> Microsoft Natural -> Irgendeine "Natural" -> Standard Deutsch
             const bestVoice = voices.find(v => v.lang.startsWith('de') && v.name.includes('Google')) 
                            || voices.find(v => v.lang.startsWith('de') && v.name.includes('Natural'))
                            || voices.find(v => v.lang.startsWith('de'));
