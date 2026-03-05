@@ -1069,7 +1069,7 @@
         }
     }
 
-    // Update Status
+    // WICHTIG: allOrders muss aktualisiert werden BEVOR renderAll aufgerufen wird
     allOrders = newOrders;
     knownKeys = new Set(newOrders.map(o => o.key));
     firstLoad = false;
