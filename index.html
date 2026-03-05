@@ -1034,7 +1034,7 @@
     if (hasOverdue) {
         if (!gongInterval) {
             window.playDigitalGong();
-            gongInterval = setInterval(() => window.playDigitalGong(), 10000);
+            gongInterval = setInterval(() => window.playDigitalGong(), 30000);
         }
     } else {
         if (gongInterval) {
