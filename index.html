@@ -464,15 +464,13 @@
   window.playDigitalGong = function() {
     const type = tvSettings.sound || 'gong';
     
-    // SPEZIALFALL: TEXT-TO-SPEECH (STIMME MIT ZEITANSAGE)
+    // SPEZIALFALL: TEXT-TO-SPEECH (STIMME MIT ZEITANSAGE & HUMAN CHOICE)
     if (type === 'voice') {
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Alte Sprache abbrechen
+            window.speechSynthesis.cancel();
             
-            // Finde den ältesten überfälligen Auftrag
-            let overdueText = "Achtung! Eine Auslagerung ist überfällig."; // Fallback
-            
-            // Wir filtern die globale Liste (allOrders) nach überfälligen, offenen Aufträgen von HEUTE
+            // Finde den ältesten überfälligen Auftrag von heute
+            let overdueText = "Achtung! Eine Auslagerung ist überfällig.";
             const nowTime = getNowTime();
             const overdueOrders = allOrders.filter(o => 
                 o.date === todayStr && 
@@ -484,15 +482,30 @@
             overdueOrders.sort((a,b) => a.time.localeCompare(b.time));
 
             if (overdueOrders.length > 0) {
-                const urgentTime = overdueOrders[0].time; // z.B. "14:00"
-                // Text bauen: "Achtung! Die Auslagerung um 14 Uhr 00 ist überfällig."
-                overdueText = `Achtung! Die Auslagerung um ${urgentTime} Uhr ist überfällig.`;
+                const urgentTime = overdueOrders[0].time; 
+                // "14:00" -> "14 Uhr 00" für bessere Aussprache
+                const [h, m] = urgentTime.split(':');
+                const spokenTime = `${h} Uhr ${m === '00' ? '' : m}`;
+                overdueText = `Achtung! Die Auslagerung um ${spokenTime} ist überfällig.`;
             }
 
             const msg = new SpeechSynthesisUtterance(overdueText);
             msg.lang = 'de-DE';
-            msg.rate = 1.1; 
+            msg.rate = 1.0; 
             msg.pitch = 1.0;
+
+            // --- VERSUCHE EINE "HUMAN" STIMME ZU FINDEN ---
+            const voices = window.speechSynthesis.getVoices();
+            // Prio-Liste: Google Deutsch -> Microsoft Natural -> Irgendeine "Natural" -> Standard Deutsch
+            const bestVoice = voices.find(v => v.lang.startsWith('de') && v.name.includes('Google')) 
+                           || voices.find(v => v.lang.startsWith('de') && v.name.includes('Natural'))
+                           || voices.find(v => v.lang.startsWith('de'));
+            
+            if (bestVoice) {
+                msg.voice = bestVoice;
+            }
+            // ----------------------------------------------
+
             window.speechSynthesis.speak(msg);
         } else {
             console.error("Browser unterstützt kein TTS");
