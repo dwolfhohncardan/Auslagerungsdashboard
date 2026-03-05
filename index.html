@@ -411,6 +411,21 @@
   const DELETE_PASSWORD = 'Gelenkwelle';
   const DAYS_DE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
+  // Base64 Gong-Sound (kurzer Glockenton)
+  const GONG_SOUND = "data:audio/mp3;base64,//uQRAAAAWMSLwUIYAAsYkXgoQwAEaYLWfkWgAI0wWs/ItAAAG1xUAA5cAATAkAAOY5cAAAP8F8AAAB9cAAACTak3jdj//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAB09Vda8A84b/7mZP8J4w8x4w8w9/8re0dRC6eltLCgh/1B+lv76//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q";
+  
+  const gongAudio = new Audio(GONG_SOUND);
+  // Wir speichern die IDs der bereits "gegongten" Aufträge, damit sie nicht bei jedem Refresh erneut klingeln.
+  const playedGongs = new Set();
+
+  // Damit der Browser Audio erlaubt, muss einmal interagiert worden sein.
+  // Wir hängen einen Listener an den Body, der beim ersten Klick Audio "freischaltet".
+  document.body.addEventListener('click', () => {
+    // Kurzes leeres Abspielen um Audio Context zu wecken
+    gongAudio.play().then(() => gongAudio.pause()).catch(() => {});
+  }, { once: true });
+
+
   function toDateStr(d) { return d.toISOString().split('T')[0]; }
   function formatDisplay(s) { const [y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
   function getShift(time, manual) {
@@ -433,11 +448,9 @@
               </div>`;
   }
 
-  // WICHTIG: "let" statt "const", damit sie aktualisiert werden können
   let today    = new Date();
   let todayStr = toDateStr(today);
 
-  // Funktion zum Aktualisieren der Titel-Anzeige
   function updateDateDisplay() {
       document.getElementById('tv-date').textContent = 'Heute: ' + DAYS_DE[today.getDay()] + ', ' + formatDisplay(todayStr);
   }
@@ -455,7 +468,6 @@
   function updateDayNav() {
     const d = getViewDate();
     const dStr = toDateStr(d);
-    // Hier nutzen wir todayStr statt dem statischen Datum
     const label = dStr === todayStr ? 'Heute' : dStr === toDateStr(new Date(today.getTime()+86400000)) ? 'Morgen' : dStr === toDateStr(new Date(today.getTime()-86400000)) ? 'Gestern' : formatDisplay(dStr);
     const el = document.getElementById('day-nav-label');
     el.textContent = label + ' – ' + formatDisplay(dStr);
@@ -470,16 +482,11 @@
   function updateEarlyWarning() {
     const tomorrowStr = toDateStr(new Date(today.getTime()+86400000));
     const tomorrowOrders = allOrders.filter(o => o.date === tomorrowStr);
-    
-    // FILTER: Nur Aufträge für morgen, die VOR 09:00 Uhr sind
     const relevantOrders = tomorrowOrders.filter(o => o.time < '09:00');
-
     const tabletBox = document.getElementById('early-warning-box');
     const tvBox = document.getElementById('tv-early-warning-box');
 
     let warningHtml = '';
-
-    // Warnung nur anzeigen, wenn es relevante Aufträge (< 09:00) gibt
     if (relevantOrders.length > 0) {
       warningHtml = '<div class="early-warning">'
         +'<div class="early-warning-icon">🌅</div>'
@@ -837,11 +844,36 @@
     todayOrders.sort((a,b) => a.time.localeCompare(b.time));
     const amOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'am');
     const pmOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
+    
+    // Gong-Logik:
+    checkOverdueGong(todayOrders);
+
     renderTV(amOrders, pmOrders);
     renderTabletForDay();
     checkShellyTrigger(todayOrders);
     updateEarlyWarning();
     if (document.getElementById('history-modal').classList.contains('open')) renderHistory();
+  }
+
+  // Neue Funktion für den Gong
+  function checkOverdueGong(orders) {
+    const nowTime = getNowTime();
+    let playNeeded = false;
+
+    orders.forEach(o => {
+        // Wenn Status offen UND Zeit abgelaufen
+        if ((o.status || 'open') === 'open' && o.time <= nowTime) {
+            // Wenn dieser Auftrag noch nicht "gegongt" wurde
+            if (!playedGongs.has(o.key)) {
+                playNeeded = true;
+                playedGongs.add(o.key);
+            }
+        }
+    });
+
+    if (playNeeded) {
+        gongAudio.play().catch(e => console.log('Audio playback prevented by browser policy (interact first).'));
+    }
   }
 
   let wasOverdue = false;
