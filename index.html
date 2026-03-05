@@ -483,9 +483,18 @@
 
             if (overdueOrders.length > 0) {
                 const urgentTime = overdueOrders[0].time; 
-                // "14:00" -> "14 Uhr 00" für bessere Aussprache
-                const [h, m] = urgentTime.split(':');
-                const spokenTime = `${h} Uhr ${m === '00' ? '' : m}`;
+                // "14:03" -> "14" und "3" (als Zahl, keine 03)
+                const [hStr, mStr] = urgentTime.split(':');
+                const h = parseInt(hStr, 10);
+                const m = parseInt(mStr, 10);
+
+                let spokenTime = "";
+                if (m === 0) {
+                    spokenTime = `${h} Uhr`; // "14 Uhr"
+                } else {
+                    spokenTime = `${h} Uhr ${m}`; // "12 Uhr 3" (liest sich als "zwölf Uhr drei")
+                }
+                
                 overdueText = `Achtung! Die Auslagerung um ${spokenTime} ist überfällig.`;
             }
 
