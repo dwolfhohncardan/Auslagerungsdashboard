@@ -256,6 +256,7 @@
                     <option value="gong">🔔 Gong (Sanft)</option>
                     <option value="siren">🚨 Sirene (Laut)</option>
                     <option value="beep">🤖 Beep (Digital)</option>
+                    <option value="voice">🗣️ Stimme (Gesprochen)</option>
                 </select>
             </div>
             <div class="setting-item">
@@ -457,24 +458,40 @@
     }
   });
 
-  // ========== GONG LOGIK ==========
+  // ========== GONG & SPRACH LOGIK ==========
   let gongInterval = null;
 
   window.playDigitalGong = function() {
+    const type = tvSettings.sound || 'gong';
+    
+    // SPEZIALFALL: TEXT-TO-SPEECH (STIMME)
+    if (type === 'voice') {
+        if ('speechSynthesis' in window) {
+            // Alte Sprache abbrechen, falls noch läuft
+            window.speechSynthesis.cancel();
+            
+            const msg = new SpeechSynthesisUtterance("Achtung! Eine Auslagerung ist überfällig.");
+            msg.lang = 'de-DE';
+            msg.rate = 1.1; // Leicht schneller
+            msg.pitch = 1.0;
+            window.speechSynthesis.speak(msg);
+        } else {
+            console.error("Browser unterstützt kein TTS");
+        }
+        return; // Hier beenden, kein Oszillator nötig
+    }
+
+    // NORMALE TÖNE (OSZILLATOR)
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         const ctx = new AudioContext();
         
-        // Gewählten Sound laden (default: gong)
-        const type = tvSettings.sound || 'gong';
-
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
-        // Einstellungen je nach Sound-Typ
         if (type === 'siren') {
-            // SIRENE (Sägezahn, aufsteigend)
+            // SIRENE
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(400, ctx.currentTime);
             osc.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.5);
@@ -485,7 +502,7 @@
             osc.stop(ctx.currentTime + 0.6);
 
         } else if (type === 'beep') {
-            // BEEP (Rechteck, kurz)
+            // BEEP
             osc.type = 'square';
             osc.frequency.setValueAtTime(800, ctx.currentTime);
             
@@ -495,7 +512,7 @@
             osc.stop(ctx.currentTime + 0.3);
 
         } else {
-            // GONG (Sinus, abfallend)
+            // GONG
             osc.type = 'sine'; 
             osc.frequency.setValueAtTime(660, ctx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
