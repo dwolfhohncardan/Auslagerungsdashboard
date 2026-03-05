@@ -12,8 +12,20 @@
         .mode-btn { padding: 8px 28px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 15px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
         .mode-btn.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
         .hidden { display: none !important; }
+        
+        /* MENÜ DESIGN */
+        .menu-wrapper { position: relative; display: inline-block; }
+        .menu-btn { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 18px; font-size: 15px; font-weight: 600; color: #2d3748; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: all 0.2s; }
+        .menu-btn:hover { background: #edf2f7; border-color: #cbd5e0; }
+        .menu-dropdown { display: none; position: absolute; right: 0; top: 115%; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); min-width: 200px; z-index: 150; overflow: hidden; animation: fadeIn 0.15s ease-out; }
+        .menu-dropdown.show { display: block; }
+        .menu-item { padding: 12px 18px; font-size: 14px; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.1s; border-bottom: 1px solid #f7fafc; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover { background: #f0f4f8; color: #2b6cb0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ICON BUTTONS (nur intern) */
         .btn-icon { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-size: 14px; color: #4a5568; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .btn-icon:hover { background: #edf2f7; }
 
         /* BARCODE STYLES */
         .barcode-container { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
@@ -38,7 +50,7 @@
         #view-tv { padding: 20px 40px 30px; }
         .tv-header { display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; }
         .tv-header h1 { font-size: 34px; color: #2b6cb0; }
-        .tv-header-btns { position: absolute; right: 0; display: flex; gap: 8px; }
+        .tv-header-btns { position: absolute; right: 0; }
         .tv-subtitle { text-align: center; color: #718096; font-size: 18px; margin-bottom: 16px; }
         .tv-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
         .tv-col-card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.09); border: 1px solid #e2e8f0; }
@@ -219,10 +231,15 @@
     <div class="tv-header">
         <h1>📦 Auslagerungsaufträge</h1>
         <div class="tv-header-btns">
-            <button class="btn-icon" onclick="testGong()">🔔 Gong Test</button>
-            <button class="btn-icon" onclick="toggleTVSettings()">⚙️ Einstellungen</button>
-            <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
-            <button class="btn-icon" onclick="toggleFullscreen()" id="btn-fs">⛶ Vollbild</button>
+            <div class="menu-wrapper">
+                <button class="menu-btn" onclick="toggleMenu('tv-menu-dd', event)">☰ Menü</button>
+                <div id="tv-menu-dd" class="menu-dropdown">
+                    <div class="menu-item" onclick="testGong()">🔔 Gong Test</div>
+                    <div class="menu-item" onclick="toggleTVSettings()">⚙️ Darstellung</div>
+                    <div class="menu-item" onclick="openShellyModal()">💡 Lampe</div>
+                    <div class="menu-item" onclick="toggleFullscreen()">⛶ Vollbild</div>
+                </div>
+            </div>
         </div>
     </div>
     <p class="tv-subtitle" id="tv-date"></p>
@@ -293,10 +310,13 @@
             <h2>📦 Auslagerungsaufträge</h2>
             <div class="tablet-subtitle" id="tablet-date"></div>
         </div>
-        <div style="display:flex;gap:8px;">
-            <button class="btn-icon" onclick="testGong()">🔔 Gong Test</button>
-            <button class="btn-icon" onclick="toggleTabletSettings()">⚙️ Einstellungen</button>
-            <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
+        <div class="menu-wrapper">
+            <button class="menu-btn" onclick="toggleMenu('tablet-menu-dd', event)">☰ Menü</button>
+            <div id="tablet-menu-dd" class="menu-dropdown">
+                <div class="menu-item" onclick="testGong()">🔔 Gong Test</div>
+                <div class="menu-item" onclick="toggleTabletSettings()">⚙️ Darstellung</div>
+                <div class="menu-item" onclick="openShellyModal()">💡 Lampe</div>
+            </div>
         </div>
     </div>
 
@@ -413,32 +433,47 @@
   const DELETE_PASSWORD = 'Gelenkwelle';
   const DAYS_DE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
-  const playedGongs = new Set();
+  // MENÜ LOGIK
+  window.toggleMenu = function(id, e) {
+    if(e) e.stopPropagation();
+    const el = document.getElementById(id);
+    document.querySelectorAll('.menu-dropdown').forEach(d => {
+        if(d.id !== id) d.classList.remove('show');
+    });
+    el.classList.toggle('show');
+  };
+  window.addEventListener('click', function(e) {
+    if (!e.target.matches('.menu-btn')) {
+        document.querySelectorAll('.menu-dropdown').forEach(d => d.classList.remove('show'));
+    }
+  });
 
-  // WICHTIG: Das ist der neue Digital-Gong (Synthesizer)
-  // Er erzeugt den Ton mathematisch - kein Ladefehler mehr möglich!
+  // ========== GONG LOGIK ==========
+  let gongInterval = null;
+
   window.playDigitalGong = function() {
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
-        
         const ctx = new AudioContext();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
-        // Einstellungen für einen angenehmen "Ding"-Sound
         osc.type = 'sine'; 
-        osc.frequency.setValueAtTime(660, ctx.currentTime); // Start Tonhöhe
-        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1); // Leichtes Abfallen (Glocken-Effekt)
+        osc.frequency.setValueAtTime(660, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
 
-        gain.gain.setValueAtTime(0.3, ctx.currentTime); // Lautstärke
-        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 1.5); // Ausklingen
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 1.5);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
         
         osc.start();
         osc.stop(ctx.currentTime + 1.5);
+        
+        // WICHTIG: Kontext schließen, damit der Browser nicht überlastet wird bei Dauer-Gong
+        setTimeout(() => { if(ctx.state !== 'closed') ctx.close(); }, 2000);
     } catch(e) {
         console.error("Audio Fehler:", e);
     }
@@ -446,11 +481,6 @@
 
   window.testGong = function() {
     playDigitalGong();
-    // Kleines Feedback für den User
-    const btn = document.querySelector('button[onclick="testGong()"]');
-    const oldText = btn.textContent;
-    btn.textContent = "🔊 Ton an!";
-    setTimeout(() => btn.textContent = oldText, 2000);
   };
 
   function toDateStr(d) { return d.toISOString().split('T')[0]; }
@@ -682,7 +712,6 @@
     else document.exitFullscreen();
   };
   document.addEventListener('fullscreenchange', () => {
-    document.getElementById('btn-fs').textContent = document.fullscreenElement ? '✕ Beenden' : '⛶ Vollbild';
   });
 
   window.openShellyModal  = () => document.getElementById('shelly-modal').classList.add('open');
@@ -872,7 +901,7 @@
     const amOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'am');
     const pmOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
     
-    // Gong-Logik:
+    // GONG-LOGIK: Überprüfen und ggf. Schleife starten/stoppen
     checkOverdueGong(todayOrders);
 
     renderTV(amOrders, pmOrders);
@@ -882,25 +911,23 @@
     if (document.getElementById('history-modal').classList.contains('open')) renderHistory();
   }
 
-  // Neue Funktion für den Gong
   function checkOverdueGong(orders) {
     const nowTime = getNowTime();
-    let playNeeded = false;
+    // Prüfen ob IRGENDEIN Auftrag überfällig ist
+    const hasOverdue = orders.some(o => (o.status || 'open') === 'open' && o.time <= nowTime);
 
-    orders.forEach(o => {
-        // Wenn Status offen UND Zeit abgelaufen
-        if ((o.status || 'open') === 'open' && o.time <= nowTime) {
-            // Wenn dieser Auftrag noch nicht "gegongt" wurde
-            if (!playedGongs.has(o.key)) {
-                playNeeded = true;
-                playedGongs.add(o.key);
-            }
+    if (hasOverdue) {
+        // Wenn überfällig und Schleife läuft noch nicht -> Starten
+        if (!gongInterval) {
+            window.playDigitalGong(); // Sofort einmal
+            gongInterval = setInterval(() => window.playDigitalGong(), 10000); // Dann alle 10s
         }
-    });
-
-    if (playNeeded) {
-        // Wir rufen den digitalen Gong auf
-        window.playDigitalGong();
+    } else {
+        // Wenn nichts mehr überfällig ist, aber Schleife läuft -> Stoppen
+        if (gongInterval) {
+            clearInterval(gongInterval);
+            gongInterval = null;
+        }
     }
   }
 
