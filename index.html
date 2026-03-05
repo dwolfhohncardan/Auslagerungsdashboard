@@ -8,7 +8,6 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
-
         .mode-switcher { display: flex; justify-content: center; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 50; }
         .mode-btn { padding: 8px 28px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 15px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
         .mode-btn.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
@@ -58,25 +57,14 @@
         .tv-table tbody tr.row-done    { background: #f0fff4 !important; }
         .tv-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
 
+        /* Statisches Rot mit rotem Balken links statt Blinken */
         .tv-table tbody tr.row-overdue {
             background: #fff5f5 !important;
-            outline: 3px solid #e53e3e;
-            box-shadow: 0 0 0 3px #e53e3e, 0 0 16px 4px rgba(229,62,62,0.55), inset 0 0 8px rgba(229,62,62,0.15);
-            animation: glow-red 1.2s infinite alternate;
-            position: relative;
-            z-index: 1;
-        }
-        @keyframes glow-red {
-            from { box-shadow: 0 0 0 3px #e53e3e, 0 0 16px 4px rgba(229,62,62,0.55), inset 0 0 8px rgba(229,62,62,0.1); }
-            to   { box-shadow: 0 0 0 3px #fc8181, 0 0 28px 8px rgba(229,62,62,0.85), inset 0 0 14px rgba(229,62,62,0.25); }
+            box-shadow: inset 8px 0 0 0 #e53e3e; /* Roter Strich am Anfang */
         }
         .tab-table tbody tr.row-overdue {
             background: #fff5f5 !important;
-            outline: 3px solid #e53e3e;
-            box-shadow: 0 0 0 3px #e53e3e, 0 0 14px 4px rgba(229,62,62,0.5), inset 0 0 8px rgba(229,62,62,0.12);
-            animation: glow-red 1.2s infinite alternate;
-            position: relative;
-            z-index: 1;
+            box-shadow: inset 8px 0 0 0 #e53e3e; /* Roter Strich am Anfang */
         }
 
         @keyframes row-blink { from { background: #fff5f5; } to { background: #fed7d7; } }
@@ -346,9 +334,17 @@
     <div class="tablet-form">
         <div class="tablet-form-title">+ Neuer Auslagerungsauftrag</div>
         <div class="form-row">
-            <div class="form-group"><label>Artikelnummer</label><input id="inp-artikel" type="text" placeholder=""></div>
-            <div class="form-group"><label>Lagerort</label><input id="inp-lager" type="text" placeholder=""></div>
-            <div class="form-group"><label>Zielort</label><input id="inp-ziel" type="text" placeholder=""></div>
+            <div class="form-group"><label>Artikelnummer</label><input id="inp-artikel" type="text" placeholder="z.B. ART-00123"></div>
+            <div class="form-group"><label>Lagerort</label><input id="inp-lager" type="text" placeholder="z.B. Regal A3"></div>
+            <div class="form-group"><label>Zielort</label>
+                <select id="inp-ziel">
+                    <option value="" disabled selected>Ziel wählen</option>
+                    <option value="Mittelgang">Mittelgang</option>
+                    <option value="Gang 3">Gang 3</option>
+                    <option value="Gang 1">Gang 1</option>
+                    <option value="Saelo">Saelo</option>
+                </select>
+            </div>
             <div class="form-group" style="max-width:120px;"><label>Uhrzeit</label><input id="inp-time" type="time"></div>
             <div class="form-group" style="max-width:150px;"><label>Schicht</label>
                 <select id="inp-shift">
@@ -413,6 +409,7 @@
   const ordersRef = ref(db, 'auslagerung/orders');
 
   const DELETE_PASSWORD = 'Gelenkwelle';
+  const DAYS_DE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
   function toDateStr(d) { return d.toISOString().split('T')[0]; }
   function formatDisplay(s) { const [y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
@@ -436,11 +433,17 @@
               </div>`;
   }
 
-  const today    = new Date();
-  const todayStr = toDateStr(today);
-  document.getElementById('tv-date').textContent = 'Heute: ' + formatDisplay(todayStr);
+  // WICHTIG: "let" statt "const", damit sie aktualisiert werden können
+  let today    = new Date();
+  let todayStr = toDateStr(today);
 
-  let dayOffset = 0; 
+  // Funktion zum Aktualisieren der Titel-Anzeige
+  function updateDateDisplay() {
+      document.getElementById('tv-date').textContent = 'Heute: ' + DAYS_DE[today.getDay()] + ', ' + formatDisplay(todayStr);
+  }
+  updateDateDisplay();
+
+  let dayOffset = 0;
 
   function getViewDate() {
     const d = new Date(today);
@@ -452,11 +455,12 @@
   function updateDayNav() {
     const d = getViewDate();
     const dStr = toDateStr(d);
+    // Hier nutzen wir todayStr statt dem statischen Datum
     const label = dStr === todayStr ? 'Heute' : dStr === toDateStr(new Date(today.getTime()+86400000)) ? 'Morgen' : dStr === toDateStr(new Date(today.getTime()-86400000)) ? 'Gestern' : formatDisplay(dStr);
     const el = document.getElementById('day-nav-label');
     el.textContent = label + ' – ' + formatDisplay(dStr);
     el.className = 'day-nav-label' + (dayOffset < 0 ? ' past' : dayOffset > 0 ? ' future' : '');
-    document.getElementById('tablet-date').textContent = formatDisplay(dStr);
+    document.getElementById('tablet-date').textContent = DAYS_DE[d.getDay()] + ', ' + formatDisplay(dStr);
     renderTabletForDay();
     updateEarlyWarning();
   }
@@ -466,21 +470,22 @@
   function updateEarlyWarning() {
     const tomorrowStr = toDateStr(new Date(today.getTime()+86400000));
     const tomorrowOrders = allOrders.filter(o => o.date === tomorrowStr);
+    
+    // FILTER: Nur Aufträge für morgen, die VOR 09:00 Uhr sind
+    const relevantOrders = tomorrowOrders.filter(o => o.time < '09:00');
+
     const tabletBox = document.getElementById('early-warning-box');
     const tvBox = document.getElementById('tv-early-warning-box');
 
     let warningHtml = '';
 
-    if (tomorrowOrders.length > 0) {
-      const earlyOrders = tomorrowOrders.filter(o => o.time < '08:00');
-      const hasEarly = earlyOrders.length > 0;
-      
+    // Warnung nur anzeigen, wenn es relevante Aufträge (< 09:00) gibt
+    if (relevantOrders.length > 0) {
       warningHtml = '<div class="early-warning">'
-        +'<div class="early-warning-icon">'+(hasEarly ? '🌅' : '📋')+'</div>'
+        +'<div class="early-warning-icon">🌅</div>'
         +'<div class="early-warning-text">'
-        +'<strong>'+(hasEarly ? 'Frühauslagerung morgen!' : 'Morgen sind Aufträge geplant')+'</strong>'
-        + tomorrowOrders.length + ' Auftrag' + (tomorrowOrders.length>1?'e':'') + ' für morgen eingetragen'
-        + (hasEarly ? ' – davon ' + earlyOrders.length + ' vor 08:00 Uhr' : '')
+        +'<strong>Frühauslagerung morgen!</strong>'
+        + relevantOrders.length + ' Auftrag' + (relevantOrders.length>1?'e':'') + ' bis 09:00 Uhr eingetragen'
         +'</div></div>';
     }
 
@@ -502,7 +507,7 @@
 
     const byDate = {};
     past.forEach(o => { if (!byDate[o.date]) byDate[o.date] = []; byDate[o.date].push(o); });
-    const sortedDates = Object.keys(byDate).sort((a,b) => b.localeCompare(a)); 
+    const sortedDates = Object.keys(byDate).sort((a,b) => b.localeCompare(a));
 
     content.innerHTML = sortedDates.map(date => {
       const orders = byDate[date].sort((a,b) => a.time.localeCompare(b.time));
@@ -859,7 +864,23 @@
   });
 
   updateDayNav();
-  setInterval(renderAll, 60000);
+  
+  // Neuer Interval-Check: Jede Minute prüfen, ob ein neuer Tag ist
+  setInterval(() => {
+    const now = new Date();
+    const nowStr = toDateStr(now);
+    
+    // Wenn das Datum nicht mehr mit dem gespeicherten "todayStr" übereinstimmt:
+    if (nowStr !== todayStr) {
+        today = now;
+        todayStr = nowStr;
+        dayOffset = 0; // Zurücksetzen auf "Heute"
+        updateDateDisplay(); // Titel aktualisieren
+        updateDayNav();      // Tablet-Navi resetten
+    }
+    
+    renderAll();
+  }, 60000);
 
   let touchStartX = 0;
   document.getElementById('view-tablet').addEventListener('touchstart', e => {
