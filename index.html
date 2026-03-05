@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
-        .mode-switcher { display: flex; justify-content: center; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 50; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; transition: background 0.3s, color 0.3s; }
+        .mode-switcher { display: flex; justify-content: center; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 50; transition: background 0.3s, border-color 0.3s; }
         .mode-btn { padding: 8px 28px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 15px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
         .mode-btn.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
         .hidden { display: none !important; }
@@ -30,7 +30,7 @@
         .barcode-label { font-size: 10px; color: #4a5568; font-weight: bold; margin-top: 2px; }
 
         /* EINSTELLUNGEN */
-        .settings-panel { border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .settings-panel { border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: background 0.3s; }
         .settings-panel.tv-settings-panel { background: #fff; margin: 0 40px 20px; }
         .settings-panel.tablet-settings-panel { background: #fff; }
         .settings-panel-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #744210; margin-bottom: 14px; }
@@ -51,7 +51,7 @@
         .tv-header-btns { position: absolute; right: 0; }
         .tv-subtitle { text-align: center; color: #718096; font-size: 18px; margin-bottom: 16px; }
         .tv-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
-        .tv-col-card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.09); border: 1px solid #e2e8f0; }
+        .tv-col-card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.09); border: 1px solid #e2e8f0; transition: background 0.3s; }
         .tv-col-title { font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
         .tv-col-title.am { color: #d97706; }
         .tv-col-title.pm { color: #5a67d8; }
@@ -61,7 +61,7 @@
         .tv-col-card:last-child  .tv-table thead { background: #5a67d8; }
         .tv-table thead th:first-child { border-radius: 8px 0 0 8px; }
         .tv-table thead th:last-child  { border-radius: 0 8px 8px 0; }
-        .tv-table tbody tr { border-bottom: 2px solid #edf2f7; }
+        .tv-table tbody tr { border-bottom: 2px solid #edf2f7; transition: background 0.3s; }
         .tv-table tbody tr.row-overdue { background: #fff5f5 !important; box-shadow: inset 8px 0 0 0 #e53e3e; }
         .tv-table tbody tr.row-done    { background: #f0fff4 !important; }
         .tv-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
@@ -82,16 +82,16 @@
         .tablet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .tablet-header h2 { font-size: 22px; color: #2b6cb0; font-weight: 800; }
         .tablet-subtitle { font-size: 13px; color: #a0aec0; margin-top: 2px; }
-        .tablet-form { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .tablet-form { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: background 0.3s; }
         .tablet-form-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2b6cb0; margin-bottom: 12px; }
         .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
         .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 130px; }
         .form-group label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .form-group input, .form-group select { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px; padding: 9px 11px; color: #1a202c; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .form-group input, .form-group select { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px; padding: 9px 11px; color: #1a202c; font-size: 14px; outline: none; transition: border-color 0.2s, background 0.3s; }
         .form-group input:focus, .form-group select:focus { border-color: #4299e1; }
         .btn-add { background: #2b6cb0; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .btn-add:hover { background: #2c5282; }
-        .tablet-table-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow-x: auto; }
+        .tablet-table-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow-x: auto; transition: background 0.3s; }
         .tablet-table-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
         .tablet-table-title.am { color: #d97706; }
         .tablet-table-title.pm { color: #5a67d8; }
@@ -140,7 +140,7 @@
         /* RÜCKBLICK MODAL */
         .history-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 250; align-items: flex-start; justify-content: center; padding-top: 40px; }
         .history-overlay.open { display: flex; }
-        .history-box { background: #fff; border-radius: 16px; padding: 28px; width: 90%; max-width: 900px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; }
+        .history-box { background: #fff; border-radius: 16px; padding: 28px; width: 90%; max-width: 900px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; transition: background 0.3s; }
         .history-box h3 { font-size: 18px; font-weight: 800; color: #2b6cb0; margin-bottom: 6px; }
         .history-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 22px; color: #a0aec0; cursor: pointer; }
         .history-close:hover { color: #2d3748; }
@@ -154,11 +154,15 @@
         .h-badge.done    { background: #c6f6d5; color: #276749; }
         .h-badge.problem { background: #fed7d7; color: #c53030; }
         .history-empty { text-align: center; color: #a0aec0; padding: 30px; font-size: 15px; }
+        
+        /* SUCHFELD IM RÜCKBLICK */
+        .search-input { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; background: #f7fafc; color: #1a202c; outline: none; }
+        .search-input:focus { border-color: #2b6cb0; background: #fff; }
 
         /* MODALS */
         .pw-overlay, .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
         .pw-overlay.open, .modal-overlay.open { display: flex; }
-        .pw-box, .modal { background: #fff; border-radius: 16px; padding: 28px; width: 320px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; }
+        .pw-box, .modal { background: #fff; border-radius: 16px; padding: 28px; width: 320px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; transition: background 0.3s; }
         .modal { max-width: 580px; width: 90%; }
         .modal h3 { color: #744210; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
         .pw-box h3 { font-size: 16px; color: #2d3748; margin-bottom: 8px; text-align: center; }
@@ -179,6 +183,68 @@
         .shelly-dot.error { background: #fc8181; box-shadow: 0 0 6px #fc8181; }
         .shelly-dot.blink { background: #fc8181; animation: blink 0.6s infinite alternate; }
         @keyframes blink { from { opacity: 1; } to { opacity: 0.2; } }
+
+        /* ========= DARK MODE STYLES ========= */
+        body.dark-mode { background: #1a202c; color: #cbd5e0; }
+        body.dark-mode .mode-switcher { background: #2d3748; border-color: #4a5568; }
+        body.dark-mode .mode-btn { background: #4a5568; color: #e2e8f0; border-color: #718096; }
+        body.dark-mode .mode-btn.active { background: #4299e1; border-color: #4299e1; color: #fff; }
+        body.dark-mode .menu-btn { background: #4a5568; border-color: #718096; color: #e2e8f0; }
+        body.dark-mode .menu-dropdown { background: #2d3748; border-color: #4a5568; }
+        body.dark-mode .menu-item { color: #cbd5e0; border-bottom-color: #4a5568; }
+        body.dark-mode .menu-item:hover { background: #4a5568; color: #63b3ed; }
+        
+        body.dark-mode .tv-col-card, 
+        body.dark-mode .tablet-form, 
+        body.dark-mode .tablet-table-card,
+        body.dark-mode .settings-panel,
+        body.dark-mode .history-box,
+        body.dark-mode .pw-box,
+        body.dark-mode .modal { background: #2d3748; border-color: #4a5568; color: #e2e8f0; }
+        
+        body.dark-mode .tv-header h1 { color: #63b3ed; }
+        body.dark-mode .tv-subtitle { color: #a0aec0; }
+        body.dark-mode .tv-table tbody tr { border-bottom-color: #4a5568; }
+        body.dark-mode .tv-table tbody tr:nth-child(even) { background: #283141; }
+        body.dark-mode .tv-status-badge.open { background: #4a5568; color: #cbd5e0; }
+        body.dark-mode .tv-status-badge.done { background: #2f855a; color: #fff; }
+        body.dark-mode .tv-status-badge.problem { background: #9b2c2c; color: #fff; }
+        body.dark-mode .td-time { color: #63b3ed; }
+        body.dark-mode .barcode-font { color: #fff; } /* Barcode weiß im Darkmode */
+        body.dark-mode .barcode-label { color: #a0aec0; }
+
+        body.dark-mode .form-group input, 
+        body.dark-mode .form-group select,
+        body.dark-mode .search-input { background: #4a5568; color: #fff; border-color: #718096; }
+        body.dark-mode .form-group label { color: #a0aec0; }
+        
+        body.dark-mode .tab-table thead th { color: #a0aec0; border-bottom-color: #4a5568; }
+        body.dark-mode .tab-table tbody tr { border-bottom-color: #2d3748; }
+        body.dark-mode .tab-table tbody tr:hover { background: #283141; }
+        body.dark-mode .tab-table tbody td { color: #e2e8f0; }
+        body.dark-mode .tab-time { color: #63b3ed; }
+        body.dark-mode .status-btn.open { background: #4a5568; color: #cbd5e0; }
+        body.dark-mode .status-btn.done { background: #2f855a; color: #fff; }
+        body.dark-mode .status-btn.problem { background: #9b2c2c; color: #fff; }
+        
+        body.dark-mode .day-nav-btn { background: #4a5568; border-color: #718096; color: #e2e8f0; }
+        body.dark-mode .day-nav-label { color: #63b3ed; }
+        body.dark-mode .day-nav-label.past { color: #718096; }
+        
+        body.dark-mode .history-table th { color: #a0aec0; border-bottom-color: #4a5568; }
+        body.dark-mode .history-table td { border-bottom-color: #4a5568; color: #e2e8f0; }
+        body.dark-mode .history-date-label { color: #a0aec0; border-bottom-color: #4a5568; }
+        body.dark-mode .h-badge.open { background: #4a5568; color: #cbd5e0; }
+        body.dark-mode .h-badge.done { background: #2f855a; color: #fff; }
+        body.dark-mode .h-badge.problem { background: #9b2c2c; color: #fff; }
+
+        body.dark-mode .pw-box h3, body.dark-mode .modal h3 { color: #e2e8f0; }
+        body.dark-mode .pw-btn-cancel { background: #4a5568; border-color: #718096; color: #e2e8f0; }
+        
+        /* Warnung-Farben im Darkmode etwas abdunkeln */
+        body.dark-mode .early-warning { background: linear-gradient(135deg, #744210, #975a16); border-color: #d69e2e; }
+        body.dark-mode .early-warning-text { color: #fefcbf; }
+        body.dark-mode .early-warning-text strong { color: #fff; }
     </style>
 </head>
 <body>
@@ -213,6 +279,7 @@
                     <div class="menu-item" onclick="toggleTVSettings()">⚙️ Einstellungen</div>
                     <div class="menu-item" onclick="openShellyModal()">💡 Lampe</div>
                     <div class="menu-item" onclick="toggleFullscreen()">⛶ Vollbild</div>
+                    <div class="menu-item" onclick="toggleDarkMode()">🌙 Dunkelmodus</div>
                 </div>
             </div>
         </div>
@@ -283,7 +350,10 @@
     <div class="history-box">
         <button class="history-close" onclick="closeHistory()">✕</button>
         <h3>📋 Rückblick – Vergangene Aufträge</h3>
-        <p style="font-size:13px;color:#a0aec0;margin-bottom:18px;">Alle eingetragenen Aufträge sortiert nach Datum</p>
+        <p style="font-size:13px;color:#a0aec0;margin-bottom:12px;">Alle eingetragenen Aufträge sortiert nach Datum</p>
+        
+        <input type="text" id="history-search" class="search-input" placeholder="🔍 Suchen (Artikel, Lager, Ziel...)" oninput="renderHistory()">
+        
         <div id="history-content"></div>
     </div>
 </div>
@@ -300,6 +370,7 @@
                 <div class="menu-item" onclick="testGong()">🔔 Gong Test</div>
                 <div class="menu-item" onclick="toggleTabletSettings()">⚙️ Einstellungen</div>
                 <div class="menu-item" onclick="openShellyModal()">💡 Lampe</div>
+                <div class="menu-item" onclick="toggleDarkMode()">🌙 Dunkelmodus</div>
             </div>
         </div>
     </div>
@@ -432,6 +503,16 @@
     }
   });
 
+  // DARK MODE LOGIK
+  window.toggleDarkMode = function() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDark ? 'on' : 'off');
+  };
+  // Init Dark Mode
+  if (localStorage.getItem('darkMode') === 'on') {
+    document.body.classList.add('dark-mode');
+  }
+
   // ========== GONG & SPRACH LOGIK ==========
   let gongInterval = null;
 
@@ -444,9 +525,8 @@
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           
-          // Hoher "Ding" Ton (Sinus)
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(880, ctx.currentTime); // Hohes A
+          osc.frequency.setValueAtTime(880, ctx.currentTime); 
           osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.5);
           
           gain.gain.setValueAtTime(0.1, ctx.currentTime);
@@ -457,133 +537,84 @@
           
           osc.start();
           osc.stop(ctx.currentTime + 0.5);
-          
           setTimeout(() => { if(ctx.state !== 'closed') ctx.close(); }, 1000);
-      } catch(e) {
-          console.error("Audio Fehler (New Order):", e);
-      }
+      } catch(e) { console.error("Audio Fehler:", e); }
   };
 
   window.playDigitalGong = function() {
     const type = tvSettings.sound || 'gong';
     
-    // SPEZIALFALL: TEXT-TO-SPEECH (STIMME MIT ZEITANSAGE & HUMAN CHOICE)
     if (type === 'voice') {
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Alte Sprache abbrechen
+            window.speechSynthesis.cancel();
             
-            // 1. ZUVERLÄSSIGSTE SORTIERUNG: ÄLTESTER ZUERST
             let overdueText = "Achtung! Eine Auslagerung ist überfällig.";
             const nowTime = getNowTime();
             
-            // Filtern: Nur HEUTE, nur OFFEN, nur ÜBERFÄLLIG
             const overdueOrders = allOrders.filter(o => 
                 o.date === todayStr && 
                 (o.status || 'open') === 'open' && 
                 o.time <= nowTime
             );
-            
-            // Sortieren: String-Vergleich "08:00" < "12:00" ist korrekt für Zeit
-            // Index 0 ist der kleinste Zeitwert (also der älteste Auftrag)
             overdueOrders.sort((a,b) => a.time.localeCompare(b.time));
 
             if (overdueOrders.length > 0) {
-                // Den ersten (ältesten) Auftrag nehmen
                 const urgentTime = overdueOrders[0].time; 
-                
-                // MENSCHLICHE ZEITUMWANDLUNG: "14:05" -> "14 Uhr 5"
                 const [hStr, mStr] = urgentTime.split(':');
                 const h = parseInt(hStr, 10);
                 const m = parseInt(mStr, 10);
-
-                let spokenTime = "";
-                if (m === 0) {
-                    spokenTime = `${h} Uhr`; // "14 Uhr"
-                } else {
-                    spokenTime = `${h} Uhr ${m}`; // "12 Uhr 3" (liest sich als "zwölf Uhr drei")
-                }
-                
+                let spokenTime = (m === 0) ? `${h} Uhr` : `${h} Uhr ${m}`;
                 overdueText = `Achtung! Die Auslagerung um ${spokenTime} ist überfällig.`;
             }
 
             const msg = new SpeechSynthesisUtterance(overdueText);
-            msg.lang = 'de-DE';
-            msg.rate = 1.0; 
-            msg.pitch = 1.0;
+            msg.lang = 'de-DE'; msg.rate = 1.0; msg.pitch = 1.0;
 
-            // --- VERSUCHE EINE "MENSCHLICHE" STIMME ZU FINDEN ---
             const voices = window.speechSynthesis.getVoices();
-            // Priorität: Google Deutsch -> Microsoft Natural -> Irgendeine "Natural" -> Standard Deutsch
             const bestVoice = voices.find(v => v.lang.startsWith('de') && v.name.includes('Google')) 
                            || voices.find(v => v.lang.startsWith('de') && v.name.includes('Natural'))
                            || voices.find(v => v.lang.startsWith('de'));
-            
-            if (bestVoice) {
-                msg.voice = bestVoice;
-            }
-            // ----------------------------------------------
+            if (bestVoice) msg.voice = bestVoice;
 
             window.speechSynthesis.speak(msg);
-        } else {
-            console.error("Browser unterstützt kein TTS");
-        }
+        } else { console.error("TTS nicht unterstützt"); }
         return; 
     }
 
-    // NORMALE TÖNE (OSZILLATOR)
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         const ctx = new AudioContext();
-        
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
         if (type === 'siren') {
-            // SIRENE
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(400, ctx.currentTime);
             osc.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.5);
-            
             gain.gain.setValueAtTime(0.2, ctx.currentTime);
             gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.6);
-
+            osc.start(); osc.stop(ctx.currentTime + 0.6);
         } else if (type === 'beep') {
-            // BEEP
             osc.type = 'square';
             osc.frequency.setValueAtTime(800, ctx.currentTime);
-            
             gain.gain.setValueAtTime(0.1, ctx.currentTime);
             gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.2);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.3);
-
+            osc.start(); osc.stop(ctx.currentTime + 0.3);
         } else {
-            // GONG
             osc.type = 'sine'; 
             osc.frequency.setValueAtTime(660, ctx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
-
             gain.gain.setValueAtTime(0.3, ctx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 1.5);
-            osc.start();
-            osc.stop(ctx.currentTime + 1.5);
+            osc.start(); osc.stop(ctx.currentTime + 1.5);
         }
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        
+        osc.connect(gain); gain.connect(ctx.destination);
         setTimeout(() => { if(ctx.state !== 'closed') ctx.close(); }, 2000);
-    } catch(e) {
-        console.error("Audio Fehler:", e);
-    }
+    } catch(e) { console.error("Audio Fehler:", e); }
   };
 
-  window.testGong = function() {
-    playDigitalGong();
-  };
+  window.testGong = function() { playDigitalGong(); };
 
   function toDateStr(d) { return d.toISOString().split('T')[0]; }
   function formatDisplay(s) { const [y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
@@ -596,15 +627,10 @@
     return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
   }
 
-  // Barcode Helfer
   function renderBarcode(text) {
       if(!text) return '';
-      // Code 39 benötigt Sternchen als Start/Stop Zeichen
       const code = "*" + text.toUpperCase() + "*";
-      return `<div class="barcode-container">
-                <span class="barcode-font">${code}</span>
-                <span class="barcode-label">${text}</span>
-              </div>`;
+      return `<div class="barcode-container"><span class="barcode-font">${code}</span><span class="barcode-label">${text}</span></div>`;
   }
 
   let today    = new Date();
@@ -616,12 +642,7 @@
   updateDateDisplay();
 
   let dayOffset = 0;
-
-  function getViewDate() {
-    const d = new Date(today);
-    d.setDate(d.getDate() + dayOffset);
-    return d;
-  }
+  function getViewDate() { const d = new Date(today); d.setDate(d.getDate() + dayOffset); return d; }
   function getViewDateStr() { return toDateStr(getViewDate()); }
 
   function updateDayNav() {
@@ -644,17 +665,10 @@
     const relevantOrders = tomorrowOrders.filter(o => o.time < '09:00');
     const tabletBox = document.getElementById('early-warning-box');
     const tvBox = document.getElementById('tv-early-warning-box');
-
     let warningHtml = '';
     if (relevantOrders.length > 0) {
-      warningHtml = '<div class="early-warning">'
-        +'<div class="early-warning-icon">🌅</div>'
-        +'<div class="early-warning-text">'
-        +'<strong>Frühauslagerung morgen!</strong>'
-        + relevantOrders.length + ' Auftrag' + (relevantOrders.length>1?'e':'') + ' bis 09:00 Uhr eingetragen'
-        +'</div></div>';
+      warningHtml = '<div class="early-warning"><div class="early-warning-icon">🌅</div><div class="early-warning-text"><strong>Frühauslagerung morgen!</strong>'+ relevantOrders.length + ' Auftrag' + (relevantOrders.length>1?'e':'') + ' bis 09:00 Uhr eingetragen</div></div>';
     }
-
     tabletBox.innerHTML = (dayOffset === 0) ? warningHtml : '';
     tvBox.innerHTML = '<div class="tv-early-warning">' + warningHtml + '</div>';
   }
@@ -666,10 +680,23 @@
   window.closeHistory = () => document.getElementById('history-modal').classList.remove('open');
   window.closeHistoryOnBackdrop = (e) => { if (e.target.id === 'history-modal') closeHistory(); };
 
-  function renderHistory() {
+  window.renderHistory = function() {
     const content = document.getElementById('history-content');
-    const past = allOrders.filter(o => o.date <= todayStr);
-    if (!past.length) { content.innerHTML = '<div class="history-empty">Keine vergangenen Aufträge.</div>'; return; }
+    const searchTerm = document.getElementById('history-search').value.toLowerCase();
+    
+    // Filter: Vergangenheit + Suchbegriff
+    let past = allOrders.filter(o => o.date <= todayStr);
+    
+    if (searchTerm) {
+        past = past.filter(o => 
+            (o.artikel && o.artikel.toLowerCase().includes(searchTerm)) ||
+            (o.lager && o.lager.toLowerCase().includes(searchTerm)) ||
+            (o.ziel && o.ziel.toLowerCase().includes(searchTerm)) ||
+            (o.status && STATUS_LABELS[o.status] && STATUS_LABELS[o.status].toLowerCase().includes(searchTerm))
+        );
+    }
+
+    if (!past.length) { content.innerHTML = '<div class="history-empty">Keine Aufträge gefunden.</div>'; return; }
 
     const byDate = {};
     past.forEach(o => { if (!byDate[o.date]) byDate[o.date] = []; byDate[o.date].push(o); });
@@ -680,19 +707,9 @@
       const isToday = date === todayStr;
       const rows = orders.map(o => {
         const st = o.status || 'open';
-        return '<tr>'
-          +'<td>'+o.time+' Uhr</td>'
-          +'<td>'+o.artikel+'</td>'
-          +'<td>'+o.lager+'</td>'
-          +'<td>'+o.ziel+'</td>'
-          +'<td>'+(getShift(o.time,o.shift)==='am'?'☀️ Vm.':'🌆 Nm.')+'</td>'
-          +'<td><span class="h-badge '+st+'">'+STATUS_LABELS[st]+'</span></td>'
-          +'</tr>';
+        return '<tr><td>'+o.time+' Uhr</td><td>'+o.artikel+'</td><td>'+o.lager+'</td><td>'+o.ziel+'</td><td>'+(getShift(o.time,o.shift)==='am'?'☀️ Vm.':'🌆 Nm.')+'</td><td><span class="h-badge '+st+'">'+STATUS_LABELS[st]+'</span></td></tr>';
       }).join('');
-      return '<div class="history-date-group">'
-        +'<div class="history-date-label">'+(isToday?'📅 Heute – ':'')+formatDisplay(date)+' ('+orders.length+' Aufträge)</div>'
-        +'<table class="history-table"><thead><tr><th>Uhrzeit</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Schicht</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>'
-        +'</div>';
+      return '<div class="history-date-group"><div class="history-date-label">'+(isToday?'📅 Heute – ':'')+formatDisplay(date)+' ('+orders.length+' Aufträge)</div><table class="history-table"><thead><tr><th>Uhrzeit</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Schicht</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
     }).join('');
   }
 
@@ -705,12 +722,10 @@
     document.getElementById('pw-modal').classList.add('open');
     setTimeout(() => document.getElementById('pw-input').focus(), 100);
   };
-
   window.pwCancel = function() {
     pendingDeleteKey = null;
     document.getElementById('pw-modal').classList.remove('open');
   };
-
   window.pwConfirm = function() {
     const val = document.getElementById('pw-input').value;
     if (val === DELETE_PASSWORD) {
@@ -815,8 +830,6 @@
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
     else document.exitFullscreen();
   };
-  document.addEventListener('fullscreenchange', () => {
-  });
 
   window.openShellyModal  = () => document.getElementById('shelly-modal').classList.add('open');
   window.closeShellyModal = () => document.getElementById('shelly-modal').classList.remove('open');
@@ -1051,25 +1064,17 @@
     const data = snapshot.val();
     const newOrders = data ? Object.entries(data).map(([key,val]) => ({...val, key})) : [];
     
-    // Prüfen auf NEUE Aufträge (die vorher nicht da waren)
     if (!firstLoad) {
         const currentKeys = new Set(newOrders.map(o => o.key));
         let hasNew = false;
-        
-        // Suche nach Schlüsseln, die in knownKeys NICHT vorhanden sind
         for (let key of currentKeys) {
             if (!knownKeys.has(key)) {
-                hasNew = true;
-                break;
+                hasNew = true; break;
             }
         }
-        
-        if (hasNew) {
-            playNewOrderSound();
-        }
+        if (hasNew) playNewOrderSound();
     }
 
-    // WICHTIG: allOrders muss aktualisiert werden BEVOR renderAll aufgerufen wird
     allOrders = newOrders;
     knownKeys = new Set(newOrders.map(o => o.key));
     firstLoad = false;
@@ -1079,19 +1084,13 @@
   });
 
   updateDayNav();
-  
   setInterval(() => {
     const now = new Date();
     const nowStr = toDateStr(now);
-    
     if (nowStr !== todayStr) {
-        today = now;
-        todayStr = nowStr;
-        dayOffset = 0;
-        updateDateDisplay();
-        updateDayNav();
+        today = now; todayStr = nowStr; dayOffset = 0;
+        updateDateDisplay(); updateDayNav();
     }
-    
     renderAll();
   }, 60000);
 
