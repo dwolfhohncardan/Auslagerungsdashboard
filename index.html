@@ -219,6 +219,7 @@
     <div class="tv-header">
         <h1>📦 Auslagerungsaufträge</h1>
         <div class="tv-header-btns">
+            <button class="btn-icon" onclick="testGong()">🔔 Gong Test</button>
             <button class="btn-icon" onclick="toggleTVSettings()">⚙️ Einstellungen</button>
             <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
             <button class="btn-icon" onclick="toggleFullscreen()" id="btn-fs">⛶ Vollbild</button>
@@ -293,6 +294,7 @@
             <div class="tablet-subtitle" id="tablet-date"></div>
         </div>
         <div style="display:flex;gap:8px;">
+            <button class="btn-icon" onclick="testGong()">🔔 Gong Test</button>
             <button class="btn-icon" onclick="toggleTabletSettings()">⚙️ Einstellungen</button>
             <button class="btn-icon" onclick="openShellyModal()">💡 Lampe</button>
         </div>
@@ -411,20 +413,45 @@
   const DELETE_PASSWORD = 'Gelenkwelle';
   const DAYS_DE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
-  // Base64 Gong-Sound (kurzer Glockenton)
-  const GONG_SOUND = "data:audio/mp3;base64,//uQRAAAAWMSLwUIYAAsYkXgoQwAEaYLWfkWgAI0wWs/ItAAAG1xUAA5cAATAkAAOY5cAAAP8F8AAAB9cAAACTak3jdj//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAB09Vda8A84b/7mZP8J4w8x4w8w9/8re0dRC6eltLCgh/1B+lv76//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q//uQZAsAAagn5JcoAABJqTeN2P//7kmQPAAAon3i3bUAArF6urcAP/7tZq1zH7ktqZH/9ueP2L166T7/5xlpbq25n+be/7q";
-  
-  const gongAudio = new Audio(GONG_SOUND);
-  // Wir speichern die IDs der bereits "gegongten" Aufträge, damit sie nicht bei jedem Refresh erneut klingeln.
   const playedGongs = new Set();
 
-  // Damit der Browser Audio erlaubt, muss einmal interagiert worden sein.
-  // Wir hängen einen Listener an den Body, der beim ersten Klick Audio "freischaltet".
-  document.body.addEventListener('click', () => {
-    // Kurzes leeres Abspielen um Audio Context zu wecken
-    gongAudio.play().then(() => gongAudio.pause()).catch(() => {});
-  }, { once: true });
+  // WICHTIG: Das ist der neue Digital-Gong (Synthesizer)
+  // Er erzeugt den Ton mathematisch - kein Ladefehler mehr möglich!
+  window.playDigitalGong = function() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
 
+        // Einstellungen für einen angenehmen "Ding"-Sound
+        osc.type = 'sine'; 
+        osc.frequency.setValueAtTime(660, ctx.currentTime); // Start Tonhöhe
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1); // Leichtes Abfallen (Glocken-Effekt)
+
+        gain.gain.setValueAtTime(0.3, ctx.currentTime); // Lautstärke
+        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 1.5); // Ausklingen
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start();
+        osc.stop(ctx.currentTime + 1.5);
+    } catch(e) {
+        console.error("Audio Fehler:", e);
+    }
+  };
+
+  window.testGong = function() {
+    playDigitalGong();
+    // Kleines Feedback für den User
+    const btn = document.querySelector('button[onclick="testGong()"]');
+    const oldText = btn.textContent;
+    btn.textContent = "🔊 Ton an!";
+    setTimeout(() => btn.textContent = oldText, 2000);
+  };
 
   function toDateStr(d) { return d.toISOString().split('T')[0]; }
   function formatDisplay(s) { const [y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
@@ -872,7 +899,8 @@
     });
 
     if (playNeeded) {
-        gongAudio.play().catch(e => console.log('Audio playback prevented by browser policy (interact first).'));
+        // Wir rufen den digitalen Gong auf
+        window.playDigitalGong();
     }
   }
 
