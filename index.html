@@ -1,139 +1,718 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auslagerungsaufträge</title>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; transition: background 0.3s, color 0.3s; }
-        .mode-switcher { display: flex; justify-content: center; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 50; transition: background 0.3s, border-color 0.3s; }
-        .mode-btn { padding: 8px 28px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 15px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
-        .mode-btn.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
-        .hidden { display: none !important; }
-        
-        /* MENÜ */
-        .menu-wrapper { position: relative; display: inline-block; }
-        .menu-btn { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 18px; font-size: 15px; font-weight: 600; color: #2d3748; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: all 0.2s; }
-        .menu-btn:hover { background: #edf2f7; border-color: #cbd5e0; }
-        .menu-dropdown { display: none; position: absolute; right: 0; top: 115%; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); min-width: 200px; z-index: 150; overflow: hidden; animation: fadeIn 0.15s ease-out; }
-        .menu-dropdown.show { display: block; }
-        .menu-item { padding: 12px 18px; font-size: 14px; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.1s; border-bottom: 1px solid #f7fafc; }
-        .menu-item:last-child { border-bottom: none; }
-        .menu-item:hover { background: #f0f4f8; color: #2b6cb0; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        /* =========================================
+           BASIS STYLES
+           ========================================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        /* BARCODE */
-        .barcode-container { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
-        .barcode-font { font-family: 'Libre Barcode 39', cursive; font-size: 42px; color: #000; margin: -5px 0; white-space: nowrap; }
-        .barcode-label { font-size: 10px; color: #4a5568; font-weight: bold; margin-top: 2px; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            color: #1a202c;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
 
-        /* EINSTELLUNGEN */
-        .settings-panel { border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: background 0.3s; }
-        .settings-panel.tv-settings-panel { background: #fff; margin: 0 40px 20px; }
-        .settings-panel.tablet-settings-panel { background: #fff; }
-        .settings-panel-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #744210; margin-bottom: 14px; }
-        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-        .setting-item { display: flex; flex-direction: column; gap: 5px; }
-        .setting-item label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .setting-item input[type=range], .setting-item select { width: 100%; accent-color: #2b6cb0; }
-        .setting-item select { padding: 5px; border-radius: 5px; border: 1px solid #cbd5e0; }
-        .setting-value { font-size: 12px; color: #2b6cb0; font-weight: 700; text-align: right; }
-        .col-toggle-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-        .col-toggle { padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
-        .col-toggle.on { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
+        .hidden {
+            display: none !important;
+        }
 
-        /* TV LAYOUT & HEADER */
-        #view-tv { padding: 20px 40px 30px; }
-        .tv-header-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 20px; }
-        .header-left { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-        .header-center { text-align: center; }
-        .header-right { display: flex; justify-content: flex-end; }
-        .tv-header h1 { font-size: 34px; color: #2b6cb0; margin: 0; line-height: 1.2; }
-        .tv-subtitle { text-align: center; color: #718096; font-size: 18px; margin-top: 4px; }
-        .digital-clock { font-size: 32px; font-weight: 800; color: #2b6cb0; font-variant-numeric: tabular-nums; letter-spacing: 1px; line-height: 1; }
+        /* =========================================
+           MODE SWITCHER (Oben)
+           ========================================= */
+        .mode-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: #fff;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            transition: background 0.3s, border-color 0.3s;
+        }
 
-        .tv-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
-        .tv-col-card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.09); border: 1px solid #e2e8f0; transition: background 0.3s; }
-        .tv-col-title { font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+        .mode-btn {
+            padding: 8px 28px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f7fafc;
+            color: #718096;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #2b6cb0;
+            color: #fff;
+            border-color: #2b6cb0;
+        }
+
+        /* =========================================
+           MENÜ & DROPDOWN
+           ========================================= */
+        .menu-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .menu-btn {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 9px 18px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 115%;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 150;
+            overflow: hidden;
+            animation: fadeIn 0.15s ease-out;
+        }
+
+        .menu-dropdown.show {
+            display: block;
+        }
+
+        .menu-item {
+            padding: 12px 18px;
+            font-size: 14px;
+            color: #4a5568;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.1s;
+            border-bottom: 1px solid #f7fafc;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background: #f0f4f8;
+            color: #2b6cb0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================
+           BARCODE STYLES
+           ========================================= */
+        .barcode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1;
+        }
+
+        .barcode-font {
+            font-family: 'Libre Barcode 39', cursive;
+            font-size: 42px;
+            color: #000;
+            margin: -5px 0;
+            white-space: nowrap;
+        }
+
+        .barcode-label {
+            font-size: 10px;
+            color: #4a5568;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        /* =========================================
+           FORTSCHRITTSANZEIGE (NEU & PLATZSPAREND)
+           ========================================= */
+        .progress-wrapper {
+            margin-top: 8px;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-track {
+            background: #e2e8f0;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .progress-fill {
+            background: #48bb78;
+            height: 100%;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-stats {
+            font-size: 11px;
+            font-weight: 700;
+            color: #718096;
+            text-align: center;
+            margin-top: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        /* =========================================
+           EINSTELLUNGEN PANEL
+           ========================================= */
+        .settings-panel {
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: background 0.3s;
+        }
+
+        .settings-panel.tv-settings-panel {
+            background: #fff;
+            margin: 0 40px 20px;
+        }
+
+        .settings-panel.tablet-settings-panel {
+            background: #fff;
+        }
+
+        .settings-panel-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #744210;
+            margin-bottom: 14px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .setting-item label {
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .setting-item input[type=range],
+        .setting-item select {
+            width: 100%;
+            accent-color: #2b6cb0;
+        }
+
+        .setting-item select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #cbd5e0;
+        }
+
+        .setting-value {
+            font-size: 12px;
+            color: #2b6cb0;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .col-toggle-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .col-toggle {
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f7fafc;
+            color: #718096;
+            transition: all 0.2s;
+        }
+
+        .col-toggle.on {
+            background: #2b6cb0;
+            color: #fff;
+            border-color: #2b6cb0;
+        }
+
+        /* =========================================
+           TV LAYOUT & HEADER
+           ========================================= */
+        #view-tv {
+            padding: 20px 40px 30px;
+        }
+
+        .tv-header-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .header-center {
+            text-align: center;
+        }
+
+        .header-right {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .tv-header h1 {
+            font-size: 34px;
+            color: #2b6cb0;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .tv-subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 18px;
+            margin-top: 4px;
+        }
+
+        .digital-clock {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2b6cb0;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        .tv-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .tv-col-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.09);
+            border: 1px solid #e2e8f0;
+            transition: background 0.3s;
+        }
+
+        .tv-col-title {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .tv-col-title.am { color: #d97706; }
         .tv-col-title.pm { color: #5a67d8; }
-        .tv-table { width: 100%; border-collapse: collapse; }
-        .tv-table thead th { text-align: left; color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+
+        .tv-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tv-table thead th {
+            text-align: left;
+            color: #fff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
         .tv-col-card:first-child .tv-table thead { background: #d97706; }
-        .tv-col-card:last-child  .tv-table thead { background: #5a67d8; }
+        .tv-col-card:last-child .tv-table thead { background: #5a67d8; }
+
         .tv-table thead th:first-child { border-radius: 8px 0 0 8px; }
-        .tv-table thead th:last-child  { border-radius: 0 8px 8px 0; }
-        .tv-table tbody tr { border-bottom: 2px solid #edf2f7; transition: background 0.3s; }
-        
-        /* ZEILEN STYLES (Status) */
-        .tv-table tbody tr.row-overdue { background: #fff5f5 !important; box-shadow: inset 8px 0 0 0 #e53e3e; }
-        .tv-table tbody tr.row-urgent  { background: #fff0f0 !important; border-left: 4px solid #c53030; } /* Neuer Style für Dringend */
-        .tv-table tbody tr.row-done    { background: #f0f4f8 !important; color: #a0aec0; opacity: 0.8; } /* Erledigt ausgegraut */
-        .tv-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
-        .tv-table tbody tr:nth-child(even) { background: #f7fafc; }
-        
-        @keyframes row-blink { from { background: #fff5f5; } to { background: #fed7d7; } }
-        
+        .tv-table thead th:last-child { border-radius: 0 8px 8px 0; }
+
+        .tv-table tbody tr {
+            border-bottom: 2px solid #edf2f7;
+            transition: background 0.3s;
+        }
+
+        /* Status Farben für Zeilen */
+        .tv-table tbody tr.row-overdue {
+            background: #fff5f5 !important;
+            box-shadow: inset 8px 0 0 0 #e53e3e;
+        }
+
+        .tv-table tbody tr.row-urgent {
+            background: #fff0f0 !important;
+            border-left: 4px solid #c53030;
+        }
+
+        .tv-table tbody tr.row-done {
+            background: #f0f4f8 !important;
+            color: #a0aec0;
+            opacity: 0.8;
+        }
+
+        .tv-table tbody tr.row-problem {
+            background: #fff5f5 !important;
+            animation: row-blink 1.2s infinite alternate;
+        }
+
+        .tv-table tbody tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        @keyframes row-blink {
+            from { background: #fff5f5; }
+            to { background: #fed7d7; }
+        }
+
         .td-time { color: #2b6cb0; font-weight: 700; }
         .td-urgent { color: #c53030; font-weight: 800; }
-        .no-orders { text-align: center; color: #a0aec0; padding: 40px; }
-        .tv-status-badge { display: inline-block; border-radius: 6px; padding: 4px 10px; font-weight: 700; }
-        .tv-status-badge.open    { background: #edf2f7; color: #718096; }
-        .tv-status-badge.done    { background: #e2e8f0; color: #a0aec0; }
-        .tv-status-badge.problem { background: #fed7d7; color: #c53030; }
-        .tv-status-bar { text-align: center; font-size: 14px; color: #a0aec0; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .live-dot { width: 8px; height: 8px; background: #48bb78; border-radius: 50%; box-shadow: 0 0 6px #48bb78; }
 
-        /* TABLET */
-        #view-tablet { padding: 16px 20px 30px; }
-        .tablet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .tablet-header h2 { font-size: 22px; color: #2b6cb0; font-weight: 800; }
-        .tablet-subtitle { font-size: 13px; color: #a0aec0; margin-top: 2px; }
-        .tablet-form { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: background 0.3s; }
-        .tablet-form-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2b6cb0; margin-bottom: 12px; }
-        .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 130px; }
-        .form-group label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .form-group input, .form-group select { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 8px; padding: 9px 11px; color: #1a202c; font-size: 14px; outline: none; transition: border-color 0.2s, background 0.3s; }
-        .form-group input:focus, .form-group select:focus { border-color: #4299e1; }
-        .btn-add { background: #2b6cb0; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; white-space: nowrap; }
-        .btn-add:hover { background: #2c5282; }
-        .tablet-table-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow-x: auto; transition: background 0.3s; }
-        .tablet-table-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .no-orders {
+            text-align: center;
+            color: #a0aec0;
+            padding: 40px;
+        }
+
+        .tv-status-badge {
+            display: inline-block;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-weight: 700;
+        }
+
+        .tv-status-badge.open { background: #edf2f7; color: #718096; }
+        .tv-status-badge.done { background: #e2e8f0; color: #a0aec0; }
+        .tv-status-badge.problem { background: #fed7d7; color: #c53030; }
+
+        .tv-status-bar {
+            text-align: center;
+            font-size: 14px;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #48bb78;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #48bb78;
+        }
+
+        /* =========================================
+           TABLET LAYOUT
+           ========================================= */
+        #view-tablet {
+            padding: 16px 20px 30px;
+        }
+
+        .tablet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .tablet-header h2 {
+            font-size: 22px;
+            color: #2b6cb0;
+            font-weight: 800;
+        }
+
+        .tablet-subtitle {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .tablet-form {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: background 0.3s;
+        }
+
+        .tablet-form-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #2b6cb0;
+            margin-bottom: 12px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .form-group label {
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            background: #f7fafc;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 9px 11px;
+            color: #1a202c;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, background 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #4299e1;
+        }
+
+        .btn-add {
+            background: #2b6cb0;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 22px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-add:hover {
+            background: #2c5282;
+        }
+
+        .tablet-table-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow-x: auto;
+            transition: background 0.3s;
+        }
+
+        .tablet-table-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
         .tablet-table-title.am { color: #d97706; }
         .tablet-table-title.pm { color: #5a67d8; }
-        .tab-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
-        .tab-table thead th { text-align: left; color: #718096; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
-        .tab-table tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.15s; }
-        .tab-table tbody tr:hover { background: #f7fafc; }
-        
-        /* TABLET ZEILEN */
-        .tab-table tbody tr.row-overdue { background: #fff5f5 !important; box-shadow: inset 8px 0 0 0 #e53e3e; }
-        .tab-table tbody tr.row-urgent  { background: #fff0f0 !important; box-shadow: inset 4px 0 0 0 #c53030; }
-        .tab-table tbody tr.row-done    { background: #f7fafc !important; color: #a0aec0; }
-        .tab-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
-        
-        .tab-table tbody td { padding: 10px 12px; color: #2d3748; }
+
+        .tab-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 4px;
+        }
+
+        .tab-table thead th {
+            text-align: left;
+            color: #718096;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab-table tbody tr {
+            border-bottom: 1px solid #f0f4f8;
+            transition: background 0.15s;
+        }
+
+        .tab-table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .tab-table tbody tr.row-overdue {
+            background: #fff5f5 !important;
+            box-shadow: inset 8px 0 0 0 #e53e3e;
+        }
+
+        .tab-table tbody tr.row-urgent {
+            background: #fff0f0 !important;
+            box-shadow: inset 4px 0 0 0 #c53030;
+        }
+
+        .tab-table tbody tr.row-done {
+            background: #f7fafc !important;
+            color: #a0aec0;
+        }
+
+        .tab-table tbody tr.row-problem {
+            background: #fff5f5 !important;
+            animation: row-blink 1.2s infinite alternate;
+        }
+
+        .tab-table tbody td {
+            padding: 10px 12px;
+            color: #2d3748;
+        }
+
         .tab-urgent { color: #c53030; font-weight: 700; }
-        .tab-time   { color: #2b6cb0; font-weight: 600; }
-        .btn-delete-tab { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 5px; padding: 3px 9px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-        .btn-delete-tab:hover { border-color: #fc8181; color: #c53030; }
-        .status-btn { border: none; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; user-select: none; }
-        .status-btn.open    { background: #edf2f7; color: #718096; }
-        .status-btn.done    { background: #e2e8f0; color: #a0aec0; }
+        .tab-time { color: #2b6cb0; font-weight: 600; }
+
+        .btn-delete-tab {
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            color: #a0aec0;
+            border-radius: 5px;
+            padding: 3px 9px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-tab:hover {
+            border-color: #fc8181;
+            color: #c53030;
+        }
+
+        .status-btn {
+            border: none;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .status-btn.open { background: #edf2f7; color: #718096; }
+        .status-btn.done { background: #e2e8f0; color: #a0aec0; }
         .status-btn.problem { background: #fed7d7; color: #c53030; }
 
-        /* TAG-NAVIGATOR (Tablet) */
-        .day-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 14px; }
-        .day-nav-btn { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 16px; font-size: 18px; cursor: pointer; color: #4a5568; transition: all 0.2s; }
-        .day-nav-btn:hover { background: #edf2f7; }
-        .day-nav-label { font-size: 16px; font-weight: 700; color: #2b6cb0; min-width: 160px; text-align: center; }
+        /* =========================================
+           TAG-NAVIGATOR
+           ========================================= */
+        .day-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .day-nav-btn {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 7px 16px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #4a5568;
+            transition: all 0.2s;
+        }
+
+        .day-nav-btn:hover {
+            background: #edf2f7;
+        }
+
+        .day-nav-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2b6cb0;
+            min-width: 160px;
+            text-align: center;
+        }
+
         .day-nav-label.past { color: #718096; }
         .day-nav-label.future { color: #5a67d8; }
 
-        /* FRÜHWARNUNG */
+        /* =========================================
+           FRÜHWARNUNG
+           ========================================= */
         .early-warning {
             background: linear-gradient(135deg, #fffbeb, #fef3c7);
             border: 2px solid #f59e0b;
@@ -143,1123 +722,1756 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 2px 8px rgba(245,158,11,0.2);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
         }
-        .tv-header-warning .early-warning { margin: 0; padding: 8px 12px; font-size: 12px; max-width: 320px; }
+
+        .tv-header-warning .early-warning {
+            margin: 0;
+            padding: 8px 12px;
+            font-size: 12px;
+            max-width: 320px;
+        }
+
         .early-warning-icon { font-size: 24px; }
         .early-warning-text { font-size: 13px; color: #92400e; font-weight: 600; }
         .early-warning-text strong { font-size: 15px; color: #78350f; display: block; }
 
-        /* RÜCKBLICK MODAL */
-        .history-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 250; align-items: flex-start; justify-content: center; padding-top: 40px; }
-        .history-overlay.open { display: flex; }
-        .history-box { background: #fff; border-radius: 16px; padding: 28px; width: 90%; max-width: 900px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; transition: background 0.3s; }
-        .history-box h3 { font-size: 18px; font-weight: 800; color: #2b6cb0; margin-bottom: 6px; }
-        .history-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 22px; color: #a0aec0; cursor: pointer; }
-        .history-close:hover { color: #2d3748; }
-        .history-date-group { margin-bottom: 20px; }
-        .history-date-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #718096; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 10px; }
-        .history-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        .history-table th { text-align: left; color: #718096; font-size: 11px; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid #e2e8f0; }
-        .history-table td { padding: 8px 10px; border-bottom: 1px solid #f7fafc; color: #2d3748; }
-        .h-badge { display: inline-block; border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
-        .h-badge.open    { background: #edf2f7; color: #718096; }
-        .h-badge.done    { background: #c6f6d5; color: #276749; }
-        .h-badge.problem { background: #fed7d7; color: #c53030; }
-        .history-empty { text-align: center; color: #a0aec0; padding: 30px; font-size: 15px; }
-        
-        /* SUCHFELD IM RÜCKBLICK */
-        .search-input { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; background: #f7fafc; color: #1a202c; outline: none; }
-        .search-input:focus { border-color: #2b6cb0; background: #fff; }
+        /* =========================================
+           RÜCKBLICK MODAL
+           ========================================= */
+        .history-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 250;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 40px;
+        }
 
-        /* MODALS */
-        .pw-overlay, .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
-        .pw-overlay.open, .modal-overlay.open { display: flex; }
-        .pw-box, .modal { background: #fff; border-radius: 16px; padding: 28px; width: 320px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; transition: background 0.3s; }
-        .modal { max-width: 580px; width: 90%; }
-        .modal h3 { color: #744210; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
-        .pw-box h3 { font-size: 16px; color: #2d3748; margin-bottom: 8px; text-align: center; }
-        .pw-box p { font-size: 13px; color: #718096; margin-bottom: 18px; text-align: center; }
-        .pw-box input { width: 100%; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; font-size: 15px; outline: none; margin-bottom: 12px; text-align: center; letter-spacing: 2px; }
-        .pw-box input:focus { border-color: #4299e1; }
-        .pw-error { color: #c53030; font-size: 13px; margin-bottom: 8px; min-height: 18px; text-align: center; }
-        .pw-btns { display: flex; gap: 10px; }
-        .pw-btn-cancel { flex: 1; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px; font-size: 14px; cursor: pointer; }
-        .pw-btn-ok { flex: 1; background: #c53030; color: #fff; border: none; border-radius: 8px; padding: 9px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 20px; color: #a0aec0; cursor: pointer; }
-        .info-box { background: #fffbeb; border: 1px solid #f6e05e; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #744210; margin-bottom: 14px; line-height: 1.6; }
-        .btn-save { background: #d69e2e; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .btn-test { background: transparent; color: #d69e2e; border: 2px solid #d69e2e; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .shelly-status { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #718096; }
-        .shelly-dot { width: 8px; height: 8px; border-radius: 50%; background: #a0aec0; }
+        .history-overlay.open {
+            display: flex;
+        }
+
+        .history-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .history-box h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #2b6cb0;
+            margin-bottom: 6px;
+        }
+
+        .history-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #a0aec0;
+            cursor: pointer;
+        }
+
+        .history-close:hover {
+            color: #2d3748;
+        }
+
+        .history-date-group { margin-bottom: 20px; }
+
+        .history-date-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #718096;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .history-table th {
+            text-align: left;
+            color: #718096;
+            font-size: 11px;
+            text-transform: uppercase;
+            padding: 6px 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .history-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f7fafc;
+            color: #2d3748;
+        }
+
+        .h-badge {
+            display: inline-block;
+            border-radius: 5px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .h-badge.open { background: #edf2f7; color: #718096; }
+        .h-badge.done { background: #c6f6d5; color: #276749; }
+        .h-badge.problem { background: #fed7d7; color: #c53030; }
+
+        .history-empty {
+            text-align: center;
+            color: #a0aec0;
+            padding: 30px;
+            font-size: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            background: #f7fafc;
+            color: #1a202c;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #2b6cb0;
+            background: #fff;
+        }
+
+        /* =========================================
+           ALLGEMEINE MODALS (Passwort, Shelly)
+           ========================================= */
+        .pw-overlay,
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pw-overlay.open,
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .pw-box,
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            width: 320px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .modal {
+            max-width: 580px;
+            width: 90%;
+        }
+
+        .modal h3 {
+            color: #744210;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+
+        .pw-box h3 {
+            font-size: 16px;
+            color: #2d3748;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .pw-box p {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .pw-box input {
+            width: 100%;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 12px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .pw-box input:focus {
+            border-color: #4299e1;
+        }
+
+        .pw-error {
+            color: #c53030;
+            font-size: 13px;
+            margin-bottom: 8px;
+            min-height: 18px;
+            text-align: center;
+        }
+
+        .pw-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pw-btn-cancel {
+            flex: 1;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 9px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .pw-btn-ok {
+            flex: 1;
+            background: #c53030;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #a0aec0;
+            cursor: pointer;
+        }
+
+        .info-box {
+            background: #fffbeb;
+            border: 1px solid #f6e05e;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #744210;
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        .btn-save {
+            background: #d69e2e;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 22px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-test {
+            background: transparent;
+            color: #d69e2e;
+            border: 2px solid #d69e2e;
+            border-radius: 8px;
+            padding: 9px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .shelly-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .shelly-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #a0aec0;
+        }
+
         .shelly-dot.active { background: #48bb78; box-shadow: 0 0 6px #48bb78; }
         .shelly-dot.error { background: #fc8181; box-shadow: 0 0 6px #fc8181; }
         .shelly-dot.blink { background: #fc8181; animation: blink 0.6s infinite alternate; }
-        @keyframes blink { from { opacity: 1; } to { opacity: 0.2; } }
 
-        /* ========= DARK MODE STYLES ========= */
-        body.dark-mode { background: #1a202c; color: #cbd5e0; }
-        body.dark-mode .mode-switcher { background: #2d3748; border-color: #4a5568; }
-        body.dark-mode .mode-btn { background: #4a5568; color: #e2e8f0; border-color: #718096; }
-        body.dark-mode .mode-btn.active { background: #4299e1; border-color: #4299e1; color: #fff; }
-        body.dark-mode .menu-btn { background: #4a5568; border-color: #718096; color: #e2e8f0; }
-        body.dark-mode .menu-dropdown { background: #2d3748; border-color: #4a5568; }
-        body.dark-mode .menu-item { color: #cbd5e0; border-bottom-color: #4a5568; }
-        body.dark-mode .menu-item:hover { background: #4a5568; color: #63b3ed; }
-        
-        body.dark-mode .tv-col-card, 
-        body.dark-mode .tablet-form, 
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0.2; }
+        }
+
+        /* =========================================
+           DARK MODE STYLES
+           ========================================= */
+        body.dark-mode {
+            background: #1a202c;
+            color: #cbd5e0;
+        }
+
+        body.dark-mode .mode-switcher {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .mode-btn {
+            background: #4a5568;
+            color: #e2e8f0;
+            border-color: #718096;
+        }
+
+        body.dark-mode .mode-btn.active {
+            background: #4299e1;
+            border-color: #4299e1;
+            color: #fff;
+        }
+
+        body.dark-mode .menu-btn {
+            background: #4a5568;
+            border-color: #718096;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .menu-dropdown {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .menu-item {
+            color: #cbd5e0;
+            border-bottom-color: #4a5568;
+        }
+
+        body.dark-mode .menu-item:hover {
+            background: #4a5568;
+            color: #63b3ed;
+        }
+
+        body.dark-mode .tv-col-card,
+        body.dark-mode .tablet-form,
         body.dark-mode .tablet-table-card,
         body.dark-mode .settings-panel,
         body.dark-mode .history-box,
         body.dark-mode .pw-box,
-        body.dark-mode .modal { background: #2d3748; border-color: #4a5568; color: #e2e8f0; }
-        
+        body.dark-mode .modal {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
         body.dark-mode .tv-header h1 { color: #63b3ed; }
         body.dark-mode .tv-subtitle { color: #a0aec0; }
         body.dark-mode .digital-clock { color: #63b3ed; }
 
         body.dark-mode .tv-table tbody tr { border-bottom-color: #4a5568; }
         body.dark-mode .tv-table tbody tr:nth-child(even) { background: #283141; }
-        
-        body.dark-mode .tv-table tbody tr.row-urgent { background: #5a1a1a !important; border-left-color: #fc8181; }
-        body.dark-mode .tv-table tbody tr.row-done   { background: #2d3748 !important; color: #718096; }
+
+        body.dark-mode .tv-table tbody tr.row-urgent {
+            background: #5a1a1a !important;
+            border-left-color: #fc8181;
+        }
+
+        body.dark-mode .tv-table tbody tr.row-done {
+            background: #2d3748 !important;
+            color: #718096;
+        }
 
         body.dark-mode .tv-status-badge.open { background: #4a5568; color: #cbd5e0; }
         body.dark-mode .tv-status-badge.done { background: #2f855a; color: #fff; }
         body.dark-mode .tv-status-badge.problem { background: #9b2c2c; color: #fff; }
+        
         body.dark-mode .td-time { color: #63b3ed; }
         body.dark-mode .barcode-font { color: #fff; }
         body.dark-mode .barcode-label { color: #a0aec0; }
 
-        body.dark-mode .form-group input, 
+        body.dark-mode .form-group input,
         body.dark-mode .form-group select,
-        body.dark-mode .search-input { background: #4a5568; color: #fff; border-color: #718096; }
+        body.dark-mode .search-input {
+            background: #4a5568;
+            color: #fff;
+            border-color: #718096;
+        }
+
         body.dark-mode .form-group label { color: #a0aec0; }
-        
-        body.dark-mode .tab-table thead th { color: #a0aec0; border-bottom-color: #4a5568; }
-        body.dark-mode .tab-table tbody tr { border-bottom-color: #2d3748; }
-        body.dark-mode .tab-table tbody tr:hover { background: #283141; }
-        
-        body.dark-mode .tab-table tbody tr.row-urgent { background: #5a1a1a !important; box-shadow: inset 4px 0 0 0 #fc8181; }
-        body.dark-mode .tab-table tbody tr.row-done   { background: #2d3748 !important; color: #718096; }
-        
+
+        body.dark-mode .tab-table thead th {
+            color: #a0aec0;
+            border-bottom-color: #4a5568;
+        }
+
+        body.dark-mode .tab-table tbody tr {
+            border-bottom-color: #2d3748;
+        }
+
+        body.dark-mode .tab-table tbody tr:hover {
+            background: #283141;
+        }
+
+        body.dark-mode .tab-table tbody tr.row-urgent {
+            background: #5a1a1a !important;
+            box-shadow: inset 4px 0 0 0 #fc8181;
+        }
+
+        body.dark-mode .tab-table tbody tr.row-done {
+            background: #2d3748 !important;
+            color: #718096;
+        }
+
         body.dark-mode .tab-table tbody td { color: #e2e8f0; }
         body.dark-mode .tab-time { color: #63b3ed; }
+
         body.dark-mode .status-btn.open { background: #4a5568; color: #cbd5e0; }
         body.dark-mode .status-btn.done { background: #2f855a; color: #fff; }
         body.dark-mode .status-btn.problem { background: #9b2c2c; color: #fff; }
-        
-        body.dark-mode .day-nav-btn { background: #4a5568; border-color: #718096; color: #e2e8f0; }
+
+        body.dark-mode .day-nav-btn {
+            background: #4a5568;
+            border-color: #718096;
+            color: #e2e8f0;
+        }
+
         body.dark-mode .day-nav-label { color: #63b3ed; }
         body.dark-mode .day-nav-label.past { color: #718096; }
-        
-        body.dark-mode .history-table th { color: #a0aec0; border-bottom-color: #4a5568; }
-        body.dark-mode .history-table td { border-bottom-color: #4a5568; color: #e2e8f0; }
-        body.dark-mode .history-date-label { color: #a0aec0; border-bottom-color: #4a5568; }
+
+        body.dark-mode .history-table th {
+            color: #a0aec0;
+            border-bottom-color: #4a5568;
+        }
+
+        body.dark-mode .history-table td {
+            border-bottom-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .history-date-label {
+            color: #a0aec0;
+            border-bottom-color: #4a5568;
+        }
+
         body.dark-mode .h-badge.open { background: #4a5568; color: #cbd5e0; }
         body.dark-mode .h-badge.done { background: #2f855a; color: #fff; }
         body.dark-mode .h-badge.problem { background: #9b2c2c; color: #fff; }
 
-        body.dark-mode .pw-box h3, body.dark-mode .modal h3 { color: #e2e8f0; }
-        body.dark-mode .pw-btn-cancel { background: #4a5568; border-color: #718096; color: #e2e8f0; }
-        
-        body.dark-mode .early-warning { background: linear-gradient(135deg, #744210, #975a16); border-color: #d69e2e; }
+        body.dark-mode .pw-box h3,
+        body.dark-mode .modal h3 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .pw-btn-cancel {
+            background: #4a5568;
+            border-color: #718096;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .early-warning {
+            background: linear-gradient(135deg, #744210, #975a16);
+            border-color: #d69e2e;
+        }
+
         body.dark-mode .early-warning-text { color: #fefcbf; }
         body.dark-mode .early-warning-text strong { color: #fff; }
+        
+        body.dark-mode .progress-track { background: #4a5568; }
+        body.dark-mode .progress-stats { color: #a0aec0; }
     </style>
 </head>
+
 <body>
 
-<div class="pw-overlay" id="pw-modal">
-    <div class="pw-box">
-        <h3>🔒 Löschen bestätigen</h3>
-        <p>Bitte Passwort eingeben, um den Auftrag zu löschen.</p>
-        <input type="password" id="pw-input" placeholder="Passwort" onkeydown="if(event.key==='Enter')pwConfirm()">
-        <div class="pw-error" id="pw-error"></div>
-        <div class="pw-btns">
-            <button class="pw-btn-cancel" onclick="pwCancel()">Abbrechen</button>
-            <button class="pw-btn-ok" onclick="pwConfirm()">Löschen</button>
+    <div class="pw-overlay" id="pw-modal">
+        <div class="pw-box">
+            <h3>🔒 Löschen bestätigen</h3>
+            <p>Bitte Passwort eingeben, um den Auftrag zu löschen.</p>
+            <input type="password" id="pw-input" placeholder="Passwort" onkeydown="if(event.key==='Enter')pwConfirm()">
+            <div class="pw-error" id="pw-error"></div>
+            <div class="pw-btns">
+                <button class="pw-btn-cancel" onclick="pwCancel()">Abbrechen</button>
+                <button class="pw-btn-ok" onclick="pwConfirm()">Löschen</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="mode-switcher">
-    <button class="mode-btn active" id="btn-mode-tv"     onclick="setMode('tv')">🖥️ TV-Ansicht</button>
-    <button class="mode-btn"        id="btn-mode-tablet" onclick="setMode('tablet')">📱 Tablet-Ansicht</button>
-    <button class="mode-btn"        id="btn-mode-history" onclick="openHistory()">📋 Rückblick</button>
-</div>
+    <div class="mode-switcher">
+        <button class="mode-btn active" id="btn-mode-tv" onclick="setMode('tv')">🖥️ TV-Ansicht</button>
+        <button class="mode-btn" id="btn-mode-tablet" onclick="setMode('tablet')">📱 Tablet-Ansicht</button>
+        <button class="mode-btn" id="btn-mode-history" onclick="openHistory()">📋 Rückblick</button>
+    </div>
 
-<div id="view-tv">
-    <div class="tv-header-grid">
-        <div class="header-left">
-            <div id="digital-clock" class="digital-clock">--:--:--</div>
-            <div id="tv-early-warning-box" class="tv-header-warning"></div>
+    <div id="view-tv">
+        <div class="tv-header-grid">
+            <div class="header-left">
+                <div id="digital-clock" class="digital-clock">--:--:--</div>
+                <div id="tv-early-warning-box" class="tv-header-warning"></div>
+            </div>
+            <div class="header-center">
+                <h1>📦 Auslagerungsaufträge</h1>
+                <p class="tv-subtitle" id="tv-date"></p>
+                <div class="progress-wrapper">
+                    <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+                    <div class="progress-stats">Lade Daten...</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="menu-wrapper">
+                    <button class="menu-btn" onclick="toggleMenu('tv-menu-dd', event)">☰ Menü</button>
+                    <div id="tv-menu-dd" class="menu-dropdown">
+                        <div class="menu-item" onclick="testGong()">🔔 Gong Test</div>
+                        <div class="menu-item" onclick="toggleTVSettings()">⚙️ Einstellungen</div>
+                        <div class="menu-item" onclick="openShellyModal()">💡 Lampe</div>
+                        <div class="menu-item" onclick="toggleFullscreen()">⛶ Vollbild</div>
+                        <div class="menu-item" onclick="toggleDarkMode()">🌙 Dunkelmodus</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="header-center">
-            <h1>📦 Auslagerungsaufträge</h1>
-            <p class="tv-subtitle" id="tv-date"></p>
+
+        <div class="settings-panel tv-settings-panel hidden" id="tv-settings">
+            <div class="settings-panel-title">⚙️ TV-Einstellungen</div>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>Alarm-Ton</label>
+                    <select id="tv-setting-sound" onchange="applyTVSettings()">
+                        <option value="voice">🗣️ Stimme (Gesprochen)</option>
+                        <option value="gong">🔔 Gong (Sanft)</option>
+                        <option value="siren">🚨 Sirene (Laut)</option>
+                        <option value="beep">🤖 Beep (Digital)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Schriftgröße Tabelle</label>
+                    <input type="range" min="12" max="36" value="22" id="tv-setting-fontsize" oninput="applyTVSettings()">
+                    <div class="setting-value" id="tv-val-fontsize">22px</div>
+                </div>
+                <div class="setting-item">
+                    <label>Zeilenabstand</label>
+                    <input type="range" min="8" max="40" value="18" id="tv-setting-rowpad" oninput="applyTVSettings()">
+                    <div class="setting-value" id="tv-val-rowpad">18px</div>
+                </div>
+                <div class="setting-item">
+                    <label>Kopfzeilen-Größe</label>
+                    <input type="range" min="10" max="24" value="15" id="tv-setting-headsize" oninput="applyTVSettings()">
+                    <div class="setting-value" id="tv-val-headsize">15px</div>
+                </div>
+                <div class="setting-item">
+                    <label>Titel-Größe</label>
+                    <input type="range" min="14" max="32" value="20" id="tv-setting-titlesize" oninput="applyTVSettings()">
+                    <div class="setting-value" id="tv-val-titlesize">20px</div>
+                </div>
+            </div>
+            <div style="margin-top:14px;">
+                <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:8px;">Sichtbare Spalten</div>
+                <div class="col-toggle-row">
+                    <span class="col-toggle on" data-col="tv-artikel" onclick="toggleTVCol(this)">Artikel</span>
+                    <span class="col-toggle on" data-col="tv-lager" onclick="toggleTVCol(this)">Lagerort</span>
+                    <span class="col-toggle on" data-col="tv-ziel" onclick="toggleTVCol(this)">Zielort</span>
+                    <span class="col-toggle on" data-col="tv-time" onclick="toggleTVCol(this)">Uhrzeit</span>
+                    <span class="col-toggle on" data-col="tv-status" onclick="toggleTVCol(this)">Status</span>
+                </div>
+            </div>
         </div>
-        <div class="header-right">
+
+        <div class="tv-columns">
+            <div class="tv-col-card">
+                <div class="tv-col-title am" id="tv-title-am">☀️ Vormittag <span id="tv-am-count" style="font-size:15px;color:#a0aec0;font-weight:normal;"></span></div>
+                <table class="tv-table">
+                    <thead>
+                        <tr id="tv-head-am"></tr>
+                    </thead>
+                    <tbody id="tv-tbody-am"></tbody>
+                </table>
+            </div>
+            <div class="tv-col-card">
+                <div class="tv-col-title pm" id="tv-title-pm">🌆 Nachmittag <span id="tv-pm-count" style="font-size:15px;color:#a0aec0;font-weight:normal;"></span></div>
+                <table class="tv-table">
+                    <thead>
+                        <tr id="tv-head-pm"></tr>
+                    </thead>
+                    <tbody id="tv-tbody-pm"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv © Josef Hohn GmbH</div>
+    </div>
+
+    <div class="history-overlay" id="history-modal" onclick="closeHistoryOnBackdrop(event)">
+        <div class="history-box">
+            <button class="history-close" onclick="closeHistory()">✕</button>
+            <h3>📋 Rückblick – Vergangene Aufträge</h3>
+            <p style="font-size:13px;color:#a0aec0;margin-bottom:12px;">Alle eingetragenen Aufträge sortiert nach Datum</p>
+            <input type="text" id="history-search" class="search-input" placeholder="🔍 Suchen (Artikel, Lager, Ziel...)" oninput="renderHistory()">
+            <div id="history-content"></div>
+        </div>
+    </div>
+
+    <div id="view-tablet" class="hidden">
+        <div class="tablet-header">
+            <div>
+                <h2>📦 Auslagerungsaufträge</h2>
+                <div class="tablet-subtitle" id="tablet-date"></div>
+                <div class="progress-wrapper" style="max-width:200px; margin-left:0; margin-top:6px;">
+                    <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+                    <div class="progress-stats" style="text-align:left;">Lade Daten...</div>
+                </div>
+            </div>
             <div class="menu-wrapper">
-                <button class="menu-btn" onclick="toggleMenu('tv-menu-dd', event)">☰ Menü</button>
-                <div id="tv-menu-dd" class="menu-dropdown">
+                <button class="menu-btn" onclick="toggleMenu('tablet-menu-dd', event)">☰ Menü</button>
+                <div id="tablet-menu-dd" class="menu-dropdown">
                     <div class="menu-item" onclick="testGong()">🔔 Gong Test</div>
-                    <div class="menu-item" onclick="toggleTVSettings()">⚙️ Einstellungen</div>
+                    <div class="menu-item" onclick="toggleTabletSettings()">⚙️ Einstellungen</div>
                     <div class="menu-item" onclick="openShellyModal()">💡 Lampe</div>
-                    <div class="menu-item" onclick="toggleFullscreen()">⛶ Vollbild</div>
                     <div class="menu-item" onclick="toggleDarkMode()">🌙 Dunkelmodus</div>
                 </div>
             </div>
         </div>
+
+        <div class="settings-panel tablet-settings-panel hidden" id="tablet-settings">
+            <div class="settings-panel-title">⚙️ Tablet-Darstellungs-Einstellungen</div>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>Schriftgröße</label>
+                    <input type="range" min="12" max="26" value="15" id="setting-fontsize" oninput="applyTabletSettings()">
+                    <div class="setting-value" id="val-fontsize">15px</div>
+                </div>
+                <div class="setting-item">
+                    <label>Zeilenabstand</label>
+                    <input type="range" min="6" max="30" value="10" id="setting-rowpad" oninput="applyTabletSettings()">
+                    <div class="setting-value" id="val-rowpad">10px</div>
+                </div>
+            </div>
+            <div style="margin-top:14px;">
+                <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:8px;">Sichtbare Spalten</div>
+                <div class="col-toggle-row">
+                    <span class="col-toggle on" data-col="artikel" onclick="toggleTabCol(this)">Artikel</span>
+                    <span class="col-toggle on" data-col="lager" onclick="toggleTabCol(this)">Lagerort</span>
+                    <span class="col-toggle on" data-col="ziel" onclick="toggleTabCol(this)">Zielort</span>
+                    <span class="col-toggle on" data-col="time" onclick="toggleTabCol(this)">Uhrzeit</span>
+                    <span class="col-toggle on" data-col="status" onclick="toggleTabCol(this)">Status</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="day-nav" id="day-nav">
+            <button class="day-nav-btn" onclick="shiftDay(-1)">‹</button>
+            <div class="day-nav-label" id="day-nav-label">Heute</div>
+            <button class="day-nav-btn" onclick="shiftDay(1)">›</button>
+        </div>
+        <div id="early-warning-box"></div>
+
+        <div class="tablet-form">
+            <div class="tablet-form-title">+ Neuer Auslagerungsauftrag</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Artikelnummer</label>
+                    <input id="inp-artikel" type="text" placeholder="z.B. ART-00123">
+                </div>
+                <div class="form-group">
+                    <label>Lagerort</label>
+                    <input id="inp-lager" type="text" placeholder="z.B. Regal A3">
+                </div>
+                <div class="form-group">
+                    <label>Zielort</label>
+                    <select id="inp-ziel">
+                        <option value="" disabled selected>Ziel wählen</option>
+                        <option value="Mittelgang">Mittelgang</option>
+                        <option value="Gang 3">Gang 3</option>
+                        <option value="Gang 1">Gang 1</option>
+                        <option value="Saelo">Saelo</option>
+                    </select>
+                </div>
+                <div class="form-group" style="max-width:120px;">
+                    <label>Uhrzeit</label>
+                    <input id="inp-time" type="time">
+                </div>
+                <div class="form-group" style="max-width:150px;">
+                    <label>Schicht</label>
+                    <select id="inp-shift">
+                        <option value="auto">Automatisch</option>
+                        <option value="am">Vormittag</option>
+                        <option value="pm">Nachmittag</option>
+                    </select>
+                </div>
+                <div class="form-group" style="max-width:50px;display:flex;align-items:center;justify-content:center;">
+                    <label style="margin-bottom:2px;cursor:pointer;" for="inp-urgent">🔥</label>
+                    <input type="checkbox" id="inp-urgent" style="width:20px;height:20px;accent-color:#c53030;">
+                </div>
+                <button class="btn-add" onclick="addOrder()">Hinzufügen</button>
+            </div>
+        </div>
+
+        <div class="tablet-table-card">
+            <div class="tablet-table-title am">☀️ Vormittag</div>
+            <div style="overflow-x:auto;">
+                <table class="tab-table">
+                    <thead>
+                        <tr id="tab-head-am"></tr>
+                    </thead>
+                    <tbody id="tab-tbody-am"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tablet-table-card">
+            <div class="tablet-table-title pm">🌆 Nachmittag</div>
+            <div style="overflow-x:auto;">
+                <table class="tab-table">
+                    <thead>
+                        <tr id="tab-head-pm"></tr>
+                    </thead>
+                    <tbody id="tab-tbody-pm"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv</div>
     </div>
 
-    <div class="settings-panel tv-settings-panel hidden" id="tv-settings">
-        <div class="settings-panel-title">⚙️ TV-Einstellungen</div>
-        <div class="settings-grid">
-            <div class="setting-item">
-                <label>Alarm-Ton</label>
-                <select id="tv-setting-sound" onchange="applyTVSettings()">
-                    <option value="voice">🗣️ Stimme (Gesprochen)</option>
-                    <option value="gong">🔔 Gong (Sanft)</option>
-                    <option value="siren">🚨 Sirene (Laut)</option>
-                    <option value="beep">🤖 Beep (Digital)</option>
-                </select>
+    <div class="modal-overlay" id="shelly-modal" onclick="closeShellyOnBackdrop(event)">
+        <div class="modal">
+            <button class="modal-close" onclick="closeShellyModal()">✕</button>
+            <h3>💡 Shelly Lampen-Einstellungen</h3>
+            <div class="info-box"><strong>Hinweis:</strong> Browser muss im gleichen Netzwerk wie die Shelly-Lampe sein.</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>IP-Adresse</label>
+                    <input id="shelly-ip" type="text" placeholder="192.168.1.50">
+                </div>
+                <div class="form-group" style="max-width:160px;">
+                    <label>Modell</label>
+                    <select id="shelly-model">
+                        <option value="rgbw2">Shelly RGBW2</option>
+                        <option value="bulb">Shelly Bulb / Duo</option>
+                        <option value="plug">Shelly Plug</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Auslöser</label>
+                    <select id="shelly-trigger">
+                        <option value="overdue">Überschritten → Rot blinkend</option>
+                        <option value="any">Neuer Auftrag → Gelb</option>
+                    </select>
+                </div>
             </div>
-            <div class="setting-item">
-                <label>Schriftgröße Tabelle</label>
-                <input type="range" min="12" max="36" value="22" id="tv-setting-fontsize" oninput="applyTVSettings()">
-                <div class="setting-value" id="tv-val-fontsize">22px</div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+                <button class="btn-test" onclick="testShelly()">🔦 Test</button>
+                <button class="btn-save" onclick="saveShelly()">Speichern</button>
             </div>
-            <div class="setting-item">
-                <label>Zeilenabstand</label>
-                <input type="range" min="8" max="40" value="18" id="tv-setting-rowpad" oninput="applyTVSettings()">
-                <div class="setting-value" id="tv-val-rowpad">18px</div>
+            <div class="shelly-status">
+                <span class="shelly-dot" id="shelly-dot"></span>
+                <span id="shelly-status-text">Nicht konfiguriert</span>
             </div>
-            <div class="setting-item">
-                <label>Kopfzeilen-Größe</label>
-                <input type="range" min="10" max="24" value="15" id="tv-setting-headsize" oninput="applyTVSettings()">
-                <div class="setting-value" id="tv-val-headsize">15px</div>
-            </div>
-            <div class="setting-item">
-                <label>Titel-Größe</label>
-                <input type="range" min="14" max="32" value="20" id="tv-setting-titlesize" oninput="applyTVSettings()">
-                <div class="setting-value" id="tv-val-titlesize">20px</div>
-            </div>
-        </div>
-        <div style="margin-top:14px;">
-            <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:8px;">Sichtbare Spalten</div>
-            <div class="col-toggle-row">
-                <span class="col-toggle on" data-col="tv-artikel" onclick="toggleTVCol(this)">Artikel</span>
-                <span class="col-toggle on" data-col="tv-lager"   onclick="toggleTVCol(this)">Lagerort</span>
-                <span class="col-toggle on" data-col="tv-ziel"    onclick="toggleTVCol(this)">Zielort</span>
-                <span class="col-toggle on" data-col="tv-time"    onclick="toggleTVCol(this)">Uhrzeit</span>
-                <span class="col-toggle on" data-col="tv-status"  onclick="toggleTVCol(this)">Status</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="tv-columns">
-        <div class="tv-col-card">
-            <div class="tv-col-title am" id="tv-title-am">☀️ Vormittag <span id="tv-am-count" style="font-size:15px;color:#a0aec0;font-weight:normal;"></span></div>
-            <table class="tv-table"><thead><tr id="tv-head-am"></tr></thead><tbody id="tv-tbody-am"></tbody></table>
-        </div>
-        <div class="tv-col-card">
-            <div class="tv-col-title pm" id="tv-title-pm">🌆 Nachmittag <span id="tv-pm-count" style="font-size:15px;color:#a0aec0;font-weight:normal;"></span></div>
-            <table class="tv-table"><thead><tr id="tv-head-pm"></tr></thead><tbody id="tv-tbody-pm"></tbody></table>
-        </div>
-    </div>
-    <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv © Josef Hohn GmbH</div>
-</div>
-
-<div class="history-overlay" id="history-modal" onclick="closeHistoryOnBackdrop(event)">
-    <div class="history-box">
-        <button class="history-close" onclick="closeHistory()">✕</button>
-        <h3>📋 Rückblick – Vergangene Aufträge</h3>
-        <p style="font-size:13px;color:#a0aec0;margin-bottom:12px;">Alle eingetragenen Aufträge sortiert nach Datum</p>
-        
-        <input type="text" id="history-search" class="search-input" placeholder="🔍 Suchen (Artikel, Lager, Ziel...)" oninput="renderHistory()">
-        
-        <div id="history-content"></div>
-    </div>
-</div>
-
-<div id="view-tablet" class="hidden">
-    <div class="tablet-header">
-        <div>
-            <h2>📦 Auslagerungsaufträge</h2>
-            <div class="tablet-subtitle" id="tablet-date"></div>
-        </div>
-        <div class="menu-wrapper">
-            <button class="menu-btn" onclick="toggleMenu('tablet-menu-dd', event)">☰ Menü</button>
-            <div id="tablet-menu-dd" class="menu-dropdown">
-                <div class="menu-item" onclick="testGong()">🔔 Gong Test</div>
-                <div class="menu-item" onclick="toggleTabletSettings()">⚙️ Einstellungen</div>
-                <div class="menu-item" onclick="openShellyModal()">💡 Lampe</div>
-                <div class="menu-item" onclick="toggleDarkMode()">🌙 Dunkelmodus</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="settings-panel tablet-settings-panel hidden" id="tablet-settings">
-        <div class="settings-panel-title">⚙️ Tablet-Darstellungs-Einstellungen</div>
-        <div class="settings-grid">
-            <div class="setting-item">
-                <label>Schriftgröße</label>
-                <input type="range" min="12" max="26" value="15" id="setting-fontsize" oninput="applyTabletSettings()">
-                <div class="setting-value" id="val-fontsize">15px</div>
-            </div>
-            <div class="setting-item">
-                <label>Zeilenabstand</label>
-                <input type="range" min="6" max="30" value="10" id="setting-rowpad" oninput="applyTabletSettings()">
-                <div class="setting-value" id="val-rowpad">10px</div>
-            </div>
-        </div>
-        <div style="margin-top:14px;">
-            <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:8px;">Sichtbare Spalten</div>
-            <div class="col-toggle-row">
-                <span class="col-toggle on" data-col="artikel" onclick="toggleTabCol(this)">Artikel</span>
-                <span class="col-toggle on" data-col="lager"   onclick="toggleTabCol(this)">Lagerort</span>
-                <span class="col-toggle on" data-col="ziel"    onclick="toggleTabCol(this)">Zielort</span>
-                <span class="col-toggle on" data-col="time"    onclick="toggleTabCol(this)">Uhrzeit</span>
-                <span class="col-toggle on" data-col="status"  onclick="toggleTabCol(this)">Status</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="day-nav" id="day-nav">
-        <button class="day-nav-btn" onclick="shiftDay(-1)">‹</button>
-        <div class="day-nav-label" id="day-nav-label">Heute</div>
-        <button class="day-nav-btn" onclick="shiftDay(1)">›</button>
-    </div>
-    <div id="early-warning-box"></div>
-
-    <div class="tablet-form">
-        <div class="tablet-form-title">+ Neuer Auslagerungsauftrag</div>
-        <div class="form-row">
-            <div class="form-group"><label>Artikelnummer</label><input id="inp-artikel" type="text" placeholder="z.B. ART-00123"></div>
-            <div class="form-group"><label>Lagerort</label><input id="inp-lager" type="text" placeholder="z.B. Regal A3"></div>
-            <div class="form-group"><label>Zielort</label>
-                <select id="inp-ziel">
-                    <option value="" disabled selected>Ziel wählen</option>
-                    <option value="Mittelgang">Mittelgang</option>
-                    <option value="Gang 3">Gang 3</option>
-                    <option value="Gang 1">Gang 1</option>
-                    <option value="Saelo">Saelo</option>
-                </select>
-            </div>
-            <div class="form-group" style="max-width:120px;"><label>Uhrzeit</label><input id="inp-time" type="time"></div>
-            <div class="form-group" style="max-width:150px;"><label>Schicht</label>
-                <select id="inp-shift">
-                    <option value="auto">Automatisch</option>
-                    <option value="am">Vormittag</option>
-                    <option value="pm">Nachmittag</option>
-                </select>
-            </div>
-            <div class="form-group" style="max-width:50px;display:flex;align-items:center;justify-content:center;">
-                <label style="margin-bottom:2px;cursor:pointer;" for="inp-urgent">🔥</label>
-                <input type="checkbox" id="inp-urgent" style="width:20px;height:20px;accent-color:#c53030;">
-            </div>
-            <button class="btn-add" onclick="addOrder()">Hinzufügen</button>
         </div>
     </div>
 
-    <div class="tablet-table-card">
-        <div class="tablet-table-title am">☀️ Vormittag</div>
-        <div style="overflow-x:auto;"><table class="tab-table"><thead><tr id="tab-head-am"></tr></thead><tbody id="tab-tbody-am"></tbody></table></div>
-    </div>
-    <div class="tablet-table-card">
-        <div class="tablet-table-title pm">🌆 Nachmittag</div>
-        <div style="overflow-x:auto;"><table class="tab-table"><thead><tr id="tab-head-pm"></tr></thead><tbody id="tab-tbody-pm"></tbody></table></div>
-    </div>
-    <div class="tv-status-bar"><span class="live-dot"></span> Live-Sync aktiv</div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-<div class="modal-overlay" id="shelly-modal" onclick="closeShellyOnBackdrop(event)">
-    <div class="modal">
-        <button class="modal-close" onclick="closeShellyModal()">✕</button>
-        <h3>💡 Shelly Lampen-Einstellungen</h3>
-        <div class="info-box"><strong>Hinweis:</strong> Browser muss im gleichen Netzwerk wie die Shelly-Lampe sein.</div>
-        <div class="form-row">
-            <div class="form-group"><label>IP-Adresse</label><input id="shelly-ip" type="text" placeholder="192.168.1.50"></div>
-            <div class="form-group" style="max-width:160px;"><label>Modell</label>
-                <select id="shelly-model"><option value="rgbw2">Shelly RGBW2</option><option value="bulb">Shelly Bulb / Duo</option><option value="plug">Shelly Plug</option></select>
-            </div>
-            <div class="form-group"><label>Auslöser</label>
-                <select id="shelly-trigger"><option value="overdue">Überschritten → Rot blinkend</option><option value="any">Neuer Auftrag → Gelb</option></select>
-            </div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:14px;">
-            <button class="btn-test" onclick="testShelly()">🔦 Test</button>
-            <button class="btn-save" onclick="saveShelly()">Speichern</button>
-        </div>
-        <div class="shelly-status"><span class="shelly-dot" id="shelly-dot"></span><span id="shelly-status-text">Nicht konfiguriert</span></div>
-    </div>
-</div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-BLAy2LEMup5DKSrlddb7waR2UXko8JA",
+            authDomain: "auslagerungsdashboard.firebaseapp.com",
+            databaseURL: "https://auslagerungsdashboard-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "auslagerungsdashboard",
+            storageBucket: "auslagerungsdashboard.firebasestorage.app",
+            messagingSenderId: "1025470327503",
+            appId: "1:1025470327503:web:9da16338668a2471a8a5ba"
+        };
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const ordersRef = ref(db, 'auslagerung/orders');
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB-BLAy2LEMup5DKSrlddb7waR2UXko8JA",
-    authDomain: "auslagerungsdashboard.firebaseapp.com",
-    databaseURL: "https://auslagerungsdashboard-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "auslagerungsdashboard",
-    storageBucket: "auslagerungsdashboard.firebasestorage.app",
-    messagingSenderId: "1025470327503",
-    appId: "1:1025470327503:web:9da16338668a2471a8a5ba"
-  };
+        const DELETE_PASSWORD = 'Gelenkwelle';
+        const DAYS_DE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
-  const ordersRef = ref(db, 'auslagerung/orders');
+        // MENÜ LOGIK
+        window.toggleMenu = function(id, e) {
+            if (e) e.stopPropagation();
+            const el = document.getElementById(id);
+            document.querySelectorAll('.menu-dropdown').forEach(d => {
+                if (d.id !== id) d.classList.remove('show');
+            });
+            el.classList.toggle('show');
+        };
 
-  const DELETE_PASSWORD = 'Gelenkwelle';
-  const DAYS_DE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-
-  // MENÜ LOGIK
-  window.toggleMenu = function(id, e) {
-    if(e) e.stopPropagation();
-    const el = document.getElementById(id);
-    document.querySelectorAll('.menu-dropdown').forEach(d => {
-        if(d.id !== id) d.classList.remove('show');
-    });
-    el.classList.toggle('show');
-  };
-  window.addEventListener('click', function(e) {
-    if (!e.target.matches('.menu-btn')) {
-        document.querySelectorAll('.menu-dropdown').forEach(d => d.classList.remove('show'));
-    }
-  });
-
-  // DARK MODE LOGIK
-  window.toggleDarkMode = function() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', isDark ? 'on' : 'off');
-  };
-  // Init Dark Mode
-  if (localStorage.getItem('darkMode') === 'on') {
-    document.body.classList.add('dark-mode');
-  }
-
-  // ========== UHRZEIT LOGIK ==========
-  function updateClock() {
-      const now = new Date();
-      const h = now.getHours().toString().padStart(2,'0');
-      const m = now.getMinutes().toString().padStart(2,'0');
-      const s = now.getSeconds().toString().padStart(2,'0');
-      document.getElementById('digital-clock').textContent = `${h}:${m}:${s}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
-
-  // ========== AUDIO LOGIK ==========
-  let gongInterval = null;
-
-  // FIX FÜR ANDROID CHROME SPRACHAUSGABE
-  let voicesLoaded = false;
-  window.speechSynthesis.onvoiceschanged = function() {
-      voicesLoaded = true;
-  };
-
-  function unlockAudioEngine() {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) {
-          const ctx = new AudioContext();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.start(0); osc.stop(0.001);
-      }
-      if ('speechSynthesis' in window) {
-          const u = new SpeechSynthesisUtterance("");
-          u.volume = 0;
-          window.speechSynthesis.speak(u);
-      }
-      document.body.removeEventListener('click', unlockAudioEngine);
-      document.body.removeEventListener('touchstart', unlockAudioEngine);
-  }
-  document.body.addEventListener('click', unlockAudioEngine);
-  document.body.addEventListener('touchstart', unlockAudioEngine);
-
-  // NORMALER TON (Standardauftrag)
-  window.playNewOrderSound = function() {
-      try {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContext) return;
-          const ctx = new AudioContext();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(880, ctx.currentTime); 
-          osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.5);
-          
-          gain.gain.setValueAtTime(0.1, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-          
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          
-          osc.start();
-          osc.stop(ctx.currentTime + 0.5);
-          setTimeout(() => { if(ctx.state !== 'closed') ctx.close(); }, 1000);
-      } catch(e) { console.error("Audio Fehler:", e); }
-  };
-
-  // DRINGEND TON (4x Läuten)
-  window.playUrgentSound = function() {
-      try {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContext) return;
-          const ctx = new AudioContext();
-          
-          let count = 0;
-          const playBeep = () => {
-              if(count >= 4) { ctx.close(); return; }
-              const osc = ctx.createOscillator();
-              const gain = ctx.createGain();
-              osc.type = 'square';
-              osc.frequency.setValueAtTime(600, ctx.currentTime);
-              osc.frequency.linearRampToValueAtTime(900, ctx.currentTime + 0.1);
-              
-              gain.gain.setValueAtTime(0.2, ctx.currentTime);
-              gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-              
-              osc.connect(gain);
-              gain.connect(ctx.destination);
-              osc.start(ctx.currentTime);
-              osc.stop(ctx.currentTime + 0.2);
-              
-              count++;
-              setTimeout(playBeep, 400); // alle 400ms
-          };
-          playBeep();
-      } catch(e) {}
-  };
-
-  window.playDigitalGong = function() {
-    const type = tvSettings.sound || 'gong';
-    if (type === 'voice') {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            let overdueText = "Achtung! Eine Auslagerung ist überfällig.";
-            const nowTime = getNowTime();
-            const overdueOrders = allOrders.filter(o => 
-                o.date === todayStr && (o.status || 'open') === 'open' && o.time <= nowTime
-            );
-            overdueOrders.sort((a,b) => a.time.localeCompare(b.time));
-            if (overdueOrders.length > 0) {
-                const urgentTime = overdueOrders[0].time; 
-                const [hStr, mStr] = urgentTime.split(':');
-                const h = parseInt(hStr, 10);
-                const m = parseInt(mStr, 10);
-                let spokenTime = (m === 0) ? `${h} Uhr` : `${h} Uhr ${m}`;
-                overdueText = `Achtung! Die Auslagerung um ${spokenTime} ist überfällig.`;
+        window.addEventListener('click', function(e) {
+            if (!e.target.matches('.menu-btn')) {
+                document.querySelectorAll('.menu-dropdown').forEach(d => d.classList.remove('show'));
             }
-            const msg = new SpeechSynthesisUtterance(overdueText);
-            msg.lang = 'de-DE'; msg.rate = 1.0; msg.pitch = 1.0; msg.volume = 1.0;
-            const voices = window.speechSynthesis.getVoices();
-            const bestVoice = voices.find(v => v.lang.startsWith('de') && v.name.includes('Google')) 
-                           || voices.find(v => v.lang.startsWith('de'));
-            if (bestVoice) msg.voice = bestVoice;
-            window.speechSynthesis.speak(msg);
+        });
+
+        // DARK MODE LOGIK
+        window.toggleDarkMode = function() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'on' : 'off');
+        };
+        // Init Dark Mode
+        if (localStorage.getItem('darkMode') === 'on') {
+            document.body.classList.add('dark-mode');
         }
-        return; 
-    }
-    // Andere Töne (Gong, Sirene etc.) wie gehabt...
-    try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
-        const ctx = new AudioContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
 
-        if (type === 'siren') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(400, ctx.currentTime);
-            osc.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.5);
-            gain.gain.setValueAtTime(0.2, ctx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
-            osc.start(); osc.stop(ctx.currentTime + 0.6);
-        } else if (type === 'beep') {
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(800, ctx.currentTime);
-            gain.gain.setValueAtTime(0.1, ctx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.2);
-            osc.start(); osc.stop(ctx.currentTime + 0.3);
-        } else {
-            osc.type = 'sine'; 
-            osc.frequency.setValueAtTime(660, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.3, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 1.5);
-            osc.start(); osc.stop(ctx.currentTime + 1.5);
+        // ========== UHRZEIT LOGIK ==========
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const s = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('digital-clock').textContent = `${h}:${m}:${s}`;
         }
-        osc.connect(gain); gain.connect(ctx.destination);
-        setTimeout(() => { if(ctx.state !== 'closed') ctx.close(); }, 2000);
-    } catch(e) {}
-  };
+        setInterval(updateClock, 1000);
+        updateClock();
 
-  window.testGong = function() { playDigitalGong(); };
+        // ========== AUDIO LOGIK ==========
+        let gongInterval = null;
 
-  function toDateStr(d) { return d.toISOString().split('T')[0]; }
-  function formatDisplay(s) { const [y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
-  function getShift(time, manual) {
-    if (manual && manual !== 'auto') return manual;
-    return time < '12:00' ? 'am' : 'pm';
-  }
-  function getNowTime() {
-    const n = new Date();
-    return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
-  }
+        // FIX FÜR ANDROID CHROME SPRACHAUSGABE
+        let voicesLoaded = false;
+        window.speechSynthesis.onvoiceschanged = function() {
+            voicesLoaded = true;
+        };
 
-  function renderBarcode(text) {
-      if(!text) return '';
-      const code = "*" + text.toUpperCase() + "*";
-      return `<div class="barcode-container"><span class="barcode-font">${code}</span><span class="barcode-label">${text}</span></div>`;
-  }
+        function unlockAudioEngine() {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(0);
+                osc.stop(0.001);
+            }
+            if ('speechSynthesis' in window) {
+                const u = new SpeechSynthesisUtterance("");
+                u.volume = 0;
+                window.speechSynthesis.speak(u);
+            }
+            document.body.removeEventListener('click', unlockAudioEngine);
+            document.body.removeEventListener('touchstart', unlockAudioEngine);
+        }
+        document.body.addEventListener('click', unlockAudioEngine);
+        document.body.addEventListener('touchstart', unlockAudioEngine);
 
-  let today    = new Date();
-  let todayStr = toDateStr(today);
+        // NORMALER TON (Standardauftrag)
+        window.playNewOrderSound = function() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
 
-  function updateDateDisplay() {
-      document.getElementById('tv-date').textContent = 'Heute: ' + DAYS_DE[today.getDay()] + ', ' + formatDisplay(todayStr);
-  }
-  updateDateDisplay();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.5);
 
-  let dayOffset = 0;
-  function getViewDate() { const d = new Date(today); d.setDate(d.getDate() + dayOffset); return d; }
-  function getViewDateStr() { return toDateStr(getViewDate()); }
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
 
-  function updateDayNav() {
-    const d = getViewDate();
-    const dStr = toDateStr(d);
-    const label = dStr === todayStr ? 'Heute' : dStr === toDateStr(new Date(today.getTime()+86400000)) ? 'Morgen' : dStr === toDateStr(new Date(today.getTime()-86400000)) ? 'Gestern' : formatDisplay(dStr);
-    const el = document.getElementById('day-nav-label');
-    el.textContent = label + ' – ' + formatDisplay(dStr);
-    el.className = 'day-nav-label' + (dayOffset < 0 ? ' past' : dayOffset > 0 ? ' future' : '');
-    document.getElementById('tablet-date').textContent = DAYS_DE[d.getDay()] + ', ' + formatDisplay(dStr);
-    renderTabletForDay();
-    updateEarlyWarning();
-  }
+                osc.connect(gain);
+                gain.connect(ctx.destination);
 
-  window.shiftDay = function(delta) { dayOffset += delta; updateDayNav(); };
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+                setTimeout(() => {
+                    if (ctx.state !== 'closed') ctx.close();
+                }, 1000);
+            } catch (e) {
+                console.error("Audio Fehler:", e);
+            }
+        };
 
-  function updateEarlyWarning() {
-    const tomorrowStr = toDateStr(new Date(today.getTime()+86400000));
-    const tomorrowOrders = allOrders.filter(o => o.date === tomorrowStr);
-    const relevantOrders = tomorrowOrders.filter(o => o.time < '09:00');
-    const tabletBox = document.getElementById('early-warning-box');
-    const tvBox = document.getElementById('tv-early-warning-box');
-    let warningHtml = '';
-    if (relevantOrders.length > 0) {
-      warningHtml = '<div class="early-warning"><div class="early-warning-icon">🌅</div><div class="early-warning-text"><strong>Frühauslagerung morgen!</strong>'+ relevantOrders.length + ' Auftrag' + (relevantOrders.length>1?'e':'') + ' bis 09:00 Uhr eingetragen</div></div>';
-    }
-    tabletBox.innerHTML = (dayOffset === 0) ? warningHtml : '';
-    if(tvBox) tvBox.innerHTML = warningHtml; 
-  }
+        // DRINGEND TON (4x Läuten)
+        window.playUrgentSound = function() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
 
-  window.openHistory = function() {
-    document.getElementById('history-modal').classList.add('open');
-    renderHistory();
-  };
-  window.closeHistory = () => document.getElementById('history-modal').classList.remove('open');
-  window.closeHistoryOnBackdrop = (e) => { if (e.target.id === 'history-modal') closeHistory(); };
+                let count = 0;
+                const playBeep = () => {
+                    if (count >= 4) {
+                        ctx.close();
+                        return;
+                    }
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(600, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(900, ctx.currentTime + 0.1);
 
-  window.renderHistory = function() {
-    const content = document.getElementById('history-content');
-    const searchTerm = document.getElementById('history-search').value.toLowerCase();
-    
-    let past = allOrders.filter(o => o.date <= todayStr);
-    
-    if (searchTerm) {
-        past = past.filter(o => 
-            (o.artikel && o.artikel.toLowerCase().includes(searchTerm)) ||
-            (o.lager && o.lager.toLowerCase().includes(searchTerm)) ||
-            (o.ziel && o.ziel.toLowerCase().includes(searchTerm)) ||
-            (o.status && STATUS_LABELS[o.status] && STATUS_LABELS[o.status].toLowerCase().includes(searchTerm))
-        );
-    }
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.2);
 
-    if (!past.length) { content.innerHTML = '<div class="history-empty">Keine Aufträge gefunden.</div>'; return; }
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.2);
 
-    const byDate = {};
-    past.forEach(o => { if (!byDate[o.date]) byDate[o.date] = []; byDate[o.date].push(o); });
-    const sortedDates = Object.keys(byDate).sort((a,b) => b.localeCompare(a));
+                    count++;
+                    setTimeout(playBeep, 400); // alle 400ms
+                };
+                playBeep();
+            } catch (e) {}
+        };
 
-    content.innerHTML = sortedDates.map(date => {
-      const orders = byDate[date].sort((a,b) => a.time.localeCompare(b.time));
-      const isToday = date === todayStr;
-      const rows = orders.map(o => {
-        const st = o.status || 'open';
-        return '<tr><td>'+o.time+' Uhr</td><td>'+o.artikel+'</td><td>'+o.lager+'</td><td>'+o.ziel+'</td><td>'+(getShift(o.time,o.shift)==='am'?'☀️ Vm.':'🌆 Nm.')+'</td><td><span class="h-badge '+st+'">'+STATUS_LABELS[st]+'</span></td></tr>';
-      }).join('');
-      return '<div class="history-date-group"><div class="history-date-label">'+(isToday?'📅 Heute – ':'')+formatDisplay(date)+' ('+orders.length+' Aufträge)</div><table class="history-table"><thead><tr><th>Uhrzeit</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Schicht</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
-    }).join('');
-  }
+        window.playDigitalGong = function() {
+            const type = tvSettings.sound || 'gong';
+            if (type === 'voice') {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    let overdueText = "Achtung! Eine Auslagerung ist überfällig.";
+                    const nowTime = getNowTime();
+                    const overdueOrders = allOrders.filter(o =>
+                        o.date === todayStr && (o.status || 'open') === 'open' && o.time <= nowTime
+                    );
+                    overdueOrders.sort((a, b) => a.time.localeCompare(b.time));
+                    if (overdueOrders.length > 0) {
+                        const urgentTime = overdueOrders[0].time;
+                        const [hStr, mStr] = urgentTime.split(':');
+                        const h = parseInt(hStr, 10);
+                        const m = parseInt(mStr, 10);
+                        let spokenTime = (m === 0) ? `${h} Uhr` : `${h} Uhr ${m}`;
+                        overdueText = `Achtung! Die Auslagerung um ${spokenTime} ist überfällig.`;
+                    }
+                    const msg = new SpeechSynthesisUtterance(overdueText);
+                    msg.lang = 'de-DE';
+                    msg.rate = 1.0;
+                    msg.pitch = 1.0;
+                    msg.volume = 1.0;
+                    const voices = window.speechSynthesis.getVoices();
+                    const bestVoice = voices.find(v => v.lang.startsWith('de') && v.name.includes('Google')) ||
+                        voices.find(v => v.lang.startsWith('de'));
+                    if (bestVoice) msg.voice = bestVoice;
+                    window.speechSynthesis.speak(msg);
+                }
+                return;
+            }
+            // Andere Töne (Gong, Sirene etc.)
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
 
-  let pendingDeleteKey = null;
+                if (type === 'siren') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(400, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.5);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.6);
+                } else if (type === 'beep') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(800, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                } else {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(660, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 1.5);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 1.5);
+                }
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                setTimeout(() => {
+                    if (ctx.state !== 'closed') ctx.close();
+                }, 2000);
+            } catch (e) {}
+        };
 
-  window.requestDelete = function(key) {
-    pendingDeleteKey = key;
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-error').textContent = '';
-    document.getElementById('pw-modal').classList.add('open');
-    setTimeout(() => document.getElementById('pw-input').focus(), 100);
-  };
-  window.pwCancel = function() {
-    pendingDeleteKey = null;
-    document.getElementById('pw-modal').classList.remove('open');
-  };
-  window.pwConfirm = function() {
-    const val = document.getElementById('pw-input').value;
-    if (val === DELETE_PASSWORD) {
-      remove(ref(db, 'auslagerung/orders/' + pendingDeleteKey));
-      pendingDeleteKey = null;
-      document.getElementById('pw-modal').classList.remove('open');
-    } else {
-      document.getElementById('pw-error').textContent = '❌ Falsches Passwort';
-      document.getElementById('pw-input').value = '';
-      document.getElementById('pw-input').focus();
-    }
-  };
+        window.testGong = function() {
+            playDigitalGong();
+        };
 
-  window.setMode = function(mode) {
-    document.getElementById('view-tv').classList.toggle('hidden', mode !== 'tv');
-    document.getElementById('view-tablet').classList.toggle('hidden', mode !== 'tablet');
-    document.getElementById('btn-mode-tv').classList.toggle('active', mode === 'tv');
-    document.getElementById('btn-mode-tablet').classList.toggle('active', mode === 'tablet');
-    localStorage.setItem('dashMode', mode);
-  };
-  setMode(localStorage.getItem('dashMode') || 'tv');
+        function toDateStr(d) {
+            return d.toISOString().split('T')[0];
+        }
 
-  const TV_DEFAULTS = { fontsize:22, rowpad:18, headsize:15, titlesize:20, sound:'gong', cols:{'tv-artikel':true,'tv-lager':true,'tv-ziel':true,'tv-time':true,'tv-status':true} };
-  let tvSettings = Object.assign({}, TV_DEFAULTS, JSON.parse(localStorage.getItem('tvSettings') || '{}'));
-  if (!tvSettings.cols) tvSettings.cols = Object.assign({}, TV_DEFAULTS.cols);
+        function formatDisplay(s) {
+            const [y, m, d] = s.split('-');
+            return d + '.' + m + '.' + y;
+        }
 
-  window.toggleTVSettings = () => document.getElementById('tv-settings').classList.toggle('hidden');
-  window.applyTVSettings  = function() {
-    tvSettings.sound     = document.getElementById('tv-setting-sound').value;
-    tvSettings.fontsize  = +document.getElementById('tv-setting-fontsize').value;
-    tvSettings.rowpad    = +document.getElementById('tv-setting-rowpad').value;
-    tvSettings.headsize  = +document.getElementById('tv-setting-headsize').value;
-    tvSettings.titlesize = +document.getElementById('tv-setting-titlesize').value;
-    document.getElementById('tv-val-fontsize').textContent  = tvSettings.fontsize  + 'px';
-    document.getElementById('tv-val-rowpad').textContent    = tvSettings.rowpad    + 'px';
-    document.getElementById('tv-val-headsize').textContent  = tvSettings.headsize  + 'px';
-    document.getElementById('tv-val-titlesize').textContent = tvSettings.titlesize + 'px';
-    localStorage.setItem('tvSettings', JSON.stringify(tvSettings));
-    renderAll();
-  };
-  window.toggleTVCol = function(el) {
-    tvSettings.cols[el.dataset.col] = !tvSettings.cols[el.dataset.col];
-    el.classList.toggle('on', tvSettings.cols[el.dataset.col]);
-    localStorage.setItem('tvSettings', JSON.stringify(tvSettings));
-    renderAll();
-  };
-  function loadTVSettingsUI() {
-    document.getElementById('tv-setting-sound').value       = tvSettings.sound || 'gong';
-    document.getElementById('tv-setting-fontsize').value  = tvSettings.fontsize;
-    document.getElementById('tv-setting-rowpad').value    = tvSettings.rowpad;
-    document.getElementById('tv-setting-headsize').value  = tvSettings.headsize;
-    document.getElementById('tv-setting-titlesize').value = tvSettings.titlesize;
-    ['tv-val-fontsize','tv-val-rowpad','tv-val-headsize','tv-val-titlesize'].forEach((id,i) => {
-      document.getElementById(id).textContent = [tvSettings.fontsize, tvSettings.rowpad, tvSettings.headsize, tvSettings.titlesize][i] + 'px';
-    });
-    document.querySelectorAll('#tv-settings .col-toggle').forEach(el => {
-      el.classList.toggle('on', tvSettings.cols[el.dataset.col] !== false);
-    });
-  }
-  loadTVSettingsUI();
+        function getShift(time, manual) {
+            if (manual && manual !== 'auto') return manual;
+            return time < '12:00' ? 'am' : 'pm';
+        }
 
-  let tabletSettings = JSON.parse(localStorage.getItem('tabletSettings') || '{"fontsize":15,"rowpad":10,"cols":{"artikel":true,"lager":true,"ziel":true,"time":true,"status":true}}');
-  if (!tabletSettings.cols) tabletSettings.cols = {};
-  if (tabletSettings.cols.status === undefined) tabletSettings.cols.status = true;
+        function getNowTime() {
+            const n = new Date();
+            return n.getHours().toString().padStart(2, '0') + ':' + n.getMinutes().toString().padStart(2, '0');
+        }
 
-  window.toggleTabletSettings = () => document.getElementById('tablet-settings').classList.toggle('hidden');
-  window.applyTabletSettings  = function() {
-    tabletSettings.fontsize = +document.getElementById('setting-fontsize').value;
-    tabletSettings.rowpad   = +document.getElementById('setting-rowpad').value;
-    document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
-    document.getElementById('val-rowpad').textContent   = tabletSettings.rowpad   + 'px';
-    localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
-    renderAll();
-  };
-  window.toggleTabCol = function(el) {
-    tabletSettings.cols[el.dataset.col] = !tabletSettings.cols[el.dataset.col];
-    el.classList.toggle('on', tabletSettings.cols[el.dataset.col]);
-    localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
-    renderAll();
-  };
-  function loadTabletSettingsUI() {
-    document.getElementById('setting-fontsize').value = tabletSettings.fontsize;
-    document.getElementById('setting-rowpad').value   = tabletSettings.rowpad;
-    document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
-    document.getElementById('val-rowpad').textContent   = tabletSettings.rowpad   + 'px';
-    document.querySelectorAll('#tablet-settings .col-toggle').forEach(el => {
-      el.classList.toggle('on', tabletSettings.cols[el.dataset.col] !== false);
-    });
-  }
-  loadTabletSettingsUI();
+        function renderBarcode(text) {
+            if (!text) return '';
+            const code = "*" + text.toUpperCase() + "*";
+            return `<div class="barcode-container"><span class="barcode-font">${code}</span><span class="barcode-label">${text}</span></div>`;
+        }
 
-  const STATUS_CYCLE    = ['open','done','problem'];
-  const STATUS_LABELS   = { open:'⬜ Offen', done:'✅ Erledigt', problem:'🔴 Störung' };
-  const STATUS_CLASSES = { open:'open', done:'done', problem:'problem' };
+        let today = new Date();
+        let todayStr = toDateStr(today);
 
-  window.cycleStatus = function(key, cur) {
-    const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur || 'open') + 1) % STATUS_CYCLE.length];
-    update(ref(db, 'auslagerung/orders/' + key), { status: next });
-  };
+        function updateDateDisplay() {
+            document.getElementById('tv-date').textContent = 'Heute: ' + DAYS_DE[today.getDay()] + ', ' + formatDisplay(todayStr);
+        }
+        updateDateDisplay();
 
-  window.toggleFullscreen = () => {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-    else document.exitFullscreen();
-  };
+        let dayOffset = 0;
 
-  window.openShellyModal  = () => document.getElementById('shelly-modal').classList.add('open');
-  window.closeShellyModal = () => document.getElementById('shelly-modal').classList.remove('open');
-  window.closeShellyOnBackdrop = (e) => { if (e.target.id === 'shelly-modal') closeShellyModal(); };
+        function getViewDate() {
+            const d = new Date(today);
+            d.setDate(d.getDate() + dayOffset);
+            return d;
+        }
 
-  let shellyConfig = JSON.parse(localStorage.getItem('shellyConfig') || '{}');
-  if (shellyConfig.ip) {
-    document.getElementById('shelly-ip').value = shellyConfig.ip;
-    document.getElementById('shelly-model').value = shellyConfig.model || 'rgbw2';
-    document.getElementById('shelly-trigger').value = shellyConfig.trigger || 'overdue';
-    setShellyStatus('saved', 'Gespeichert: ' + shellyConfig.ip);
-  }
-  window.saveShelly = () => {
-    const ip = document.getElementById('shelly-ip').value.trim();
-    if (!ip) { alert('Bitte IP-Adresse eingeben.'); return; }
-    shellyConfig = { ip, model: document.getElementById('shelly-model').value, trigger: document.getElementById('shelly-trigger').value };
-    localStorage.setItem('shellyConfig', JSON.stringify(shellyConfig));
-    setShellyStatus('saved', 'Gespeichert: ' + ip);
-    closeShellyModal();
-  };
-  async function shellyCommand(r,g,b,brightness,blink) {
-    if (!shellyConfig.ip) return;
-    const { ip, model } = shellyConfig;
-    const url = model==='rgbw2' ? 'http://'+ip+'/color/0?turn=on&red='+r+'&green='+g+'&blue='+b+'&gain='+brightness+'&effect='+(blink?3:0)
-      : model==='bulb' ? 'http://'+ip+'/light/0?turn=on&red='+r+'&green='+g+'&blue='+b+'&brightness='+brightness+'&effect='+(blink?3:0)
-      : 'http://'+ip+'/relay/0?turn=on';
-    try { await fetch(url,{mode:'no-cors'}); setShellyStatus('active','Signal an '+ip); }
-    catch(e) { setShellyStatus('error','Fehler: '+ip+' nicht erreichbar'); }
-  }
-  async function shellyOff() {
-    if (!shellyConfig.ip) return;
-    const { ip, model } = shellyConfig;
-    const url = model==='plug' ? 'http://'+ip+'/relay/0?turn=off' : model==='rgbw2' ? 'http://'+ip+'/color/0?turn=off' : 'http://'+ip+'/light/0?turn=off';
-    try { await fetch(url,{mode:'no-cors'}); } catch(e) {}
-  }
-  window.testShelly = async () => {
-    const ip = document.getElementById('shelly-ip').value.trim();
-    if (!ip) { alert('Bitte IP eingeben.'); return; }
-    shellyConfig.ip = ip; shellyConfig.model = document.getElementById('shelly-model').value;
-    setShellyStatus('blink', 'Teste '+ip+'...');
-    await shellyCommand(255,0,0,100,true);
-    setTimeout(() => shellyOff(), 5000);
-  };
-  function setShellyStatus(state, text) {
-    const dot = document.getElementById('shelly-dot');
-    dot.className = 'shelly-dot';
-    if (state==='active'||state==='saved') dot.classList.add('active');
-    else if (state==='error') dot.classList.add('error');
-    else if (state==='blink') dot.classList.add('blink');
-    document.getElementById('shelly-status-text').textContent = text;
-  }
+        function getViewDateStr() {
+            return toDateStr(getViewDate());
+        }
 
-  window.addOrder = () => {
-    const artikel = document.getElementById('inp-artikel').value.trim();
-    const lager   = document.getElementById('inp-lager').value.trim();
-    const ziel    = document.getElementById('inp-ziel').value.trim();
-    const time    = document.getElementById('inp-time').value;
-    const shift   = document.getElementById('inp-shift').value;
-    // Neue Checkbox auslesen
-    const isUrgent = document.getElementById('inp-urgent').checked;
-    
-    if (!artikel || !lager || !ziel || !time) { alert('Bitte alle Felder ausfüllen.'); return; }
-    const targetDate = getViewDateStr();
-    
-    push(ordersRef, { 
-        artikel, lager, ziel, time, shift, 
-        status:'open', 
-        isUrgent: isUrgent, // Speichern
-        date:targetDate, 
-        createdAt:Date.now() 
-    });
-    
-    ['inp-artikel','inp-lager','inp-ziel','inp-time'].forEach(id => document.getElementById(id).value='');
-    document.getElementById('inp-shift').value = 'auto';
-    document.getElementById('inp-urgent').checked = false; // Reset Checkbox
-  };
+        function updateDayNav() {
+            const d = getViewDate();
+            const dStr = toDateStr(d);
+            const label = dStr === todayStr ? 'Heute' : dStr === toDateStr(new Date(today.getTime() + 86400000)) ? 'Morgen' : dStr === toDateStr(new Date(today.getTime() - 86400000)) ? 'Gestern' : formatDisplay(dStr);
+            const el = document.getElementById('day-nav-label');
+            el.textContent = label + ' – ' + formatDisplay(dStr);
+            el.className = 'day-nav-label' + (dayOffset < 0 ? ' past' : dayOffset > 0 ? ' future' : '');
+            document.getElementById('tablet-date').textContent = DAYS_DE[d.getDay()] + ', ' + formatDisplay(dStr);
+            renderTabletForDay();
+            updateEarlyWarning();
+        }
 
-  let allOrders = [];
+        window.shiftDay = function(delta) {
+            dayOffset += delta;
+            updateDayNav();
+        };
 
-  const TV_COLS_DEF = [
-    { key:'tv-artikel', label:'Artikel',    field:'artikel' },
-    { key:'tv-lager',   label:'Lagerort',    field:'lager' },
-    { key:'tv-ziel',    label:'Zielort',     field:'ziel' },
-    { key:'tv-time',    label:'Spätestens', field:'time' },
-    { key:'tv-status',  label:'Status',      field:'status' },
-  ];
+        function updateEarlyWarning() {
+            const tomorrowStr = toDateStr(new Date(today.getTime() + 86400000));
+            const tomorrowOrders = allOrders.filter(o => o.date === tomorrowStr);
+            const relevantOrders = tomorrowOrders.filter(o => o.time < '09:00');
+            const tabletBox = document.getElementById('early-warning-box');
+            const tvBox = document.getElementById('tv-early-warning-box');
+            let warningHtml = '';
+            if (relevantOrders.length > 0) {
+                warningHtml = '<div class="early-warning"><div class="early-warning-icon">🌅</div><div class="early-warning-text"><strong>Frühauslagerung morgen!</strong>' + relevantOrders.length + ' Auftrag' + (relevantOrders.length > 1 ? 'e' : '') + ' bis 09:00 Uhr eingetragen</div></div>';
+            }
+            tabletBox.innerHTML = (dayOffset === 0) ? warningHtml : '';
+            if (tvBox) tvBox.innerHTML = warningHtml;
+        }
 
-  function renderTV(amOrders, pmOrders) {
-    const { fontsize, rowpad, headsize, titlesize, cols } = tvSettings;
-    const nowTime = getNowTime();
-    const visCols = TV_COLS_DEF.filter(c => cols[c.key] !== false);
+        window.openHistory = function() {
+            document.getElementById('history-modal').classList.add('open');
+            renderHistory();
+        };
+        window.closeHistory = () => document.getElementById('history-modal').classList.remove('open');
+        window.closeHistoryOnBackdrop = (e) => {
+            if (e.target.id === 'history-modal') closeHistory();
+        };
 
-    document.getElementById('tv-title-am').style.fontSize = titlesize + 'px';
-    document.getElementById('tv-title-pm').style.fontSize = titlesize + 'px';
+        window.renderHistory = function() {
+            const content = document.getElementById('history-content');
+            const searchTerm = document.getElementById('history-search').value.toLowerCase();
 
-    function renderBody(orders, headId, tbodyId, countId) {
-      document.getElementById(countId).textContent = '(' + orders.length + ')';
-      const head = document.getElementById(headId);
-      head.innerHTML = '<th style="padding:'+rowpad*0.7+'px 18px;font-size:'+headsize+'px;">#</th>'
-        + visCols.map(c => '<th style="padding:'+rowpad*0.7+'px 18px;font-size:'+headsize+'px;">'+c.label+'</th>').join('');
-      const tbody = document.getElementById(tbodyId);
-      if (!orders.length) {
-        tbody.innerHTML = '<tr><td colspan="'+(visCols.length+1)+'" class="no-orders" style="font-size:'+fontsize+'px;">Keine Aufträge.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = orders.map((o,i) => {
-        const st = o.status || 'open';
-        const overdue = st === 'open' && o.time <= nowTime;
-        const isUrgent = o.isUrgent && st !== 'done'; // Dringend nur wenn nicht erledigt
-        
-        // Klassen-Logik: Urgent > Overdue > Done > Problem
-        let rowCls = '';
-        if (st === 'done') rowCls = 'row-done';
-        else if (isUrgent) rowCls = 'row-urgent';
-        else if (overdue) rowCls = 'row-overdue';
-        else if (st === 'problem') rowCls = 'row-problem';
+            let past = allOrders.filter(o => o.date <= todayStr);
+            if (searchTerm) {
+                past = past.filter(o =>
+                    (o.artikel && o.artikel.toLowerCase().includes(searchTerm)) ||
+                    (o.lager && o.lager.toLowerCase().includes(searchTerm)) ||
+                    (o.ziel && o.ziel.toLowerCase().includes(searchTerm)) ||
+                    (o.status && STATUS_LABELS[o.status] && STATUS_LABELS[o.status].toLowerCase().includes(searchTerm))
+                );
+            }
 
-        const cells = visCols.map(c => {
-          const pad = 'padding:'+rowpad+'px 18px;font-size:'+fontsize+'px;';
-          if (c.key==='tv-artikel') {
-              return '<td style="'+pad+'">' + renderBarcode(o.artikel) + '</td>';
-          }
-          if (c.key==='tv-time') {
-            let inner = '';
-            if (st !== 'done') {
-                if(isUrgent) inner = '<span class="td-urgent" style="font-size:'+fontsize+'px;">🔥 '+o.time+'</span>';
-                else if(overdue) inner = '<span class="td-urgent" style="font-size:'+fontsize+'px;">'+o.time+' ⚠️</span>';
-                else inner = '<span class="td-time" style="font-size:'+fontsize+'px;">'+o.time+'</span>';
+            if (!past.length) {
+                content.innerHTML = '<div class="history-empty">Keine Aufträge gefunden.</div>';
+                return;
+            }
+
+            const byDate = {};
+            past.forEach(o => {
+                if (!byDate[o.date]) byDate[o.date] = [];
+                byDate[o.date].push(o);
+            });
+            const sortedDates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
+
+            content.innerHTML = sortedDates.map(date => {
+                const orders = byDate[date].sort((a, b) => a.time.localeCompare(b.time));
+                const isToday = date === todayStr;
+                const rows = orders.map(o => {
+                    const st = o.status || 'open';
+                    return '<tr><td>' + o.time + ' Uhr</td><td>' + o.artikel + '</td><td>' + o.lager + '</td><td>' + o.ziel + '</td><td>' + (getShift(o.time, o.shift) === 'am' ? '☀️ Vm.' : '🌆 Nm.') + '</td><td><span class="h-badge ' + st + '">' + STATUS_LABELS[st] + '</span></td></tr>';
+                }).join('');
+                return '<div class="history-date-group"><div class="history-date-label">' + (isToday ? '📅 Heute – ' : '') + formatDisplay(date) + ' (' + orders.length + ' Aufträge)</div><table class="history-table"><thead><tr><th>Uhrzeit</th><th>Artikel</th><th>Lagerort</th><th>Zielort</th><th>Schicht</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+            }).join('');
+        }
+
+        let pendingDeleteKey = null;
+
+        window.requestDelete = function(key) {
+            pendingDeleteKey = key;
+            document.getElementById('pw-input').value = '';
+            document.getElementById('pw-error').textContent = '';
+            document.getElementById('pw-modal').classList.add('open');
+            setTimeout(() => document.getElementById('pw-input').focus(), 100);
+        };
+        window.pwCancel = function() {
+            pendingDeleteKey = null;
+            document.getElementById('pw-modal').classList.remove('open');
+        };
+        window.pwConfirm = function() {
+            const val = document.getElementById('pw-input').value;
+            if (val === DELETE_PASSWORD) {
+                remove(ref(db, 'auslagerung/orders/' + pendingDeleteKey));
+                pendingDeleteKey = null;
+                document.getElementById('pw-modal').classList.remove('open');
             } else {
-                inner = o.time;
+                document.getElementById('pw-error').textContent = '❌ Falsches Passwort';
+                document.getElementById('pw-input').value = '';
+                document.getElementById('pw-input').focus();
             }
-            return '<td style="'+pad+'">'+inner+'</td>';
-          }
-          if (c.key==='tv-status') {
-            return '<td style="'+pad+'"><span class="tv-status-badge '+st+'" style="font-size:'+(fontsize-4)+'px;">'+STATUS_LABELS[st]+'</span></td>';
-          }
-          return '<td style="'+pad+'">'+o[c.field]+'</td>';
-        }).join('');
-        return '<tr class="'+rowCls+'"><td style="padding:'+rowpad+'px 18px;font-size:'+(fontsize-4)+'px;color:#a0aec0;">'+(i+1)+'</td>'+cells+'</tr>';
-      }).join('');
-    }
+        };
 
-    renderBody(amOrders, 'tv-head-am', 'tv-tbody-am', 'tv-am-count');
-    renderBody(pmOrders, 'tv-head-pm', 'tv-tbody-pm', 'tv-pm-count');
-  }
+        window.setMode = function(mode) {
+            document.getElementById('view-tv').classList.toggle('hidden', mode !== 'tv');
+            document.getElementById('view-tablet').classList.toggle('hidden', mode !== 'tablet');
+            document.getElementById('btn-mode-tv').classList.toggle('active', mode === 'tv');
+            document.getElementById('btn-mode-tablet').classList.toggle('active', mode === 'tablet');
+            localStorage.setItem('dashMode', mode);
+        };
+        setMode(localStorage.getItem('dashMode') || 'tv');
 
-  const TAB_COLS_DEF = [
-    { key:'artikel', label:'Artikelnummer', field:'artikel' },
-    { key:'lager',   label:'Lagerort',      field:'lager' },
-    { key:'ziel',    label:'Zielort',       field:'ziel' },
-    { key:'time',    label:'Uhrzeit',       field:'time' },
-    { key:'status',  label:'Status',         field:'status' },
-  ];
-
-  function renderTablet(amOrders, pmOrders) {
-    const { fontsize, rowpad, cols } = tabletSettings;
-    const nowTime = getNowTime();
-    const visCols = TAB_COLS_DEF.filter(c => cols[c.key] !== false);
-
-    function body(orders, headId, tbodyId) {
-      document.getElementById(headId).innerHTML =
-        '<th style="font-size:'+(fontsize-3)+'px;">#</th>'
-        + visCols.map(c => '<th style="font-size:'+(fontsize-3)+'px;">'+c.label+'</th>').join('')
-        + '<th></th>';
-      const tbody = document.getElementById(tbodyId);
-      if (!orders.length) {
-        tbody.innerHTML = '<tr><td colspan="'+(visCols.length+2)+'" class="no-orders" style="font-size:'+fontsize+'px;">Keine Aufträge.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = orders.map((o,i) => {
-        const st = o.status || 'open';
-        const overdue = st === 'open' && o.time <= nowTime;
-        const isUrgent = o.isUrgent && st !== 'done';
-        
-        let rowCls = '';
-        if (st === 'done') rowCls = 'row-done';
-        else if (isUrgent) rowCls = 'row-urgent';
-        else if (overdue) rowCls = 'row-overdue';
-        else if (st === 'problem') rowCls = 'row-problem';
-
-        const cells = visCols.map(c => {
-          const pad = 'padding:'+rowpad+'px 12px;font-size:'+fontsize+'px;';
-          if (c.key==='artikel') {
-              return '<td style="'+pad+'">' + renderBarcode(o.artikel) + '</td>';
-          }
-          if (c.key==='time') {
-            let cls = 'tab-time';
-            let txt = o.time;
-            if(st !== 'done') {
-               if (isUrgent) { cls='tab-urgent'; txt = '🔥 '+txt; }
-               else if(overdue) { cls='tab-urgent'; txt += ' ⚠️'; }
+        const TV_DEFAULTS = {
+            fontsize: 22,
+            rowpad: 18,
+            headsize: 15,
+            titlesize: 20,
+            sound: 'gong',
+            cols: {
+                'tv-artikel': true,
+                'tv-lager': true,
+                'tv-ziel': true,
+                'tv-time': true,
+                'tv-status': true
             }
-            return '<td style="'+pad+'" class="'+cls+'">'+txt+'</td>';
-          }
-          if (c.key==='status') {
-            return '<td style="'+pad+'"><button class="status-btn '+STATUS_CLASSES[st]+'" onclick="cycleStatus(\''+o.key+'\',\''+st+'\')">'+STATUS_LABELS[st]+'</button></td>';
-          }
-          return '<td style="'+pad+'">'+o[c.field]+'</td>';
-        }).join('');
-        return '<tr class="'+rowCls+'">'
-          +'<td style="padding:'+rowpad+'px 12px;font-size:'+(fontsize-2)+'px;color:#a0aec0;">'+(i+1)+'</td>'
-          +cells
-          +'<td style="padding:'+rowpad+'px 8px;"><button class="btn-delete-tab" onclick="requestDelete(\''+o.key+'\')">🗑</button></td>'
-          +'</tr>';
-      }).join('');
-    }
-    body(amOrders, 'tab-head-am', 'tab-tbody-am');
-    body(pmOrders, 'tab-head-pm', 'tab-tbody-pm');
-  }
+        };
+        let tvSettings = Object.assign({}, TV_DEFAULTS, JSON.parse(localStorage.getItem('tvSettings') || '{}'));
+        if (!tvSettings.cols) tvSettings.cols = Object.assign({}, TV_DEFAULTS.cols);
 
-  function renderTabletForDay() {
-    const viewStr = getViewDateStr();
-    const dayOrders = allOrders.filter(o => o.date === viewStr);
-    
-    // Sortieren für Tablet View
-    sortOrders(dayOrders);
+        window.toggleTVSettings = () => document.getElementById('tv-settings').classList.toggle('hidden');
+        window.applyTVSettings = function() {
+            tvSettings.sound = document.getElementById('tv-setting-sound').value;
+            tvSettings.fontsize = +document.getElementById('tv-setting-fontsize').value;
+            tvSettings.rowpad = +document.getElementById('tv-setting-rowpad').value;
+            tvSettings.headsize = +document.getElementById('tv-setting-headsize').value;
+            tvSettings.titlesize = +document.getElementById('tv-setting-titlesize').value;
+            document.getElementById('tv-val-fontsize').textContent = tvSettings.fontsize + 'px';
+            document.getElementById('tv-val-rowpad').textContent = tvSettings.rowpad + 'px';
+            document.getElementById('tv-val-headsize').textContent = tvSettings.headsize + 'px';
+            document.getElementById('tv-val-titlesize').textContent = tvSettings.titlesize + 'px';
+            localStorage.setItem('tvSettings', JSON.stringify(tvSettings));
+            renderAll();
+        };
+        window.toggleTVCol = function(el) {
+            tvSettings.cols[el.dataset.col] = !tvSettings.cols[el.dataset.col];
+            el.classList.toggle('on', tvSettings.cols[el.dataset.col]);
+            localStorage.setItem('tvSettings', JSON.stringify(tvSettings));
+            renderAll();
+        };
 
-    const amOrders = dayOrders.filter(o => getShift(o.time, o.shift) === 'am');
-    const pmOrders = dayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
-    renderTablet(amOrders, pmOrders);
-  }
-
-  // ZENTRALE SORTIERFUNKTION
-  function sortOrders(list) {
-      list.sort((a,b) => {
-          // 1. Erledigte nach ganz unten
-          const aDone = a.status === 'done';
-          const bDone = b.status === 'done';
-          if (aDone && !bDone) return 1;
-          if (!aDone && bDone) return -1;
-          
-          // 2. Wenn beide NICHT erledigt sind: Dringende nach oben
-          if (!aDone && !bDone) {
-              const aUrg = a.isUrgent || false;
-              const bUrg = b.isUrgent || false;
-              if (aUrg && !bUrg) return -1;
-              if (!aUrg && bUrg) return 1;
-          }
-          
-          // 3. Sonst nach Uhrzeit
-          return a.time.localeCompare(b.time);
-      });
-  }
-
-  function renderAll() {
-    const todayOrders = allOrders.filter(o => o.date === todayStr);
-    
-    // HIER SORTIEREN VOR DEM RENDERN
-    sortOrders(todayOrders);
-
-    const amOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'am');
-    const pmOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
-    
-    checkOverdueGong(todayOrders);
-
-    renderTV(amOrders, pmOrders);
-    renderTabletForDay();
-    checkShellyTrigger(todayOrders);
-    updateEarlyWarning();
-    if (document.getElementById('history-modal').classList.contains('open')) renderHistory();
-  }
-
-  function checkOverdueGong(orders) {
-    const nowTime = getNowTime();
-    const hasOverdue = orders.some(o => (o.status || 'open') === 'open' && o.time <= nowTime);
-
-    if (hasOverdue) {
-        if (!gongInterval) {
-            window.playDigitalGong();
-            gongInterval = setInterval(() => window.playDigitalGong(), 10000);
+        function loadTVSettingsUI() {
+            document.getElementById('tv-setting-sound').value = tvSettings.sound || 'gong';
+            document.getElementById('tv-setting-fontsize').value = tvSettings.fontsize;
+            document.getElementById('tv-setting-rowpad').value = tvSettings.rowpad;
+            document.getElementById('tv-setting-headsize').value = tvSettings.headsize;
+            document.getElementById('tv-setting-titlesize').value = tvSettings.titlesize;
+            ['tv-val-fontsize', 'tv-val-rowpad', 'tv-val-headsize', 'tv-val-titlesize'].forEach((id, i) => {
+                document.getElementById(id).textContent = [tvSettings.fontsize, tvSettings.rowpad, tvSettings.headsize, tvSettings.titlesize][i] + 'px';
+            });
+            document.querySelectorAll('#tv-settings .col-toggle').forEach(el => {
+                el.classList.toggle('on', tvSettings.cols[el.dataset.col] !== false);
+            });
         }
-    } else {
-        if (gongInterval) {
-            clearInterval(gongInterval);
-            gongInterval = null;
+        loadTVSettingsUI();
+
+        let tabletSettings = JSON.parse(localStorage.getItem('tabletSettings') || '{"fontsize":15,"rowpad":10,"cols":{"artikel":true,"lager":true,"ziel":true,"time":true,"status":true}}');
+        if (!tabletSettings.cols) tabletSettings.cols = {};
+        if (tabletSettings.cols.status === undefined) tabletSettings.cols.status = true;
+
+        window.toggleTabletSettings = () => document.getElementById('tablet-settings').classList.toggle('hidden');
+        window.applyTabletSettings = function() {
+            tabletSettings.fontsize = +document.getElementById('setting-fontsize').value;
+            tabletSettings.rowpad = +document.getElementById('setting-rowpad').value;
+            document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
+            document.getElementById('val-rowpad').textContent = tabletSettings.rowpad + 'px';
+            localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
+            renderAll();
+        };
+        window.toggleTabCol = function(el) {
+            tabletSettings.cols[el.dataset.col] = !tabletSettings.cols[el.dataset.col];
+            el.classList.toggle('on', tabletSettings.cols[el.dataset.col]);
+            localStorage.setItem('tabletSettings', JSON.stringify(tabletSettings));
+            renderAll();
+        };
+
+        function loadTabletSettingsUI() {
+            document.getElementById('setting-fontsize').value = tabletSettings.fontsize;
+            document.getElementById('setting-rowpad').value = tabletSettings.rowpad;
+            document.getElementById('val-fontsize').textContent = tabletSettings.fontsize + 'px';
+            document.getElementById('val-rowpad').textContent = tabletSettings.rowpad + 'px';
+            document.querySelectorAll('#tablet-settings .col-toggle').forEach(el => {
+                el.classList.toggle('on', tabletSettings.cols[el.dataset.col] !== false);
+            });
         }
-    }
-  }
+        loadTabletSettingsUI();
 
-  let wasOverdue = false;
-  function checkShellyTrigger(orders) {
-    if (!shellyConfig.ip || shellyConfig.trigger !== 'overdue') return;
-    const nowTime = getNowTime();
-    const hasOverdue = orders.some(o => (o.status||'open')==='open' && o.time <= nowTime);
-    if (hasOverdue && !wasOverdue) {
-      wasOverdue = true; shellyCommand(255,0,0,100,true); setShellyStatus('blink','⚠️ Überschritten – Lampe blinkt');
-    } else if (!hasOverdue && wasOverdue) {
-      wasOverdue = false; shellyOff(); setShellyStatus('active','Alle erledigt – Lampe aus');
-    }
-  }
+        const STATUS_CYCLE = ['open', 'done', 'problem'];
+        const STATUS_LABELS = {
+            open: '⬜ Offen',
+            done: '✅ Erledigt',
+            problem: '🔴 Störung'
+        };
+        const STATUS_CLASSES = {
+            open: 'open',
+            done: 'done',
+            problem: 'problem'
+        };
 
-  // LOGIK FÜR NEUE AUFTRAGS-ERKENNUNG
-  let knownKeys = new Set();
-  let firstLoad = true;
+        window.cycleStatus = function(key, cur) {
+            const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur || 'open') + 1) % STATUS_CYCLE.length];
+            update(ref(db, 'auslagerung/orders/' + key), {
+                status: next
+            });
+        };
 
-  onValue(ordersRef, (snapshot) => {
-    const data = snapshot.val();
-    const newOrders = data ? Object.entries(data).map(([key,val]) => ({...val, key})) : [];
-    
-    if (!firstLoad) {
-        const currentKeys = new Set(newOrders.map(o => o.key));
-        let hasNew = false;
-        let hasNewUrgent = false;
+        window.toggleFullscreen = () => {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        };
 
-        for (let key of currentKeys) {
-            if (!knownKeys.has(key)) {
-                hasNew = true;
-                // Prüfen ob der neue Auftrag dringend ist
-                const newItem = newOrders.find(o => o.key === key);
-                if(newItem && newItem.isUrgent) {
-                    hasNewUrgent = true;
+        window.openShellyModal = () => document.getElementById('shelly-modal').classList.add('open');
+        window.closeShellyModal = () => document.getElementById('shelly-modal').classList.remove('open');
+        window.closeShellyOnBackdrop = (e) => {
+            if (e.target.id === 'shelly-modal') closeShellyModal();
+        };
+
+        let shellyConfig = JSON.parse(localStorage.getItem('shellyConfig') || '{}');
+        if (shellyConfig.ip) {
+            document.getElementById('shelly-ip').value = shellyConfig.ip;
+            document.getElementById('shelly-model').value = shellyConfig.model || 'rgbw2';
+            document.getElementById('shelly-trigger').value = shellyConfig.trigger || 'overdue';
+            setShellyStatus('saved', 'Gespeichert: ' + shellyConfig.ip);
+        }
+        window.saveShelly = () => {
+            const ip = document.getElementById('shelly-ip').value.trim();
+            if (!ip) {
+                alert('Bitte IP-Adresse eingeben.');
+                return;
+            }
+            shellyConfig = {
+                ip,
+                model: document.getElementById('shelly-model').value,
+                trigger: document.getElementById('shelly-trigger').value
+            };
+            localStorage.setItem('shellyConfig', JSON.stringify(shellyConfig));
+            setShellyStatus('saved', 'Gespeichert: ' + ip);
+            closeShellyModal();
+        };
+        async function shellyCommand(r, g, b, brightness, blink) {
+            if (!shellyConfig.ip) return;
+            const {
+                ip,
+                model
+            } = shellyConfig;
+            const url = model === 'rgbw2' ? 'http://' + ip + '/color/0?turn=on&red=' + r + '&green=' + g + '&blue=' + b + '&gain=' + brightness + '&effect=' + (blink ? 3 : 0) :
+                model === 'bulb' ? 'http://' + ip + '/light/0?turn=on&red=' + r + '&green=' + g + '&blue=' + b + '&brightness=' + brightness + '&effect=' + (blink ? 3 : 0) :
+                'http://' + ip + '/relay/0?turn=on';
+            try {
+                await fetch(url, {
+                    mode: 'no-cors'
+                });
+                setShellyStatus('active', 'Signal an ' + ip);
+            } catch (e) {
+                setShellyStatus('error', 'Fehler: ' + ip + ' nicht erreichbar');
+            }
+        }
+        async function shellyOff() {
+            if (!shellyConfig.ip) return;
+            const {
+                ip,
+                model
+            } = shellyConfig;
+            const url = model === 'plug' ? 'http://' + ip + '/relay/0?turn=off' : model === 'rgbw2' ? 'http://' + ip + '/color/0?turn=off' : 'http://' + ip + '/light/0?turn=off';
+            try {
+                await fetch(url, {
+                    mode: 'no-cors'
+                });
+            } catch (e) {}
+        }
+        window.testShelly = async () => {
+            const ip = document.getElementById('shelly-ip').value.trim();
+            if (!ip) {
+                alert('Bitte IP eingeben.');
+                return;
+            }
+            shellyConfig.ip = ip;
+            shellyConfig.model = document.getElementById('shelly-model').value;
+            setShellyStatus('blink', 'Teste ' + ip + '...');
+            await shellyCommand(255, 0, 0, 100, true);
+            setTimeout(() => shellyOff(), 5000);
+        };
+
+        function setShellyStatus(state, text) {
+            const dot = document.getElementById('shelly-dot');
+            dot.className = 'shelly-dot';
+            if (state === 'active' || state === 'saved') dot.classList.add('active');
+            else if (state === 'error') dot.classList.add('error');
+            else if (state === 'blink') dot.classList.add('blink');
+            document.getElementById('shelly-status-text').textContent = text;
+        }
+
+        window.addOrder = () => {
+            const artikel = document.getElementById('inp-artikel').value.trim();
+            const lager = document.getElementById('inp-lager').value.trim();
+            const ziel = document.getElementById('inp-ziel').value.trim();
+            const time = document.getElementById('inp-time').value;
+            const shift = document.getElementById('inp-shift').value;
+            // Neue Checkbox auslesen
+            const isUrgent = document.getElementById('inp-urgent').checked;
+
+            if (!artikel || !lager || !ziel || !time) {
+                alert('Bitte alle Felder ausfüllen.');
+                return;
+            }
+            const targetDate = getViewDateStr();
+
+            push(ordersRef, {
+                artikel,
+                lager,
+                ziel,
+                time,
+                shift,
+                status: 'open',
+                isUrgent: isUrgent, // Speichern
+                date: targetDate,
+                createdAt: Date.now()
+            });
+
+            ['inp-artikel', 'inp-lager', 'inp-ziel', 'inp-time'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('inp-shift').value = 'auto';
+            document.getElementById('inp-urgent').checked = false; // Reset Checkbox
+        };
+
+        let allOrders = [];
+
+        const TV_COLS_DEF = [{
+                key: 'tv-artikel',
+                label: 'Artikel',
+                field: 'artikel'
+            },
+            {
+                key: 'tv-lager',
+                label: 'Lagerort',
+                field: 'lager'
+            },
+            {
+                key: 'tv-ziel',
+                label: 'Zielort',
+                field: 'ziel'
+            },
+            {
+                key: 'tv-time',
+                label: 'Spätestens',
+                field: 'time'
+            },
+            {
+                key: 'tv-status',
+                label: 'Status',
+                field: 'status'
+            },
+        ];
+
+        function renderTV(amOrders, pmOrders) {
+            const {
+                fontsize,
+                rowpad,
+                headsize,
+                titlesize,
+                cols
+            } = tvSettings;
+            const nowTime = getNowTime();
+            const visCols = TV_COLS_DEF.filter(c => cols[c.key] !== false);
+
+            document.getElementById('tv-title-am').style.fontSize = titlesize + 'px';
+            document.getElementById('tv-title-pm').style.fontSize = titlesize + 'px';
+
+            function renderBody(orders, headId, tbodyId, countId) {
+                document.getElementById(countId).textContent = '(' + orders.length + ')';
+                const head = document.getElementById(headId);
+                head.innerHTML = '<th style="padding:' + rowpad * 0.7 + 'px 18px;font-size:' + headsize + 'px;">#</th>' +
+                    visCols.map(c => '<th style="padding:' + rowpad * 0.7 + 'px 18px;font-size:' + headsize + 'px;">' + c.label + '</th>').join('');
+                const tbody = document.getElementById(tbodyId);
+                if (!orders.length) {
+                    tbody.innerHTML = '<tr><td colspan="' + (visCols.length + 1) + '" class="no-orders" style="font-size:' + fontsize + 'px;">Keine Aufträge.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = orders.map((o, i) => {
+                    const st = o.status || 'open';
+                    const overdue = st === 'open' && o.time <= nowTime;
+                    const isUrgent = o.isUrgent && st !== 'done';
+
+                    // Klassen-Logik: Urgent > Overdue > Done > Problem
+                    let rowCls = '';
+                    if (st === 'done') rowCls = 'row-done';
+                    else if (isUrgent) rowCls = 'row-urgent';
+                    else if (overdue) rowCls = 'row-overdue';
+                    else if (st === 'problem') rowCls = 'row-problem';
+
+                    const cells = visCols.map(c => {
+                        const pad = 'padding:' + rowpad + 'px 18px;font-size:' + fontsize + 'px;';
+                        if (c.key === 'tv-artikel') {
+                            return '<td style="' + pad + '">' + renderBarcode(o.artikel) + '</td>';
+                        }
+                        if (c.key === 'tv-time') {
+                            let inner = '';
+                            if (st !== 'done') {
+                                if (isUrgent) inner = '<span class="td-urgent" style="font-size:' + fontsize + 'px;">🔥 ' + o.time + '</span>';
+                                else if (overdue) inner = '<span class="td-urgent" style="font-size:' + fontsize + 'px;">' + o.time + ' ⚠️</span>';
+                                else inner = '<span class="td-time" style="font-size:' + fontsize + 'px;">' + o.time + '</span>';
+                            } else {
+                                inner = o.time;
+                            }
+                            return '<td style="' + pad + '">' + inner + '</td>';
+                        }
+                        if (c.key === 'tv-status') {
+                            return '<td style="' + pad + '"><span class="tv-status-badge ' + st + '" style="font-size:' + (fontsize - 4) + 'px;">' + STATUS_LABELS[st] + '</span></td>';
+                        }
+                        return '<td style="' + pad + '">' + o[c.field] + '</td>';
+                    }).join('');
+                    return '<tr class="' + rowCls + '"><td style="padding:' + rowpad + 'px 18px;font-size:' + (fontsize - 4) + 'px;color:#a0aec0;">' + (i + 1) + '</td>' + cells + '</tr>';
+                }).join('');
+            }
+
+            renderBody(amOrders, 'tv-head-am', 'tv-tbody-am', 'tv-am-count');
+            renderBody(pmOrders, 'tv-head-pm', 'tv-tbody-pm', 'tv-pm-count');
+        }
+
+        const TAB_COLS_DEF = [{
+                key: 'artikel',
+                label: 'Artikelnummer',
+                field: 'artikel'
+            },
+            {
+                key: 'lager',
+                label: 'Lagerort',
+                field: 'lager'
+            },
+            {
+                key: 'ziel',
+                label: 'Zielort',
+                field: 'ziel'
+            },
+            {
+                key: 'time',
+                label: 'Uhrzeit',
+                field: 'time'
+            },
+            {
+                key: 'status',
+                label: 'Status',
+                field: 'status'
+            },
+        ];
+
+        function renderTablet(amOrders, pmOrders) {
+            const {
+                fontsize,
+                rowpad,
+                cols
+            } = tabletSettings;
+            const nowTime = getNowTime();
+            const visCols = TAB_COLS_DEF.filter(c => cols[c.key] !== false);
+
+            function body(orders, headId, tbodyId) {
+                document.getElementById(headId).innerHTML =
+                    '<th style="font-size:' + (fontsize - 3) + 'px;">#</th>' +
+                    visCols.map(c => '<th style="font-size:' + (fontsize - 3) + 'px;">' + c.label + '</th>').join('') +
+                    '<th></th>';
+                const tbody = document.getElementById(tbodyId);
+                if (!orders.length) {
+                    tbody.innerHTML = '<tr><td colspan="' + (visCols.length + 2) + '" class="no-orders" style="font-size:' + fontsize + 'px;">Keine Aufträge.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = orders.map((o, i) => {
+                    const st = o.status || 'open';
+                    const overdue = st === 'open' && o.time <= nowTime;
+                    const isUrgent = o.isUrgent && st !== 'done';
+
+                    let rowCls = '';
+                    if (st === 'done') rowCls = 'row-done';
+                    else if (isUrgent) rowCls = 'row-urgent';
+                    else if (overdue) rowCls = 'row-overdue';
+                    else if (st === 'problem') rowCls = 'row-problem';
+
+                    const cells = visCols.map(c => {
+                        const pad = 'padding:' + rowpad + 'px 12px;font-size:' + fontsize + 'px;';
+                        if (c.key === 'artikel') {
+                            return '<td style="' + pad + '">' + renderBarcode(o.artikel) + '</td>';
+                        }
+                        if (c.key === 'time') {
+                            let cls = 'tab-time';
+                            let txt = o.time;
+                            if (st !== 'done') {
+                                if (isUrgent) {
+                                    cls = 'tab-urgent';
+                                    txt = '🔥 ' + txt;
+                                } else if (overdue) {
+                                    cls = 'tab-urgent';
+                                    txt += ' ⚠️';
+                                }
+                            }
+                            return '<td style="' + pad + '" class="' + cls + '">' + txt + '</td>';
+                        }
+                        if (c.key === 'status') {
+                            return '<td style="' + pad + '"><button class="status-btn ' + STATUS_CLASSES[st] + '" onclick="cycleStatus(\'' + o.key + '\',\'' + st + '\')">' + STATUS_LABELS[st] + '</button></td>';
+                        }
+                        return '<td style="' + pad + '">' + o[c.field] + '</td>';
+                    }).join('');
+                    return '<tr class="' + rowCls + '">' +
+                        '<td style="padding:' + rowpad + 'px 12px;font-size:' + (fontsize - 2) + 'px;color:#a0aec0;">' + (i + 1) + '</td>' +
+                        cells +
+                        '<td style="padding:' + rowpad + 'px 8px;"><button class="btn-delete-tab" onclick="requestDelete(\'' + o.key + '\')">🗑</button></td>' +
+                        '</tr>';
+                }).join('');
+            }
+            body(amOrders, 'tab-head-am', 'tab-tbody-am');
+            body(pmOrders, 'tab-head-pm', 'tab-tbody-pm');
+        }
+
+        function renderTabletForDay() {
+            const viewStr = getViewDateStr();
+            const dayOrders = allOrders.filter(o => o.date === viewStr);
+            // Sortieren für Tablet View
+            sortOrders(dayOrders);
+
+            const amOrders = dayOrders.filter(o => getShift(o.time, o.shift) === 'am');
+            const pmOrders = dayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
+            renderTablet(amOrders, pmOrders);
+        }
+
+        // ZENTRALE SORTIERFUNKTION
+        function sortOrders(list) {
+            list.sort((a, b) => {
+                // 1. Erledigte nach ganz unten
+                const aDone = a.status === 'done';
+                const bDone = b.status === 'done';
+                if (aDone && !bDone) return 1;
+                if (!aDone && bDone) return -1;
+
+                // 2. Wenn beide NICHT erledigt sind: Dringende nach oben
+                if (!aDone && !bDone) {
+                    const aUrg = a.isUrgent || false;
+                    const bUrg = b.isUrgent || false;
+                    if (aUrg && !bUrg) return -1;
+                    if (!aUrg && bUrg) return 1;
+                }
+
+                // 3. Sonst nach Uhrzeit
+                return a.time.localeCompare(b.time);
+            });
+        }
+
+        // INTELLIGENTE VORSCHLÄGE (ANGEPASST: NUR ZIEL)
+        document.getElementById('inp-artikel').addEventListener('blur', function() {
+            const currentArt = this.value.trim();
+            if (!currentArt || allOrders.length === 0) return;
+
+            // Filtere alle Aufträge mit dieser Artikelnummer
+            const history = allOrders.filter(o => o.artikel === currentArt);
+            if (history.length === 0) return;
+
+            // Zähle Häufigkeit NUR für Ziel
+            const counts = {
+                ziel: {}
+            };
+            history.forEach(o => {
+                if (o.ziel) counts.ziel[o.ziel] = (counts.ziel[o.ziel] || 0) + 1;
+            });
+
+            // Finde den Gewinner
+            const getBest = (obj) => Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b, '');
+            const bestZiel = getBest(counts.ziel);
+
+            // Fülle NUR Ziel-Feld
+            const inpZiel = document.getElementById('inp-ziel');
+
+            if (bestZiel) {
+                // Prüfen ob das Ziel im Select existiert
+                const options = Array.from(inpZiel.options).map(opt => opt.value);
+                if (options.includes(bestZiel)) {
+                    inpZiel.value = bestZiel;
+                }
+            }
+        });
+
+        function renderAll() {
+            const todayOrders = allOrders.filter(o => o.date === todayStr);
+            // HIER SORTIEREN VOR DEM RENDERN
+            sortOrders(todayOrders);
+
+            const amOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'am');
+            const pmOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'pm');
+            checkOverdueGong(todayOrders);
+
+            // FORTSCHRITT BERECHNEN
+            const doneCount = todayOrders.filter(o => o.status === 'done').length;
+            const totalCount = todayOrders.length;
+            const pct = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
+            
+            // Balken updaten (alle Elemente mit dieser Klasse, also TV und Tablet)
+            document.querySelectorAll('.progress-fill').forEach(el => el.style.width = pct + '%');
+            document.querySelectorAll('.progress-stats').forEach(el => {
+                el.textContent = totalCount === 0 
+                    ? 'Warte auf Aufträge...' 
+                    : `${doneCount} von ${totalCount} erledigt (${pct}%)`;
+            });
+
+            renderTV(amOrders, pmOrders);
+            renderTabletForDay();
+            checkShellyTrigger(todayOrders);
+            updateEarlyWarning();
+            if (document.getElementById('history-modal').classList.contains('open')) renderHistory();
+        }
+
+        function checkOverdueGong(orders) {
+            const nowTime = getNowTime();
+            const hasOverdue = orders.some(o => (o.status || 'open') === 'open' && o.time <= nowTime);
+
+            if (hasOverdue) {
+                if (!gongInterval) {
+                    window.playDigitalGong();
+                    gongInterval = setInterval(() => window.playDigitalGong(), 10000);
+                }
+            } else {
+                if (gongInterval) {
+                    clearInterval(gongInterval);
+                    gongInterval = null;
                 }
             }
         }
-        
-        // Ton abspielen
-        if (hasNewUrgent) {
-            playUrgentSound();
-        } else if (hasNew) {
-            playNewOrderSound();
+
+        let wasOverdue = false;
+
+        function checkShellyTrigger(orders) {
+            if (!shellyConfig.ip || shellyConfig.trigger !== 'overdue') return;
+            const nowTime = getNowTime();
+            const hasOverdue = orders.some(o => (o.status || 'open') === 'open' && o.time <= nowTime);
+            if (hasOverdue && !wasOverdue) {
+                wasOverdue = true;
+                shellyCommand(255, 0, 0, 100, true);
+                setShellyStatus('blink', '⚠️ Überschritten – Lampe blinkt');
+            } else if (!hasOverdue && wasOverdue) {
+                wasOverdue = false;
+                shellyOff();
+                setShellyStatus('active', 'Alle erledigt – Lampe aus');
+            }
         }
-    }
 
-    allOrders = newOrders;
-    knownKeys = new Set(newOrders.map(o => o.key));
-    firstLoad = false;
+        // LOGIK FÜR NEUE AUFTRAGS-ERKENNUNG
+        let knownKeys = new Set();
+        let firstLoad = true;
 
-    renderAll();
-    updateDayNav();
-  });
+        onValue(ordersRef, (snapshot) => {
+            const data = snapshot.val();
+            const newOrders = data ? Object.entries(data).map(([key, val]) => ({...val,
+                key
+            })) : [];
 
-  updateDayNav();
-  setInterval(() => {
-    const now = new Date();
-    const nowStr = toDateStr(now);
-    if (nowStr !== todayStr) {
-        today = now; todayStr = nowStr; dayOffset = 0;
-        updateDateDisplay(); updateDayNav();
-    }
-    renderAll();
-  }, 60000);
-  
-  // Touch Event Wischfunktion wurde entfernt.
-</script>
+            if (!firstLoad) {
+                const currentKeys = new Set(newOrders.map(o => o.key));
+                let hasNew = false;
+                let hasNewUrgent = false;
+
+                for (let key of currentKeys) {
+                    if (!knownKeys.has(key)) {
+                        hasNew = true;
+                        // Prüfen ob der neue Auftrag dringend ist
+                        const newItem = newOrders.find(o => o.key === key);
+                        if (newItem && newItem.isUrgent) {
+                            hasNewUrgent = true;
+                        }
+                    }
+                }
+
+                // Ton abspielen
+                if (hasNewUrgent) {
+                    playUrgentSound();
+                } else if (hasNew) {
+                    playNewOrderSound();
+                }
+            }
+
+            allOrders = newOrders;
+            knownKeys = new Set(newOrders.map(o => o.key));
+            firstLoad = false;
+
+            renderAll();
+            updateDayNav();
+        });
+
+        updateDayNav();
+        setInterval(() => {
+            const now = new Date();
+            const nowStr = toDateStr(now);
+            if (nowStr !== todayStr) {
+                today = now;
+                todayStr = nowStr;
+                dayOffset = 0;
+                updateDateDisplay();
+                updateDayNav();
+            }
+            renderAll();
+        }, 60000);
+    </script>
 </body>
+
 </html>
