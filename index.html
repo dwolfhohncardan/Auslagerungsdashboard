@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -44,6 +43,8 @@
         .col-toggle-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
         .col-toggle { padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; background: #f7fafc; color: #718096; transition: all 0.2s; }
         .col-toggle.on { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
+        .admin-btn { margin-top: 16px; background: #2d3748; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .admin-btn:hover { background: #1a202c; }
 
         /* TV LAYOUT & HEADER */
         #view-tv { padding: 20px 40px 30px; }
@@ -70,8 +71,8 @@
         
         /* ZEILEN STYLES (Status) */
         .tv-table tbody tr.row-overdue { background: #fff5f5 !important; box-shadow: inset 8px 0 0 0 #e53e3e; }
-        .tv-table tbody tr.row-urgent  { background: #fff0f0 !important; border-left: 4px solid #c53030; } /* Neuer Style für Dringend */
-        .tv-table tbody tr.row-done    { background: #f0f4f8 !important; color: #a0aec0; opacity: 0.8; } /* Erledigt ausgegraut */
+        .tv-table tbody tr.row-urgent  { background: #fff0f0 !important; border-left: 4px solid #c53030; } 
+        .tv-table tbody tr.row-done    { background: #f0f4f8 !important; color: #a0aec0; opacity: 0.8; } 
         .tv-table tbody tr.row-problem { background: #fff5f5 !important; animation: row-blink 1.2s infinite alternate; }
         .tv-table tbody tr:nth-child(even) { background: #f7fafc; }
         
@@ -92,6 +93,10 @@
         .tablet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .tablet-header h2 { font-size: 22px; color: #2b6cb0; font-weight: 800; }
         .tablet-subtitle { font-size: 13px; color: #a0aec0; margin-top: 2px; }
+        .user-status { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #4a5568; font-weight: 600; }
+        .user-role-badge { background: #ebf8ff; color: #2b6cb0; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-logout { background: #edf2f7; color: #4a5568; border: 1px solid #cbd5e0; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .btn-logout:hover { background: #e2e8f0; }
         .tablet-form { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: background 0.3s; }
         .tablet-form-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2b6cb0; margin-bottom: 12px; }
         .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
@@ -119,8 +124,13 @@
         .tab-table tbody td { padding: 10px 12px; color: #2d3748; }
         .tab-urgent { color: #c53030; font-weight: 700; }
         .tab-time   { color: #2b6cb0; font-weight: 600; }
-        .btn-delete-tab { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 5px; padding: 3px 9px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        
+        .btn-actions-wrapper { display: flex; gap: 6px; align-items: center; }
+        .btn-info-tab { background: transparent; border: 1px solid #cbd5e0; color: #4299e1; border-radius: 5px; padding: 3px 7px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .btn-info-tab:hover { background: #ebf8ff; border-color: #4299e1; }
+        .btn-delete-tab { background: transparent; border: 1px solid #e2e8f0; color: #a0aec0; border-radius: 5px; padding: 3px 7px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
         .btn-delete-tab:hover { border-color: #fc8181; color: #c53030; }
+        
         .status-btn { border: none; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; user-select: none; }
         .status-btn.open    { background: #edf2f7; color: #718096; }
         .status-btn.done    { background: #e2e8f0; color: #a0aec0; }
@@ -169,28 +179,50 @@
         .h-badge.problem { background: #fed7d7; color: #c53030; }
         .history-empty { text-align: center; color: #a0aec0; padding: 30px; font-size: 15px; }
         
-        /* SUCHFELD IM RÜCKBLICK */
         .search-input { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; background: #f7fafc; color: #1a202c; outline: none; }
         .search-input:focus { border-color: #2b6cb0; background: #fff; }
 
-        /* MODALS */
-        .pw-overlay, .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
+        /* MODALS & AUTH */
+        .pw-overlay, .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .pw-overlay.open, .modal-overlay.open { display: flex; }
         .pw-box, .modal { background: #fff; border-radius: 16px; padding: 28px; width: 320px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); position: relative; transition: background 0.3s; }
         .modal { max-width: 580px; width: 90%; }
         .modal h3 { color: #744210; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+        .modal.auth-modal h3 { color: #2b6cb0; font-size: 18px; text-transform: none; text-align: center; margin-bottom: 20px; }
         .pw-box h3 { font-size: 16px; color: #2d3748; margin-bottom: 8px; text-align: center; }
         .pw-box p { font-size: 13px; color: #718096; margin-bottom: 18px; text-align: center; }
+        
+        .modal-input { width: 100%; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; font-size: 14px; outline: none; margin-bottom: 12px; background: #f7fafc; }
+        .modal-input:focus { border-color: #4299e1; background: #fff; }
+        
         .pw-box input { width: 100%; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; font-size: 15px; outline: none; margin-bottom: 12px; text-align: center; letter-spacing: 2px; }
         .pw-box input:focus { border-color: #4299e1; }
-        .pw-error { color: #c53030; font-size: 13px; margin-bottom: 8px; min-height: 18px; text-align: center; }
+        
+        .error-text { color: #c53030; font-size: 13px; margin-bottom: 12px; min-height: 18px; text-align: center; }
+        
         .pw-btns { display: flex; gap: 10px; }
         .pw-btn-cancel { flex: 1; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px; font-size: 14px; cursor: pointer; }
         .pw-btn-ok { flex: 1; background: #c53030; color: #fff; border: none; border-radius: 8px; padding: 9px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-primary { width: 100%; background: #2b6cb0; color: #fff; border: none; border-radius: 8px; padding: 10px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-primary:hover { background: #2c5282; }
+        
         .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 20px; color: #a0aec0; cursor: pointer; }
         .info-box { background: #fffbeb; border: 1px solid #f6e05e; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #744210; margin-bottom: 14px; line-height: 1.6; }
         .btn-save { background: #d69e2e; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-test { background: transparent; color: #d69e2e; border: 2px solid #d69e2e; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-action-small { background: transparent; border: 1px solid #cbd5e0; color: #4a5568; border-radius: 5px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
+        .btn-action-small:hover { background: #edf2f7; }
+        .btn-action-small.del { color: #c53030; border-color: #fc8181; }
+        .btn-action-small.del:hover { background: #fff5f5; }
+        
+        .stay-logged-in { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4a5568; margin-bottom: 16px; justify-content: center; cursor: pointer; }
+        
+        /* ORDER INFO MODAL */
+        .order-detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #edf2f7; font-size: 14px; }
+        .order-detail-row:last-child { border-bottom: none; }
+        .order-detail-label { color: #718096; font-weight: 600; }
+        .order-detail-value { color: #2d3748; font-weight: 700; text-align: right; }
+        
         .shelly-status { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #718096; }
         .shelly-dot { width: 8px; height: 8px; border-radius: 50%; background: #a0aec0; }
         .shelly-dot.active { background: #48bb78; box-shadow: 0 0 6px #48bb78; }
@@ -222,7 +254,6 @@
 
         body.dark-mode .tv-table tbody tr { border-bottom-color: #4a5568; }
         body.dark-mode .tv-table tbody tr:nth-child(even) { background: #283141; }
-        
         body.dark-mode .tv-table tbody tr.row-urgent { background: #5a1a1a !important; border-left-color: #fc8181; }
         body.dark-mode .tv-table tbody tr.row-done   { background: #2d3748 !important; color: #718096; }
 
@@ -235,6 +266,7 @@
 
         body.dark-mode .form-group input, 
         body.dark-mode .form-group select,
+        body.dark-mode .modal-input,
         body.dark-mode .search-input { background: #4a5568; color: #fff; border-color: #718096; }
         body.dark-mode .form-group label { color: #a0aec0; }
         
@@ -244,9 +276,14 @@
         
         body.dark-mode .tab-table tbody tr.row-urgent { background: #5a1a1a !important; box-shadow: inset 4px 0 0 0 #fc8181; }
         body.dark-mode .tab-table tbody tr.row-done   { background: #2d3748 !important; color: #718096; }
-        
         body.dark-mode .tab-table tbody td { color: #e2e8f0; }
         body.dark-mode .tab-time { color: #63b3ed; }
+        
+        body.dark-mode .btn-info-tab { color: #63b3ed; border-color: #4a5568; }
+        body.dark-mode .btn-info-tab:hover { background: #2c5282; border-color: #63b3ed; }
+        body.dark-mode .btn-delete-tab { border-color: #4a5568; }
+        body.dark-mode .btn-logout { background: #4a5568; color: #e2e8f0; border-color: #718096; }
+        
         body.dark-mode .status-btn.open { background: #4a5568; color: #cbd5e0; }
         body.dark-mode .status-btn.done { background: #2f855a; color: #fff; }
         body.dark-mode .status-btn.problem { background: #9b2c2c; color: #fff; }
@@ -264,6 +301,8 @@
 
         body.dark-mode .pw-box h3, body.dark-mode .modal h3 { color: #e2e8f0; }
         body.dark-mode .pw-btn-cancel { background: #4a5568; border-color: #718096; color: #e2e8f0; }
+        body.dark-mode .order-detail-row { border-bottom-color: #4a5568; }
+        body.dark-mode .order-detail-value { color: #e2e8f0; }
         
         body.dark-mode .early-warning { background: linear-gradient(135deg, #744210, #975a16); border-color: #d69e2e; }
         body.dark-mode .early-warning-text { color: #fefcbf; }
@@ -277,11 +316,85 @@
         <h3>🔒 Löschen bestätigen</h3>
         <p>Bitte Passwort eingeben, um den Auftrag zu löschen.</p>
         <input type="password" id="pw-input" placeholder="Passwort" onkeydown="if(event.key==='Enter')pwConfirm()">
-        <div class="pw-error" id="pw-error"></div>
+        <div class="error-text" id="pw-error"></div>
         <div class="pw-btns">
             <button class="pw-btn-cancel" onclick="pwCancel()">Abbrechen</button>
             <button class="pw-btn-ok" onclick="pwConfirm()">Löschen</button>
         </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="login-modal">
+    <div class="modal auth-modal" style="width: 320px;">
+        <button class="modal-close" onclick="closeLoginAndGoToTV()">✕</button>
+        <h3>👋 Mitarbeiter Login</h3>
+        <input type="text" id="login-user" class="modal-input" placeholder="Benutzername" onkeydown="if(event.key==='Enter')performLogin()">
+        <input type="password" id="login-pwd" class="modal-input" placeholder="Passwort" onkeydown="if(event.key==='Enter')performLogin()">
+        
+        <label class="stay-logged-in">
+            <input type="checkbox" id="login-stay" checked> Angemeldet bleiben
+        </label>
+        
+        <div class="error-text" id="login-error"></div>
+        <button class="btn-primary" onclick="performLogin()">Anmelden</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="admin-login-modal">
+    <div class="modal auth-modal" style="width: 320px;">
+        <button class="modal-close" onclick="closeAdminModals()">✕</button>
+        <h3>🛡️ Admin-Bereich</h3>
+        <input type="text" id="admin-user" class="modal-input" placeholder="Admin Benutzername">
+        <input type="password" id="admin-pwd" class="modal-input" placeholder="Admin Passwort" onkeydown="if(event.key==='Enter')verifyAdmin()">
+        <div class="error-text" id="admin-error"></div>
+        <button class="btn-primary" onclick="verifyAdmin()">Entsperren</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="admin-dashboard-modal">
+    <div class="modal" style="width: 700px; max-width: 95%;">
+        <button class="modal-close" onclick="closeAdminModals()">✕</button>
+        <h3 style="color: #2b6cb0; font-size: 18px; margin-bottom: 20px;">👥 Benutzerverwaltung & Berechtigungen</h3>
+        
+        <div class="settings-panel" style="background: #f7fafc; margin-bottom: 20px;">
+            <div class="tablet-form-title">+ Neuen Mitarbeiter anlegen</div>
+            <div class="form-row">
+                <div class="form-group"><input type="text" id="new-user-name" placeholder="Benutzername"></div>
+                <div class="form-group"><input type="password" id="new-user-pwd" placeholder="Passwort"></div>
+                <div class="form-group">
+                    <select id="new-user-role">
+                        <option value="abarbeiter">Abarbeiter (Nur Bearbeiten)</option>
+                        <option value="disponent">Disponent (Anlegen & Bearbeiten)</option>
+                        <option value="schichtleiter">Schichtleiter (Vollzugriff)</option>
+                    </select>
+                </div>
+                <button class="btn-add" onclick="createUser()">Anlegen</button>
+            </div>
+            <div class="error-text" id="create-user-error" style="margin: 5px 0 0 0; text-align: left; min-height: 0;"></div>
+        </div>
+
+        <div class="tablet-table-title" style="color: #2b6cb0;">Registrierte Mitarbeiter</div>
+        <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <table class="tab-table" style="margin:0;">
+                <thead style="background: #edf2f7; position: sticky; top: 0; z-index: 10;">
+                    <tr>
+                        <th style="padding: 10px 12px;">Name</th>
+                        <th style="padding: 10px 12px;">Rolle</th>
+                        <th style="padding: 10px 12px; text-align: right;">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-user-list">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="order-info-modal" onclick="closeInfoOnBackdrop(event)">
+    <div class="modal" style="max-width: 400px;">
+        <button class="modal-close" onclick="closeOrderInfo()">✕</button>
+        <h3>ℹ️ Auftrags-Details</h3>
+        <div id="order-info-content"></div>
     </div>
 </div>
 
@@ -358,6 +471,7 @@
                 <span class="col-toggle on" data-col="tv-status"  onclick="toggleTVCol(this)">Status</span>
             </div>
         </div>
+        <button class="admin-btn" onclick="openAdminLogin()">👥 Benutzerverwaltung (Admin)</button>
     </div>
 
     <div class="tv-columns">
@@ -391,6 +505,11 @@
             <h2>📦 Auslagerungsaufträge</h2>
             <div class="tablet-subtitle" id="tablet-date"></div>
         </div>
+        <div class="user-status hidden" id="tablet-user-status">
+            👤 <span id="display-username"></span>
+            <span id="display-role" class="user-role-badge"></span>
+            <button class="btn-logout" onclick="performLogout()">Logout</button>
+        </div>
         <div class="menu-wrapper">
             <button class="menu-btn" onclick="toggleMenu('tablet-menu-dd', event)">☰ Menü</button>
             <div id="tablet-menu-dd" class="menu-dropdown">
@@ -403,7 +522,7 @@
     </div>
 
     <div class="settings-panel tablet-settings-panel hidden" id="tablet-settings">
-        <div class="settings-panel-title">⚙️ Tablet-Darstellungs-Einstellungen</div>
+        <div class="settings-panel-title">⚙️ Tablet-Einstellungen</div>
         <div class="settings-grid">
             <div class="setting-item">
                 <label>Schriftgröße</label>
@@ -426,6 +545,7 @@
                 <span class="col-toggle on" data-col="status"  onclick="toggleTabCol(this)">Status</span>
             </div>
         </div>
+        <button class="admin-btn" onclick="openAdminLogin()">👥 Benutzerverwaltung (Admin)</button>
     </div>
 
     <div class="day-nav" id="day-nav">
@@ -435,7 +555,7 @@
     </div>
     <div id="early-warning-box"></div>
 
-    <div class="tablet-form">
+    <div class="tablet-form" id="create-order-form">
         <div class="tablet-form-title">+ Neuer Auslagerungsauftrag</div>
         <div class="form-row">
             <div class="form-group"><label>Artikelnummer</label><input id="inp-artikel" type="text" placeholder="z.B. ART-00123"></div>
@@ -500,7 +620,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, onValue, push, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB-BLAy2LEMup5DKSrlddb7waR2UXko8JA",
@@ -515,9 +635,269 @@
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
   const ordersRef = ref(db, 'auslagerung/orders');
+  const usersRef = ref(db, 'auslagerung/users');
 
   const DELETE_PASSWORD = 'Gelenkwelle';
   const DAYS_DE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+
+  // ========= AUTH & SECURITY =========
+  
+  let currentUser = localStorage.getItem('loggedUser') || sessionStorage.getItem('loggedUser') || null;
+  let currentUserRole = localStorage.getItem('loggedRole') || sessionStorage.getItem('loggedRole') || 'abarbeiter';
+  let allUsersList = [];
+
+  const ROLE_NAMES = {
+      'abarbeiter': 'Abarbeiter',
+      'disponent': 'Disponent',
+      'schichtleiter': 'Schichtleiter'
+  };
+
+  async function hashPassword(password) {
+      const msgBuffer = new TextEncoder().encode(password);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function applyRolePermissions() {
+      const form = document.getElementById('create-order-form');
+      const canCreate = (currentUserRole === 'disponent' || currentUserRole === 'schichtleiter');
+      
+      if (form) {
+          form.style.display = canCreate ? 'block' : 'none';
+      }
+      // Lösch-Buttons werden direkt in der renderTablet-Funktion ausgeblendet
+  }
+
+  function checkLoginState() {
+      const isTablet = localStorage.getItem('dashMode') === 'tablet';
+      if (isTablet) {
+          if (!currentUser) {
+              document.getElementById('login-modal').classList.add('open');
+              document.getElementById('tablet-user-status').classList.add('hidden');
+          } else {
+              document.getElementById('login-modal').classList.remove('open');
+              document.getElementById('tablet-user-status').classList.remove('hidden');
+              document.getElementById('display-username').textContent = currentUser;
+              document.getElementById('display-role').textContent = ROLE_NAMES[currentUserRole] || 'Abarbeiter';
+              applyRolePermissions();
+              renderTabletForDay(); // Re-render um Lösch-Buttons zu aktualisieren
+          }
+      } else {
+          document.getElementById('login-modal').classList.remove('open');
+      }
+  }
+
+  window.closeLoginAndGoToTV = function() {
+      document.getElementById('login-modal').classList.remove('open');
+      setMode('tv');
+  };
+
+  window.performLogin = async function() {
+      const user = document.getElementById('login-user').value.trim();
+      const pwd  = document.getElementById('login-pwd').value;
+      const stay = document.getElementById('login-stay').checked;
+      const err  = document.getElementById('login-error');
+      
+      if (!user || !pwd) { err.textContent = 'Bitte Benutzername und Passwort eingeben.'; return; }
+      
+      const hashedPwd = await hashPassword(pwd);
+      
+      get(usersRef).then((snapshot) => {
+          const users = snapshot.val() || {};
+          let valid = false;
+          let foundRole = 'abarbeiter';
+          
+          for (let key in users) {
+              if (users[key].username === user && users[key].passwordHash === hashedPwd) {
+                  valid = true; 
+                  foundRole = users[key].role || 'abarbeiter';
+                  break;
+              }
+          }
+          
+          if (valid) {
+              currentUser = user;
+              currentUserRole = foundRole;
+              if (stay) {
+                  localStorage.setItem('loggedUser', user);
+                  localStorage.setItem('loggedRole', foundRole);
+                  sessionStorage.removeItem('loggedUser');
+                  sessionStorage.removeItem('loggedRole');
+              } else {
+                  sessionStorage.setItem('loggedUser', user);
+                  sessionStorage.setItem('loggedRole', foundRole);
+                  localStorage.removeItem('loggedUser');
+                  localStorage.removeItem('loggedRole');
+              }
+              err.textContent = '';
+              document.getElementById('login-user').value = '';
+              document.getElementById('login-pwd').value = '';
+              checkLoginState();
+          } else {
+              err.textContent = '❌ Falscher Benutzername oder Passwort.';
+          }
+      }).catch(e => {
+          err.textContent = 'Fehler bei der Anmeldung: ' + e.message;
+      });
+  };
+
+  window.performLogout = function() {
+      currentUser = null;
+      currentUserRole = 'abarbeiter';
+      localStorage.removeItem('loggedUser');
+      localStorage.removeItem('loggedRole');
+      sessionStorage.removeItem('loggedUser');
+      sessionStorage.removeItem('loggedRole');
+      checkLoginState();
+  };
+
+  // ================= ADMIN BEREICH =================
+  window.openAdminLogin = () => {
+      document.getElementById('admin-error').textContent = '';
+      document.getElementById('admin-pwd').value = '';
+      document.getElementById('admin-login-modal').classList.add('open');
+  };
+
+  window.verifyAdmin = () => {
+      const user = document.getElementById('admin-user').value.trim();
+      const pwd = document.getElementById('admin-pwd').value;
+      if (user === 'Admin' && pwd === '1234') {
+          document.getElementById('admin-login-modal').classList.remove('open');
+          document.getElementById('admin-dashboard-modal').classList.add('open');
+          document.getElementById('admin-pwd').value = '';
+          loadAdminUserList(); // Nutzerliste laden
+      } else {
+          document.getElementById('admin-error').textContent = '❌ Zugriff verweigert.';
+      }
+  };
+
+  window.closeAdminModals = () => {
+      document.getElementById('admin-login-modal').classList.remove('open');
+      document.getElementById('admin-dashboard-modal').classList.remove('open');
+  };
+
+  function loadAdminUserList() {
+      onValue(usersRef, (snapshot) => {
+          const data = snapshot.val() || {};
+          allUsersList = Object.entries(data).map(([key, val]) => ({ ...val, key }));
+          renderAdminUserList();
+      });
+  }
+
+  function renderAdminUserList() {
+      const tbody = document.getElementById('admin-user-list');
+      if (allUsersList.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="padding: 15px; text-align: center; color: #a0aec0;">Noch keine Mitarbeiter angelegt.</td></tr>';
+          return;
+      }
+      
+      tbody.innerHTML = allUsersList.map(u => `
+          <tr style="border-bottom: 1px solid #edf2f7;">
+              <td style="padding: 10px 12px; font-weight: 600; color: #2d3748;">${u.username}</td>
+              <td style="padding: 10px 12px;">
+                  <select onchange="updateUserRole('${u.key}', this.value)" style="padding: 4px; border-radius: 4px; border: 1px solid #cbd5e0; font-size: 13px;">
+                      <option value="abarbeiter" ${u.role === 'abarbeiter' ? 'selected' : ''}>Abarbeiter</option>
+                      <option value="disponent" ${u.role === 'disponent' ? 'selected' : ''}>Disponent</option>
+                      <option value="schichtleiter" ${u.role === 'schichtleiter' ? 'selected' : ''}>Schichtleiter</option>
+                  </select>
+              </td>
+              <td style="padding: 10px 12px; text-align: right;">
+                  <button class="btn-action-small" onclick="promptPasswordReset('${u.key}', '${u.username}')">PW Reset</button>
+                  <button class="btn-action-small del" onclick="deleteUser('${u.key}', '${u.username}')">Löschen</button>
+              </td>
+          </tr>
+      `).join('');
+  }
+
+  window.createUser = async () => {
+      const newUser = document.getElementById('new-user-name').value.trim();
+      const newPwd = document.getElementById('new-user-pwd').value;
+      const newRole = document.getElementById('new-user-role').value;
+      const err = document.getElementById('create-user-error');
+      
+      if (!newUser || newPwd.length < 4) {
+          err.textContent = 'Benutzername und Passwort (min. 4 Zeichen) erforderlich.';
+          return;
+      }
+      
+      const hashedPwd = await hashPassword(newPwd);
+      
+      push(usersRef, {
+          username: newUser,
+          passwordHash: hashedPwd,
+          role: newRole,
+          createdAt: Date.now()
+      }).then(() => {
+          document.getElementById('new-user-name').value = '';
+          document.getElementById('new-user-pwd').value = '';
+          err.style.color = '#38a169';
+          err.textContent = `✅ Benutzer ${newUser} angelegt.`;
+          setTimeout(() => err.textContent = '', 3000);
+      }).catch(e => {
+          err.style.color = '#c53030';
+          err.textContent = 'Fehler beim Speichern: ' + e.message;
+      });
+  };
+
+  window.updateUserRole = (key, newRole) => {
+      update(ref(db, 'auslagerung/users/' + key), { role: newRole });
+  };
+
+  window.deleteUser = (key, username) => {
+      if(confirm(`Möchtest du den Mitarbeiter "${username}" wirklich löschen?`)) {
+          remove(ref(db, 'auslagerung/users/' + key));
+      }
+  };
+
+  window.promptPasswordReset = async (key, username) => {
+      const newPwd = prompt(`Neues Passwort für "${username}" eingeben:`);
+      if (newPwd && newPwd.length >= 4) {
+          const hashedPwd = await hashPassword(newPwd);
+          update(ref(db, 'auslagerung/users/' + key), { passwordHash: hashedPwd })
+            .then(() => alert(`Passwort für ${username} wurde erfolgreich geändert.`));
+      } else if (newPwd !== null) {
+          alert("Das Passwort muss mindestens 4 Zeichen lang sein.");
+      }
+  };
+
+  // ===============================================
+
+  // INFO MODAL
+  window.showInfo = function(key) {
+      const order = allOrders.find(o => o.key === key);
+      if (!order) return;
+      
+      let pünktlichHtml = '⏳ Noch offen';
+      if (order.status === 'done') {
+          if (order.punctual) pünktlichHtml = '<span style="color:#38a169;">✅ Ja, pünktlich</span>';
+          else pünktlichHtml = '<span style="color:#e53e3e;">❌ Nein (Zu spät)</span>';
+      }
+
+      document.getElementById('order-info-content').innerHTML = `
+          <div class="order-detail-row">
+              <span class="order-detail-label">Angelegt von:</span>
+              <span class="order-detail-value">${order.createdBy || 'Unbekannt'}</span>
+          </div>
+          <div class="order-detail-row">
+              <span class="order-detail-label">Erstellt am:</span>
+              <span class="order-detail-value">${order.createdAtStr || 'Unbekannt'}</span>
+          </div>
+          <div class="order-detail-row">
+              <span class="order-detail-label">Zuletzt bearbeitet von:</span>
+              <span class="order-detail-value">${order.lastEditedBy || 'Niemand'}</span>
+          </div>
+          <div class="order-detail-row">
+              <span class="order-detail-label">Pünktlich erledigt:</span>
+              <span class="order-detail-value">${pünktlichHtml}</span>
+          </div>
+      `;
+      document.getElementById('order-info-modal').classList.add('open');
+  };
+  
+  window.closeOrderInfo = () => document.getElementById('order-info-modal').classList.remove('open');
+  window.closeInfoOnBackdrop = (e) => { if (e.target.id === 'order-info-modal') closeOrderInfo(); };
+
 
   // MENÜ LOGIK
   window.toggleMenu = function(id, e) {
@@ -557,12 +937,8 @@
 
   // ========== AUDIO LOGIK ==========
   let gongInterval = null;
-
-  // FIX FÜR ANDROID CHROME SPRACHAUSGABE
   let voicesLoaded = false;
-  window.speechSynthesis.onvoiceschanged = function() {
-      voicesLoaded = true;
-  };
+  window.speechSynthesis.onvoiceschanged = function() { voicesLoaded = true; };
 
   function unlockAudioEngine() {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -584,7 +960,6 @@
   document.body.addEventListener('click', unlockAudioEngine);
   document.body.addEventListener('touchstart', unlockAudioEngine);
 
-  // NORMALER TON (Standardauftrag)
   window.playNewOrderSound = function() {
       try {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -606,10 +981,9 @@
           osc.start();
           osc.stop(ctx.currentTime + 0.5);
           setTimeout(() => { if(ctx.state !== 'closed') ctx.close(); }, 1000);
-      } catch(e) { console.error("Audio Fehler:", e); }
+      } catch(e) { }
   };
 
-  // DRINGEND TON (4x Läuten)
   window.playUrgentSound = function() {
       try {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -634,7 +1008,7 @@
               osc.stop(ctx.currentTime + 0.2);
               
               count++;
-              setTimeout(playBeep, 400); // alle 400ms
+              setTimeout(playBeep, 400);
           };
           playBeep();
       } catch(e) {}
@@ -669,7 +1043,6 @@
         }
         return; 
     }
-    // Andere Töne (Gong, Sirene etc.) wie gehabt...
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
@@ -804,6 +1177,13 @@
   let pendingDeleteKey = null;
 
   window.requestDelete = function(key) {
+    if (currentUserRole === 'schichtleiter') {
+        if (confirm("Möchtest du diesen Auftrag wirklich löschen?")) {
+            remove(ref(db, 'auslagerung/orders/' + key));
+        }
+        return;
+    }
+    
     pendingDeleteKey = key;
     document.getElementById('pw-input').value = '';
     document.getElementById('pw-error').textContent = '';
@@ -833,6 +1213,7 @@
     document.getElementById('btn-mode-tv').classList.toggle('active', mode === 'tv');
     document.getElementById('btn-mode-tablet').classList.toggle('active', mode === 'tablet');
     localStorage.setItem('dashMode', mode);
+    checkLoginState(); // Login Check beim Modus-Wechsel
   };
   setMode(localStorage.getItem('dashMode') || 'tv');
 
@@ -909,9 +1290,18 @@
   const STATUS_LABELS   = { open:'⬜ Offen', done:'✅ Erledigt', problem:'🔴 Störung' };
   const STATUS_CLASSES = { open:'open', done:'done', problem:'problem' };
 
-  window.cycleStatus = function(key, cur) {
+  window.cycleStatus = function(key, cur, assignedTime) {
     const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur || 'open') + 1) % STATUS_CYCLE.length];
-    update(ref(db, 'auslagerung/orders/' + key), { status: next });
+    
+    let updates = { status: next, lastEditedBy: currentUser || 'Unbekannt' };
+    
+    // Pünktlichkeitsprüfung, sobald auf "done" gesetzt wird
+    if (next === 'done') {
+        const nowTime = getNowTime();
+        updates.punctual = (nowTime <= assignedTime);
+    }
+
+    update(ref(db, 'auslagerung/orders/' + key), updates);
   };
 
   window.toggleFullscreen = () => {
@@ -976,23 +1366,26 @@
     const ziel    = document.getElementById('inp-ziel').value.trim();
     const time    = document.getElementById('inp-time').value;
     const shift   = document.getElementById('inp-shift').value;
-    // Neue Checkbox auslesen
     const isUrgent = document.getElementById('inp-urgent').checked;
     
     if (!artikel || !lager || !ziel || !time) { alert('Bitte alle Felder ausfüllen.'); return; }
+    
     const targetDate = getViewDateStr();
+    const currentDateTime = new Date().toLocaleString('de-DE');
     
     push(ordersRef, { 
         artikel, lager, ziel, time, shift, 
         status:'open', 
-        isUrgent: isUrgent, // Speichern
+        isUrgent: isUrgent,
         date:targetDate, 
-        createdAt:Date.now() 
+        createdAt:Date.now(),
+        createdBy: currentUser || 'Unbekannt',
+        createdAtStr: currentDateTime
     });
     
     ['inp-artikel','inp-lager','inp-ziel','inp-time'].forEach(id => document.getElementById(id).value='');
     document.getElementById('inp-shift').value = 'auto';
-    document.getElementById('inp-urgent').checked = false; // Reset Checkbox
+    document.getElementById('inp-urgent').checked = false; 
   };
 
   let allOrders = [];
@@ -1026,9 +1419,8 @@
       tbody.innerHTML = orders.map((o,i) => {
         const st = o.status || 'open';
         const overdue = st === 'open' && o.time <= nowTime;
-        const isUrgent = o.isUrgent && st !== 'done'; // Dringend nur wenn nicht erledigt
+        const isUrgent = o.isUrgent && st !== 'done'; 
         
-        // Klassen-Logik: Urgent > Overdue > Done > Problem
         let rowCls = '';
         if (st === 'done') rowCls = 'row-done';
         else if (isUrgent) rowCls = 'row-urgent';
@@ -1076,6 +1468,7 @@
     const { fontsize, rowpad, cols } = tabletSettings;
     const nowTime = getNowTime();
     const visCols = TAB_COLS_DEF.filter(c => cols[c.key] !== false);
+    const canDelete = (currentUserRole === 'schichtleiter');
 
     function body(orders, headId, tbodyId) {
       document.getElementById(headId).innerHTML =
@@ -1113,14 +1506,20 @@
             return '<td style="'+pad+'" class="'+cls+'">'+txt+'</td>';
           }
           if (c.key==='status') {
-            return '<td style="'+pad+'"><button class="status-btn '+STATUS_CLASSES[st]+'" onclick="cycleStatus(\''+o.key+'\',\''+st+'\')">'+STATUS_LABELS[st]+'</button></td>';
+            return '<td style="'+pad+'"><button class="status-btn '+STATUS_CLASSES[st]+'" onclick="cycleStatus(\''+o.key+'\',\''+st+'\',\''+o.time+'\')">'+STATUS_LABELS[st]+'</button></td>';
           }
           return '<td style="'+pad+'">'+o[c.field]+'</td>';
         }).join('');
+        
+        let actionsHtml = `<button class="btn-info-tab" onclick="showInfo('${o.key}')" title="Details anzeigen">ℹ️</button>`;
+        if (canDelete) {
+            actionsHtml += `<button class="btn-delete-tab" onclick="requestDelete('${o.key}')">🗑</button>`;
+        }
+        
         return '<tr class="'+rowCls+'">'
           +'<td style="padding:'+rowpad+'px 12px;font-size:'+(fontsize-2)+'px;color:#a0aec0;">'+(i+1)+'</td>'
           +cells
-          +'<td style="padding:'+rowpad+'px 8px;"><button class="btn-delete-tab" onclick="requestDelete(\''+o.key+'\')">🗑</button></td>'
+          +'<td style="padding:'+rowpad+'px 8px;"><div class="btn-actions-wrapper">' + actionsHtml + '</div></td>'
           +'</tr>';
       }).join('');
     }
@@ -1132,7 +1531,6 @@
     const viewStr = getViewDateStr();
     const dayOrders = allOrders.filter(o => o.date === viewStr);
     
-    // Sortieren für Tablet View
     sortOrders(dayOrders);
 
     const amOrders = dayOrders.filter(o => getShift(o.time, o.shift) === 'am');
@@ -1140,16 +1538,13 @@
     renderTablet(amOrders, pmOrders);
   }
 
-  // ZENTRALE SORTIERFUNKTION
   function sortOrders(list) {
       list.sort((a,b) => {
-          // 1. Erledigte nach ganz unten
           const aDone = a.status === 'done';
           const bDone = b.status === 'done';
           if (aDone && !bDone) return 1;
           if (!aDone && bDone) return -1;
           
-          // 2. Wenn beide NICHT erledigt sind: Dringende nach oben
           if (!aDone && !bDone) {
               const aUrg = a.isUrgent || false;
               const bUrg = b.isUrgent || false;
@@ -1157,7 +1552,6 @@
               if (!aUrg && bUrg) return 1;
           }
           
-          // 3. Sonst nach Uhrzeit
           return a.time.localeCompare(b.time);
       });
   }
@@ -1165,7 +1559,6 @@
   function renderAll() {
     const todayOrders = allOrders.filter(o => o.date === todayStr);
     
-    // HIER SORTIEREN VOR DEM RENDERN
     sortOrders(todayOrders);
 
     const amOrders = todayOrders.filter(o => getShift(o.time, o.shift) === 'am');
@@ -1209,7 +1602,6 @@
     }
   }
 
-  // LOGIK FÜR NEUE AUFTRAGS-ERKENNUNG
   let knownKeys = new Set();
   let firstLoad = true;
 
@@ -1225,7 +1617,6 @@
         for (let key of currentKeys) {
             if (!knownKeys.has(key)) {
                 hasNew = true;
-                // Prüfen ob der neue Auftrag dringend ist
                 const newItem = newOrders.find(o => o.key === key);
                 if(newItem && newItem.isUrgent) {
                     hasNewUrgent = true;
@@ -1233,7 +1624,6 @@
             }
         }
         
-        // Ton abspielen
         if (hasNewUrgent) {
             playUrgentSound();
         } else if (hasNew) {
@@ -1260,7 +1650,6 @@
     renderAll();
   }, 60000);
   
-  // Touch Event Wischfunktion wurde entfernt.
 </script>
 </body>
 </html>
