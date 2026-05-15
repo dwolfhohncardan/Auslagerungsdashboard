@@ -1429,9 +1429,6 @@
 
         const cells = visCols.map(c => {
           const pad = 'padding:'+rowpad+'px 18px;font-size:'+fontsize+'px;';
-          if (c.key==='tv-artikel') {
-              return '<td style="'+pad+'">' + renderBarcode(o.artikel) + '</td>';
-          }
           if (c.key==='tv-time') {
             let inner = '';
             if (st !== 'done') {
@@ -1446,6 +1443,7 @@
           if (c.key==='tv-status') {
             return '<td style="'+pad+'"><span class="tv-status-badge '+st+'" style="font-size:'+(fontsize-4)+'px;">'+STATUS_LABELS[st]+'</span></td>';
           }
+          // Das ist der Fallback, der nun auch für 'tv-artikel' greift
           return '<td style="'+pad+'">'+o[c.field]+'</td>';
         }).join('');
         return '<tr class="'+rowCls+'"><td style="padding:'+rowpad+'px 18px;font-size:'+(fontsize-4)+'px;color:#a0aec0;">'+(i+1)+'</td>'+cells+'</tr>';
@@ -1580,7 +1578,7 @@
     if (hasOverdue) {
         if (!gongInterval) {
             window.playDigitalGong();
-            gongInterval = setInterval(() => window.playDigitalGong(), 60000);
+            gongInterval = setInterval(() => window.playDigitalGong(), 10000);
         }
     } else {
         if (gongInterval) {
