@@ -1580,7 +1580,7 @@
     if (hasOverdue) {
         if (!gongInterval) {
             window.playDigitalGong();
-            gongInterval = setInterval(() => window.playDigitalGong(), 10000);
+            gongInterval = setInterval(() => window.playDigitalGong(), 60000);
         }
     } else {
         if (gongInterval) {
